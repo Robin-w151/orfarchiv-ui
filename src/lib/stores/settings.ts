@@ -57,7 +57,7 @@ function sanitizeLocalStorage(): void {
     }
 
     persist(settings as unknown as Settings);
-  } catch (error) {
+  } catch (_error) {
     persist(initialState);
   }
 }

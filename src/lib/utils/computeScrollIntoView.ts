@@ -62,7 +62,7 @@ function getFrameElement(el: Element) {
 
   try {
     return el.ownerDocument.defaultView.frameElement;
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

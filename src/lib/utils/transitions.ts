@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { cubicIn, cubicInOut, cubicOut, linear } from 'svelte/easing';
+import { cubicInOut, linear } from 'svelte/easing';
 
 export const transitionDefaults = {
   duration: 150,
