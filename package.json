@@ -22,6 +22,7 @@
     "@mozilla/readability": "^0.5.0",
     "@popperjs/core": "^2.11.8",
     "@rgossiaux/svelte-headlessui": "^2.0.0",
+    "@semantic-release/git": "^10.0.1",
     "@storybook/addon-essentials": "8.1.1",
     "@storybook/addon-interactions": "8.1.1",
     "@storybook/addon-links": "8.1.1",
@@ -72,6 +73,7 @@
     "react-dom": "^18.3.1",
     "rxjs": "^7.8.1",
     "sass": "^1.77.2",
+    "semantic-release": "^24.0.0",
     "storybook": "8.1.1",
     "storybook-dark-mode": "^4.0.1",
     "svelte": "^4.2.17",
@@ -98,5 +100,6 @@
       "svelte": "^4.2.17"
     }
   },
-  "type": "module"
+  "type": "module",
+  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }
