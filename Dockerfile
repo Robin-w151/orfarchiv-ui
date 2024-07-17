@@ -6,7 +6,7 @@ COPY package.json package-lock.json .npmrc /app/
 
 RUN npm ci
 
-COPY csp-config.js csp-script-hashes.js postcss.config.cjs svelte.config.js tailwind.config.cjs tsconfig.json vite.config.ts /app/
+COPY csp-config.js csp-script-hashes.js postcss.config.cjs svelte.config.js tailwind.config.ts tsconfig.json vite.config.ts /app/
 COPY scripts/ /app/scripts/
 COPY src/ /app/src/
 COPY static/ /app/static/
