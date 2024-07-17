@@ -41,7 +41,7 @@ function sanitizeLocalStorage(): void {
     }
 
     persist(styles as StylesStoreProps);
-  } catch (error) {
+  } catch (_error) {
     persist(initialState);
   }
 }

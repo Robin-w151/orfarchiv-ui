@@ -72,7 +72,7 @@
       try {
         const fetchReadMoreContent = get(settings).fetchReadMoreContent && story.source === 'news';
         return await fetchContent(story.url, fetchReadMoreContent);
-      } catch (error) {
+      } catch (_error) {
         if (retry < STORY_CONTENT_FETCH_MAX_RETRIES - 1) {
           await wait(1000 * 2 ** retry);
         }

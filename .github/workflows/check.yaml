@@ -21,6 +21,4 @@ jobs:
           node-version: ${{ vars.NODE_VERSION }}
       - run: npm ci --ignore-scripts
       - run: npm run lint
-        env:
-          NODE_OPTIONS: '--max_old_space_size=4096'
       - run: npm run check
