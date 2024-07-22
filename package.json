@@ -1,6 +1,6 @@
 {
   "name": "ui",
-  "version": "4.5.5-next.5",
+  "version": "4.5.5-next.6",
   "license": "MIT",
   "scripts": {
     "dev": "vite dev --host",
