@@ -11,11 +11,11 @@
   import { pwaInfo } from 'virtual:pwa-info';
 
   const wrapperClass = `
-    flex flex-col gap-2 sm:gap-3
-    p-2 pb-6 sm:p-4 sm:pb-6
+    flex flex-col gap-2 lg:gap-3
+    p-2 pb-6 lg:p-4 lg:pb-6
     ${defaultScreenSize}
   `;
-  const mainClass = 'flex flex-col gap-2 sm:gap-3';
+  const mainClass = 'flex flex-col gap-2 lg:gap-3';
 
   $: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : '';
 </script>

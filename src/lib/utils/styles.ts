@@ -1,7 +1,7 @@
 export const defaultScreenSize = 'w-screen max-w-screen-lg';
 
-export const defaultPadding = 'px-3 sm:px-6 py-2 sm:py-3';
-export const defaultGap = 'gap-2 sm:gap-3';
+export const defaultPadding = 'px-3 lg:px-6 py-2 lg:py-3';
+export const defaultGap = 'gap-2 lg:gap-3';
 
 export const defaultText = 'text-gray-800 dark:text-gray-300';
 export const defaultBackground = 'bg-white dark:bg-gray-900';
