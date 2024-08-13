@@ -1,13 +1,15 @@
 <script lang="ts">
   import Item from '$lib/components/ui/content/Item.svelte';
 
+  export let itemStyles: string | undefined = undefined;
+
   const headerClass = 'flex flex-row items-center gap-3 animate-pulse';
   const buttonClass = 'w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-md';
   const infoClass = 'flex flex-col flex-1 justify-around';
   const textClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';
 </script>
 
-<Item>
+<Item {itemStyles}>
   <div class={headerClass}>
     <div class="info {infoClass}">
       <span class="title {textClass}" />

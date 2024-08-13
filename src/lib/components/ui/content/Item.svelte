@@ -7,6 +7,7 @@
   export let noColumn = false;
   export let noGap = false;
   export let noPadding = false;
+  export let itemStyles: string | undefined = undefined;
 
   let clazz: string | undefined = undefined;
   export { clazz as class };
@@ -43,6 +44,6 @@
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<li class={itemClass} on:click on:keydown bind:this={itemRef}>
+<li class={itemClass} style={itemStyles} on:click on:keydown bind:this={itemRef}>
   <slot />
 </li>
