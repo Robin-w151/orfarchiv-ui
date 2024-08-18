@@ -6,8 +6,10 @@
 
 <Section title="Aktuell" isLoading>
   <SectionList>
-    {#each { length: 10 } as _, index}
-      <StorySkeleton itemStyles="opacity: {100 - index * 10}%" />
-    {/each}
+    <StorySkeleton />
+    <StorySkeleton />
+    <StorySkeleton />
+    <StorySkeleton />
+    <StorySkeleton />
   </SectionList>
 </Section>
