@@ -3,10 +3,11 @@ import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/
 import { json } from '@sveltejs/kit';
 import type { RequestEvent, RequestHandler } from '@sveltejs/kit';
 import { getFetchReadMoreContentSearchParam, getUrlSearchParam } from '$lib/backend/utils/searchParams';
+import { isOrfStoryUrl } from '$lib/backend/utils/urls';
 
 export const GET = (async (event: RequestEvent) => {
   const url = getUrlSearchParam(event);
-  if (!url) {
+  if (!url || !isOrfStoryUrl(url)) {
     return new Response(undefined, { status: 400 });
   }
 
