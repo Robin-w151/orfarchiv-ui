@@ -1,4 +1,4 @@
 if [ "$CI" != "true" ]; then
   npx lint-staged
-  corepack pnpm check
+  npm run check
 fi
