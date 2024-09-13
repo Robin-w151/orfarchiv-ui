@@ -38,7 +38,8 @@
     <ShareIcon />
     <span>Artikel teilen</span>
   </Button>
-{:else if showCopyToClipboardButton}
+{/if}
+{#if showCopyToClipboardButton}
   <Button class={clazz} customStyle on:click={handleCopyToClipboardClick}>
     <ClipboardDocumentIcon />
     <span>In Zwischenablage kopieren</span>
