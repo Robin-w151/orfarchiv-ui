@@ -28,7 +28,18 @@
   }
 
   function handleCopyToClipboardClick() {
-    navigator.clipboard.writeText(story.url);
+    const text = new Blob([story.url], { type: 'text/plain' });
+    const html = new Blob(
+      [`<a id="${story.id}" data-timestamp="${story.timestamp}" href="${story.url}">${story.title}</a>`],
+      { type: 'text/html' },
+    );
+
+    const clipboardItem = new ClipboardItem({
+      [text.type]: text,
+      [html.type]: html,
+    });
+
+    navigator.clipboard.write([clipboardItem]);
     onClose();
   }
 </script>
@@ -38,7 +49,8 @@
     <ShareIcon />
     <span>Artikel teilen</span>
   </Button>
-{:else if showCopyToClipboardButton}
+{/if}
+{#if showCopyToClipboardButton}
   <Button class={clazz} customStyle on:click={handleCopyToClipboardClick}>
     <ClipboardDocumentIcon />
     <span>In Zwischenablage kopieren</span>
