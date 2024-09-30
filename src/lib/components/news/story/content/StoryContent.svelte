@@ -5,7 +5,7 @@
   import ChevronUpIcon from '$lib/components/ui/icons/outline/ChevronUpIcon.svelte';
   import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
   import { getSourceLabel } from '$lib/models/settings';
-  import type { Story, StoryContent } from '$lib/models/story';
+  import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import settings from '$lib/stores/settings';
   import { wait } from '$lib/utils/wait';
@@ -13,6 +13,7 @@
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import contentStore from '$lib/stores/content';
+  import StoryImageViewer from './StoryImageViewer.svelte';
 
   export let story: Story;
 
@@ -25,11 +26,15 @@
   const collapseContentClass = 'py-1.5 w-48 max-w-full';
 
   let storyContent: StoryContent | undefined = undefined;
+  let storyContentRef: HTMLElement;
+  let storyImages: Array<StoryImage> = [];
+  let activeStoryImage: StoryImage | undefined;
   let isLoading = true;
   let isClosed = false;
 
   $: sourceLabel = getSourceLabel(storyContent?.source?.name);
   $: sourceUrl = storyContent?.source?.url ?? story?.url;
+  $: handleContentChange(storyContentRef);
 
   onMount(async () => {
     try {
@@ -98,6 +103,25 @@
       dispatch('collapse');
     }
   }
+
+  function handleContentChange(ref?: HTMLElement): void {
+    const images = [...(ref?.querySelectorAll('img') ?? [])];
+    storyImages = images.map((image) => {
+      const storyImage = {
+        src: image.src,
+        srcset: image.srcset,
+        alt: image.alt,
+      };
+      image.addEventListener('click', () => {
+        activeStoryImage = storyImage;
+      });
+      return storyImage;
+    });
+  }
+
+  function handleImageClose(): void {
+    activeStoryImage = undefined;
+  }
 </script>
 
 <div class={wrapperClass}>
@@ -108,8 +132,10 @@
       {#if sourceLabel}
         <div class={contentInfoClass}>Inhalt geladen von {sourceLabel}</div>
       {/if}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html storyContent.content}
+      <div bind:this={storyContentRef}>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html storyContent.content}
+      </div>
       <div class={contentInfoClass}>Quelle: <Link href={sourceUrl}>orf.at</Link></div>
     </article>
   {:else}
@@ -129,3 +155,7 @@
     <ChevronUpIcon />
   </Button>
 </div>
+
+{#if activeStoryImage}
+  <StoryImageViewer images={storyImages} bind:image={activeStoryImage} on:close={handleImageClose} />
+{/if}
