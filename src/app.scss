@@ -15,6 +15,10 @@
 }
 
 @layer components {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply font-sans flex justify-center bg-gray-200 dark:bg-gray-700 outline-none;
   }
