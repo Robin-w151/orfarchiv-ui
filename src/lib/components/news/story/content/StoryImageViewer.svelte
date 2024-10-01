@@ -68,25 +68,25 @@
     dispatch('close');
   }
 
-  function nextImage(): StoryImage {
+  function nextImage(image: StoryImage): StoryImage {
     const index = images.findIndex(({ src }) => src === image.src);
     return images[index + 1];
   }
 
-  function prevImage(): StoryImage {
+  function prevImage(image: StoryImage): StoryImage {
     const index = images.findIndex(({ src }) => src === image.src);
     return images[index - 1];
   }
 
   function gotoNextImage(): void {
-    const next = nextImage();
+    const next = nextImage(image);
     if (next) {
       image = next;
     }
   }
 
   function gotoPrevImage(): void {
-    const prev = prevImage();
+    const prev = prevImage(image);
     if (prev) {
       image = prev;
     }
@@ -113,7 +113,7 @@
         btnType="monochrome"
         iconOnly
         title="Vorheriges Bild anzeigen"
-        disabled={!prevImage()}
+        disabled={!prevImage(image)}
         on:click={handlePrevImageClick}
       >
         <ChevronLeft />
@@ -126,7 +126,7 @@
         btnType="monochrome"
         iconOnly
         title="Vorheriges Bild anzeigen"
-        disabled={!nextImage()}
+        disabled={!nextImage(image)}
         on:click={handleNextImageClick}
       >
         <ChevronRight />
