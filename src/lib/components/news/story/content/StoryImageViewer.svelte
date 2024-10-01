@@ -14,15 +14,15 @@
   const backropClass =
     'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
   const imageClass = 'w-auto h-auto max-w-full max-h-full shadow-2xl';
-  const closeButtonClass = 'absolute top-4 right-4 items-center md:w-20 md:h-20';
-  const navButtonClass = 'items-center h-64 md:w-20 xl:w-36 xl:h-96';
+  const closeButtonClass = 'absolute top-2 right-2 md:top-4 md:right-4 items-center md:w-12 md:h-12';
+  const navButtonClass = 'items-center w-full h-3/5';
 
   let closeButtonRef: Button;
   let oldOverflowValue: string | undefined;
 
   $: showNavButtons = images.length > 1;
   $: containerClass = clsx([
-    showNavButtons && 'grid grid-cols-[auto_1fr_auto] justify-items-center items-center',
+    showNavButtons && 'grid grid-cols-[repeat(3,_auto)] justify-items-center items-center',
     !showNavButtons && 'flex justify-center items-center',
     'gap-2 p-2 md:gap-4 md:p-4 w-full h-full',
   ]);
