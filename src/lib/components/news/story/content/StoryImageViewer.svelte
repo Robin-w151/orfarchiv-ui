@@ -4,6 +4,7 @@
   import ChevronRight from '$lib/components/ui/icons/outline/ChevronRight.svelte';
   import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
+  import clsx from 'clsx';
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
   export let image: StoryImage;
@@ -12,14 +13,18 @@
   const dispatch = createEventDispatcher();
   const backropClass =
     'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
-  const imageClass = 'w-auto h-auto max-w-[80%] max-h-full shadow-2xl';
-  const closeButtonClass = 'absolute top-4 right-4';
-  const navButtonClass = '';
+  const imageClass = 'w-auto h-auto max-w-full max-h-full shadow-2xl';
+  const closeButtonClass = 'absolute top-4 right-4 items-center md:w-20 md:h-20';
+  const navButtonClass = 'items-center h-64 md:w-20 xl:w-36 xl:h-96';
 
   let closeButtonRef: Button;
 
   $: showNavButtons = images.length > 1;
-  $: containerClass = `flex ${showNavButtons ? 'justify-between' : 'justify-center'} items-center gap-4 p-4 w-full h-full`;
+  $: containerClass = clsx([
+    showNavButtons && 'grid grid-cols-[auto_1fr_auto] justify-items-center items-center',
+    !showNavButtons && 'flex justify-center items-center',
+    'gap-2 p-2 md:gap-4 md:p-4 w-full h-full',
+  ]);
 
   onMount(() => {
     document.documentElement.style.overflow = 'hidden';
@@ -44,6 +49,8 @@
       gotoPrevImage();
     } else if (key === 'ArrowRight') {
       gotoNextImage();
+    } else if (key === 'Escape') {
+      closeViewer();
     }
   }
 
@@ -105,7 +112,6 @@
         class={navButtonClass}
         btnType="monochrome"
         iconOnly
-        round
         title="Vorheriges Bild anzeigen"
         disabled={!prevImage()}
         on:click={handlePrevImageClick}
@@ -119,7 +125,6 @@
         class={navButtonClass}
         btnType="monochrome"
         iconOnly
-        round
         title="Vorheriges Bild anzeigen"
         disabled={!nextImage()}
         on:click={handleNextImageClick}
