@@ -18,6 +18,7 @@
   const navButtonClass = 'items-center h-64 md:w-20 xl:w-36 xl:h-96';
 
   let closeButtonRef: Button;
+  let oldOverflowValue: string | undefined;
 
   $: showNavButtons = images.length > 1;
   $: containerClass = clsx([
@@ -27,12 +28,13 @@
   ]);
 
   onMount(() => {
+    oldOverflowValue = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
     closeButtonRef.focus();
   });
 
   onDestroy(() => {
-    document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.overflow = oldOverflowValue ?? '';
   });
 
   function handleCloseButtonClick(): void {
