@@ -15,16 +15,17 @@
     'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
   const imageClass = 'w-auto h-auto max-w-full max-h-full shadow-2xl';
   const closeButtonClass = 'absolute top-2 right-2 md:top-4 md:right-4 items-center md:w-12 md:h-12';
-  const navButtonClass = 'items-center w-full h-3/5';
+  const navButtonClass = 'items-center w-[5vw] h-[60dvh]';
 
   let closeButtonRef: Button;
+  let imageRef: HTMLImageElement;
   let oldOverflowValue: string | undefined;
 
   $: showNavButtons = images.length > 1;
   $: containerClass = clsx([
     showNavButtons && 'grid grid-cols-[repeat(3,_auto)] justify-items-center items-center',
     !showNavButtons && 'flex justify-center items-center',
-    'gap-2 p-2 md:gap-4 md:p-4 w-full h-full',
+    'gap-2 px-2 md:gap-4 md:px-4 w-full h-full',
   ]);
 
   onMount(() => {
@@ -66,6 +67,10 @@
     gotoPrevImage();
   }
 
+  function handleImageClick(event: Event): void {
+    event.stopPropagation();
+  }
+
   function closeViewer(): void {
     dispatch('close');
   }
@@ -84,6 +89,10 @@
     const next = nextImage(image);
     if (next) {
       image = next;
+
+      if (!nextImage(image)) {
+        imageRef.focus();
+      }
     }
   }
 
@@ -91,6 +100,10 @@
     const prev = prevImage(image);
     if (prev) {
       image = prev;
+
+      if (!prevImage(image)) {
+        imageRef.focus();
+      }
     }
   }
 </script>
@@ -121,7 +134,16 @@
         <ChevronLeft />
       </Button>
     {/if}
-    <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} />
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events a11y-no-noninteractive-tabindex -->
+    <img
+      class={imageClass}
+      src={image.src}
+      srcset={image.srcset}
+      alt={image.alt}
+      tabindex="0"
+      bind:this={imageRef}
+      on:click={handleImageClick}
+    />
     {#if showNavButtons}
       <Button
         class={navButtonClass}
