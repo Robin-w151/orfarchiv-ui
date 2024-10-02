@@ -23,7 +23,7 @@
 
   $: showNavButtons = images.length > 1;
   $: containerClass = clsx([
-    showNavButtons && 'grid grid-cols-[repeat(3,_auto)] justify-items-center items-center',
+    showNavButtons && 'grid grid-cols-[auto_1fr_auto] justify-items-center items-center',
     !showNavButtons && 'flex justify-center items-center',
     'gap-2 px-2 md:gap-4 md:px-4 w-full h-full',
   ]);
@@ -53,6 +53,7 @@
     } else if (key === 'ArrowRight') {
       gotoNextImage();
     } else if (key === 'Escape') {
+      event.preventDefault();
       closeViewer();
     }
   }
@@ -91,7 +92,7 @@
       image = next;
 
       if (!nextImage(image)) {
-        imageRef.focus();
+        closeButtonRef.focus();
       }
     }
   }
@@ -102,7 +103,7 @@
       image = prev;
 
       if (!prevImage(image)) {
-        imageRef.focus();
+        closeButtonRef.focus();
       }
     }
   }
