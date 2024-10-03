@@ -1,13 +1,13 @@
 import { fetchStoryContent } from '$lib/backend/content/news';
-import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
-import { json } from '@sveltejs/kit';
-import type { RequestEvent, RequestHandler } from '@sveltejs/kit';
 import { getFetchReadMoreContentSearchParam, getUrlSearchParam } from '$lib/backend/utils/searchParams';
-import { isOrfStoryUrl } from '$lib/backend/utils/urls';
+import { isOrfUrl } from '$lib/backend/utils/urls';
+import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
+import type { RequestEvent, RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 export const GET = (async (event: RequestEvent) => {
   const url = getUrlSearchParam(event);
-  if (!url || !isOrfStoryUrl(url)) {
+  if (!url || !isOrfUrl(url)) {
     return new Response(undefined, { status: 400 });
   }
 
