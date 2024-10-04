@@ -19,3 +19,9 @@ export interface StorySource {
   name: string;
   url: string;
 }
+
+export interface StoryImage {
+  src: string;
+  srcset: string;
+  alt: string;
+}

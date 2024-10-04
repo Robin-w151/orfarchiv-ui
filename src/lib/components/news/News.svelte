@@ -22,6 +22,7 @@
   import { get } from 'svelte/store';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
+  import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -164,3 +165,7 @@
     <Button disabled={loadMoreButtonDisabled} on:click={handleLoadMoreClick}>Weitere laden</Button>
   {/if}
 </Content>
+
+{#if $news.isLoading}
+  <SpinningDotsIndicator delay={2000} />
+{/if}

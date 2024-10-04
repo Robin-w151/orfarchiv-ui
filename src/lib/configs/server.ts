@@ -19,4 +19,5 @@ export const NEWS_QUERY_PAGE_LIMIT = 100;
 export const STORY_CONTENT_READ_MORE_REGEXPS = [/mehr\s+(\w+\s+)*in/i, /lesen\s+(\w+\s+)*mehr/i];
 
 // URLs
+export const URL_ORF_REGEXP = /^https:\/\/.*orf\.at.*/i;
 export const URL_ORF_STORY_REGEXP = /^https:\/\/.*orf\.at\/(.+\/)?stories\/\d+/i;
