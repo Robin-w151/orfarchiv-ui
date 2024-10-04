@@ -1,0 +1,29 @@
+name: Test
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    if: ${{ github.event.deployment_status.state == 'success' }}
+    steps:
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+        env:
+          TEST_BASE_URL: ${{ github.event.deployment_status.target_url }}
+      - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

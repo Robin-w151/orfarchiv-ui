@@ -7,6 +7,7 @@
   import EnableNetworkNotifications from '$lib/components/utils/EnableNetworkNotifications.svelte';
   import EnableUpdateListener from '$lib/components/utils/EnableUpdateListener.svelte';
   import { defaultScreenSize } from '$lib/utils/styles';
+  import { onMount } from 'svelte';
   import '../app.scss';
   import { pwaInfo } from 'virtual:pwa-info';
 
@@ -18,6 +19,10 @@
   const mainClass = 'flex flex-col gap-2 lg:gap-3';
 
   $: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : '';
+
+  onMount(() => {
+    document.documentElement.setAttribute('data-test', 'ready');
+  });
 </script>
 
 <svelte:head>
