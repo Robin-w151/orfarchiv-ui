@@ -167,5 +167,5 @@
 </Content>
 
 {#if $news.isLoading}
-  <SpinningDotsIndicator delay={1000} />
+  <SpinningDotsIndicator delay={2000} />
 {/if}
