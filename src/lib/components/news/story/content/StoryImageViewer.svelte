@@ -1,10 +1,9 @@
 <script lang="ts">
   import Button from '$lib/components/ui/controls/Button.svelte';
-  import ChevronLeft from '$lib/components/ui/icons/outline/ChevronLeft.svelte';
-  import ChevronRight from '$lib/components/ui/icons/outline/ChevronRight.svelte';
+  import ChevronLeftIcon from '$lib/components/ui/icons/outline/ChevronLeftIcon.svelte';
+  import ChevronRightIcon from '$lib/components/ui/icons/outline/ChevronRightIcon.svelte';
   import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
-  import clsx from 'clsx';
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
   export let image: StoryImage;
@@ -13,20 +12,17 @@
   const dispatch = createEventDispatcher();
   const backropClass =
     'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
-  const imageClass = 'w-auto h-auto max-w-full max-h-full shadow-2xl';
+  const containerClass = 'flex justify-center items-center gap-2 px-2 md:gap-4 md:px-4 w-full h-full';
+  const imageClass = 'w-auto h-auto max-w-full max-h-screen shadow-2xl';
   const closeButtonClass = 'absolute top-2 right-2 md:top-4 md:right-4 items-center md:w-12 md:h-12';
-  const navButtonClass = 'items-center w-[5vw] h-[60dvh]';
+  const navigationCircleClass =
+    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-700/30 active:bg-gray-700/70 backdrop-blur-sm rounded-full transition ease-out';
+  const navigationIconClass = 'w-8 h-8';
 
   let closeButtonRef: Button;
-  let imageRef: HTMLImageElement;
   let oldOverflowValue: string | undefined;
 
-  $: showNavButtons = images.length > 1;
-  $: containerClass = clsx([
-    showNavButtons && 'grid grid-cols-[auto_1fr_auto] justify-items-center items-center',
-    !showNavButtons && 'flex justify-center items-center',
-    'gap-2 px-2 md:gap-4 md:px-4 w-full h-full',
-  ]);
+  $: showNavigation = images.length > 1;
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -66,10 +62,6 @@
   function handlePrevImageClick(event: Event): void {
     event.stopPropagation();
     gotoPrevImage();
-  }
-
-  function handleImageClick(event: Event): void {
-    event.stopPropagation();
   }
 
   function closeViewer(): void {
@@ -123,39 +115,48 @@
     <XIcon />
   </Button>
   <div class={containerClass}>
-    {#if showNavButtons}
-      <Button
-        class={navButtonClass}
-        btnType="monochrome"
-        iconOnly
-        title="Vorheriges Bild anzeigen"
-        disabled={!prevImage(image)}
-        on:click={handlePrevImageClick}
-      >
-        <ChevronLeft />
-      </Button>
-    {/if}
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events a11y-no-noninteractive-tabindex -->
-    <img
-      class={imageClass}
-      src={image.src}
-      srcset={image.srcset}
-      alt={image.alt}
-      tabindex="0"
-      bind:this={imageRef}
-      on:click={handleImageClick}
-    />
-    {#if showNavButtons}
-      <Button
-        class={navButtonClass}
-        btnType="monochrome"
-        iconOnly
-        title="Vorheriges Bild anzeigen"
-        disabled={!nextImage(image)}
-        on:click={handleNextImageClick}
-      >
-        <ChevronRight />
-      </Button>
-    {/if}
+    <div class="relative">
+      {#if showNavigation}
+        {#if prevImage(image)}
+          <button class="navigation-button left-2" title="Vorheriges Bild anzeigen" on:click={handlePrevImageClick}>
+            <span class={navigationCircleClass}>
+              <ChevronLeftIcon class={navigationIconClass} />
+            </span>
+          </button>
+        {/if}
+        {#if nextImage(image)}
+          <button class="navigation-button right-2" title="Nächstes Bild anzeigen" on:click={handleNextImageClick}>
+            <span class={navigationCircleClass}>
+              <ChevronRightIcon class={navigationIconClass} />
+            </span>
+          </button>
+        {/if}
+      {/if}
+      <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} />
+    </div>
   </div>
 </div>
+
+<style lang="postcss">
+  .navigation-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: calc(50% - 1.5rem);
+    width: 3rem;
+    height: 3rem;
+
+    @media (hover: hover) and (pointer: fine) {
+      top: calc(50% - 3rem);
+      width: 6rem;
+      height: 6rem;
+
+      & > span:hover {
+        width: 100%;
+        height: 100%;
+        background-color: theme('colors.gray.900/70');
+      }
+    }
+  }
+</style>

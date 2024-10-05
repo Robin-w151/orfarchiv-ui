@@ -4,7 +4,7 @@ WORKDIR /app/
 
 COPY package.json package-lock.json .npmrc /app/
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY csp-config.js csp-script-hashes.js postcss.config.cjs svelte.config.js tailwind.config.ts tsconfig.json vite.config.ts /app/
 COPY scripts/ /app/scripts/
@@ -18,9 +18,9 @@ ENV USE_ADAPTER_NODE=true
 ARG ORFARCHIV_DB_URL="mongodb://localhost"
 ENV ORFARCHIV_DB_URL="$ORFARCHIV_DB_URL"
 
-RUN npx svelte-kit sync
-RUN npm run fix:jsdom
-RUN npm run build
+RUN npx svelte-kit sync \
+  && npm run fix:jsdom \
+  && npm run build
 
 
 FROM node:20-alpine AS deploy
