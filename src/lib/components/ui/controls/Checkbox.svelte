@@ -14,6 +14,6 @@
 </script>
 
 <span class={wrapperClass}>
-  <input class={inputClass} {id} type="checkbox" {checked} on:change={handleChange} />
+  <input class={inputClass} {id} type="checkbox" bind:checked on:change={handleChange} />
   <label class={labelClass} for={id}>{label}</label>
 </span>
