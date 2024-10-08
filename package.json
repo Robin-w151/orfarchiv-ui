@@ -30,6 +30,7 @@
     "@storybook/addon-interactions": "8.3.5",
     "@storybook/addon-links": "8.3.5",
     "@storybook/blocks": "8.3.5",
+    "@storybook/builder-vite": "^8.3.5",
     "@storybook/svelte": "8.3.5",
     "@storybook/sveltekit": "8.3.5",
     "@storybook/testing-library": "^0.2.2",

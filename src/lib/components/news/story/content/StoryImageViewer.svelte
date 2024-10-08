@@ -13,10 +13,11 @@
   const backropClass =
     'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
   const containerClass = 'flex justify-center items-center gap-2 px-2 md:gap-4 md:px-4 w-full h-full';
-  const imageClass = 'w-auto h-auto max-w-full max-h-screen shadow-2xl';
+  const imageContainerClass = 'relative';
+  const imageClass = 'w-auto h-auto max-w-full max-h-screen bg-gray-100 dark:bg-gray-300 shadow-2xl';
   const closeButtonClass = 'absolute top-2 right-2 md:top-4 md:right-4 items-center md:w-12 md:h-12';
   const navigationCircleClass =
-    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-700/30 active:bg-gray-700/70 backdrop-blur-sm rounded-full transition ease-out';
+    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-700/30 active:bg-gray-700/70 backdrop-blur-sm rounded-full transition-all ease-out';
   const navigationIconClass = 'w-8 h-8';
 
   let closeButtonRef: Button;
@@ -115,7 +116,7 @@
     <XIcon />
   </Button>
   <div class={containerClass}>
-    <div class="relative">
+    <div class={imageContainerClass}>
       {#if showNavigation}
         {#if prevImage(image)}
           <button class="navigation-button left-2" title="Vorheriges Bild anzeigen" on:click={handlePrevImageClick}>
