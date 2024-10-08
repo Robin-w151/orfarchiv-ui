@@ -1,7 +1,9 @@
 <script lang="ts">
+  import settings from '$lib/stores/settings';
+  import { transitionDefaults } from '$lib/utils/transitions';
   import clsx from 'clsx';
   import { onDestroy, onMount } from 'svelte';
-  import settings from '$lib/stores/settings';
+  import { fade } from 'svelte/transition';
 
   export let delay: number | undefined = 0;
 
@@ -28,6 +30,7 @@
 {#if showIndicator && !$settings.forceReducedMotion}
   <div
     class="backdrop flex justify-center items-center fixed top-0 left-0 right-0 bottom-0 z-50 bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm"
+    transition:fade|global={transitionDefaults}
   >
     <div class="loading-indicator relative w-48 h-48">
       <div class="dot-1 {dotClass} bg-fuchsia-500 shadow-[0px_0px_16px_2px_rgba(217,_70,_239,_1)]"></div>
