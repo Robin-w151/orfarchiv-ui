@@ -33,9 +33,9 @@
   async function checkApiVersion(): Promise<void> {
     try {
       const { apiVersion } = await fetchInfo();
-      isApiCompatible = API_VERSION === apiVersion;
+      isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
     } catch (_error) {
-      isApiCompatible = false;
+      console.warn('Could not determine current API version!');
     }
   }
 </script>
