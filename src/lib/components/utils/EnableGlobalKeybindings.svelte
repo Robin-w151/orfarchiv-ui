@@ -15,6 +15,6 @@
 
   function isSearchShortcut(event: KeyboardEvent) {
     const { key, metaKey, ctrlKey } = event;
-    return (metaKey || ctrlKey) && key === 'k';
+    return (metaKey || ctrlKey) && ['f', 'k'].includes(key);
   }
 </script>
