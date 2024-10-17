@@ -6,11 +6,6 @@ import type { UserConfig } from 'vite';
 dotenv.config({ silent: true });
 
 const config = {
-  // define: {
-  //   'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID),
-  //   'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version),
-  //   'process.env.NODE_ENV': '"production"',
-  // },
   plugins: [
     sveltekit(),
     SvelteKitPWA({
