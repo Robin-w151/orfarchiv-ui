@@ -1,12 +1,12 @@
-import type { Collection, Sort, WithId } from 'mongodb';
-import type { News, NewsUpdates } from '$lib/models/news';
-import type { SearchStoryOptions, Story } from '$lib/models/story';
-import type { SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
-import type { PageKey } from '$lib/models/pageKey';
 import orfArchivDb from '$lib/backend/db/init';
 import { logger, NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/server';
+import type { News, NewsUpdates } from '$lib/models/news';
+import type { PageKey } from '$lib/models/pageKey';
+import type { SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
+import type { SearchStoryOptions, Story, StoryEntity } from '$lib/models/story';
+import type { Collection, Sort } from 'mongodb';
 
-type PageKeyFn = (stories: Array<Story>) => PageKey | null;
+type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
 
 interface PaginatedQuery {
   paginatedQuery: any;
@@ -30,7 +30,9 @@ export async function searchNews(searchRequest: SearchRequest): Promise<News> {
   const { prevKey, nextKey } = getPageKeys(stories, prevKeyFn, nextKeyFn, pageKey);
 
   return {
-    stories: orderedStories.filter((_, index) => index < NEWS_QUERY_PAGE_LIMIT).map(mapToStory),
+    stories: orderedStories
+      .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
+      .map((story) => mapToStory(story)),
     prevKey,
     nextKey,
   };
@@ -47,7 +49,7 @@ export async function checkNewsUpdatesAvailable(searchRequest: SearchRequest): P
   return { updateAvailable: news.stories.length > 0 };
 }
 
-export async function searchStory(url: string, options?: SearchStoryOptions): Promise<Story | null> {
+export async function searchStory(url: string, options?: SearchStoryOptions): Promise<Story | undefined> {
   logger.info(`Search story with url='${url}'`);
 
   const { includeOesterreichSource = false } = options ?? {};
@@ -57,11 +59,11 @@ export async function searchStory(url: string, options?: SearchStoryOptions): Pr
   }
 
   const newsCollection = orfArchivDb.newsCollection();
-  const story = (await newsCollection.findOne(query)) as unknown as Promise<Story | null>;
-  if (story) {
+  const story = await newsCollection.findOne(query);
+  if (isStoryEntity(story)) {
     return mapToStory(story);
   } else {
-    return null;
+    return undefined;
   }
 }
 
@@ -95,22 +97,22 @@ function generatePaginationQuery(query: any, pageKey?: PageKey): PaginatedQuery 
   const next = !pageKey || pageKey?.type === 'next';
   const sort: Sort = next ? { timestamp: -1, id: -1 } : { timestamp: 1, id: 1 };
 
-  function prevKeyFn(stories: Array<Story>): PageKey | null {
+  function prevKeyFn(stories: Array<StoryEntity>): PageKey | null {
     if (stories.length === 0) {
       return null;
     }
 
     const story = stories[0];
-    return { id: story.id, timestamp: story.timestamp, type: 'prev' };
+    return { id: story.id, timestamp: story.timestamp.toISOString(), type: 'prev' };
   }
 
-  function nextKeyFn(stories: Array<Story>): PageKey | null {
+  function nextKeyFn(stories: Array<StoryEntity>): PageKey | null {
     if (stories.length < NEWS_QUERY_PAGE_LIMIT + 1) {
       return null;
     }
 
     const story = stories[stories.length - 2];
-    return { id: story.id, timestamp: story.timestamp, type: 'next' };
+    return { id: story.id, timestamp: story.timestamp.toISOString(), type: 'next' };
   }
 
   if (!pageKey) {
@@ -144,16 +146,16 @@ function executeQuery(
   query: any,
   sort: Sort,
   limit: number,
-): Promise<Array<Story>> {
-  return newsCollection.find(query).limit(limit).sort(sort).toArray() as unknown as Promise<Array<Story>>;
+): Promise<Array<StoryEntity>> {
+  return newsCollection.find(query).limit(limit).sort(sort).toArray() as unknown as Promise<Array<StoryEntity>>;
 }
 
-function correctOrder(stories: Array<Story>, pageKey?: PageKey): Array<Story> {
+function correctOrder<T>(stories: Array<T>, pageKey?: PageKey): Array<T> {
   return pageKey?.type === 'prev' ? stories.reverse() : stories;
 }
 
 function getPageKeys(
-  stories: Array<Story>,
+  stories: Array<StoryEntity>,
   prevKeyFn: PageKeyFn,
   nextKeyFn: PageKeyFn,
   pageKey?: PageKey,
@@ -163,12 +165,7 @@ function getPageKeys(
   return { prevKey, nextKey };
 }
 
-function mapToStory(entry: WithId<any>): Story {
-  const { id, title, category, url, timestamp, source } = entry;
-  if (!id || !title || !category || !url || !timestamp || !source) {
-    throw new Error('Invalid story entry found!');
-  }
-
+function mapToStory(entry: StoryEntity): Story {
   return {
     id: entry.id,
     title: entry.title,
@@ -177,4 +174,26 @@ function mapToStory(entry: WithId<any>): Story {
     timestamp: entry.timestamp.toISOString(),
     source: entry.source,
   };
+}
+
+function isStoryEntity(story: unknown): story is StoryEntity {
+  return (
+    !!story &&
+    typeof story === 'object' &&
+    '_id' in story &&
+    !!story._id &&
+    'id' in story &&
+    !!story.id &&
+    'title' in story &&
+    !!story.title &&
+    'category' in story &&
+    !!story.category &&
+    'url' in story &&
+    !!story.url &&
+    'timestamp' in story &&
+    !!story.timestamp &&
+    typeof story.timestamp === 'object' &&
+    'source' in story &&
+    !!story.source
+  );
 }
