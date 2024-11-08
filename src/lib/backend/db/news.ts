@@ -1,6 +1,6 @@
 import type { Collection, Sort, WithId } from 'mongodb';
 import type { News, NewsUpdates } from '$lib/models/news';
-import type { Story } from '$lib/models/story';
+import type { SearchStoryOptions, Story } from '$lib/models/story';
 import type { SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
 import type { PageKey } from '$lib/models/pageKey';
 import orfArchivDb from '$lib/backend/db/init';
@@ -47,13 +47,22 @@ export async function checkNewsUpdatesAvailable(searchRequest: SearchRequest): P
   return { updateAvailable: news.stories.length > 0 };
 }
 
-export async function searchStory(url: string): Promise<Story | null> {
+export async function searchStory(url: string, options?: SearchStoryOptions): Promise<Story | null> {
   logger.info(`Search story with url='${url}'`);
 
-  const query = { url, source: { $ne: 'oesterreich' } };
-  const newsCollection = orfArchivDb.newsCollection();
+  const { includeOesterreichSource = false } = options ?? {};
+  const query: { url: string; source?: unknown } = { url, source: { $ne: 'oesterreich' } };
+  if (includeOesterreichSource) {
+    delete query.source;
+  }
 
-  return newsCollection.findOne(query) as unknown as Promise<Story | null>;
+  const newsCollection = orfArchivDb.newsCollection();
+  const story = (await newsCollection.findOne(query)) as unknown as Promise<Story | null>;
+  if (story) {
+    return mapToStory(story);
+  } else {
+    return null;
+  }
 }
 
 function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters) {
@@ -155,6 +164,11 @@ function getPageKeys(
 }
 
 function mapToStory(entry: WithId<any>): Story {
+  const { id, title, category, url, timestamp, source } = entry;
+  if (!id || !title || !category || !url || !timestamp || !source) {
+    throw new Error('Invalid story entry found!');
+  }
+
   return {
     id: entry.id,
     title: entry.title,

@@ -11,7 +11,10 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
 
   let currentUrl = url;
-  let currentData = await fetchSiteHtmlText(currentUrl);
+  let [currentStory, currentData] = await Promise.all([
+    searchStory(currentUrl, { includeOesterreichSource: true }),
+    fetchSiteHtmlText(currentUrl),
+  ]);
   let id;
   let source;
   let originalDocument = createDom(currentData, currentUrl);
@@ -25,6 +28,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
         const [story, data] = await Promise.all([searchStory(readMoreUrl), fetchSiteHtmlText(readMoreUrl)]);
 
         currentUrl = readMoreUrl;
+        currentStory = story;
         currentData = data;
         id = story?.id;
         source = story?.source ?? findSourceFromUrl(currentUrl);
@@ -57,6 +61,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   return {
     content: sanitizeContent(optimizedDocument.body.innerHTML),
     id,
+    timestamp: currentStory?.timestamp,
     source: storySource,
   };
 }

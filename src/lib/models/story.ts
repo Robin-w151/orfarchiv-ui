@@ -12,6 +12,7 @@ export interface Story {
 export interface StoryContent {
   content: string;
   id?: string;
+  timestamp?: string;
   source?: StorySource;
 }
 
@@ -24,4 +25,8 @@ export interface StoryImage {
   src: string;
   srcset: string;
   alt: string;
+}
+
+export interface SearchStoryOptions {
+  includeOesterreichSource?: boolean;
 }
