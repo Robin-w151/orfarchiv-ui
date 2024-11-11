@@ -1,6 +1,6 @@
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
-import createDOMPurify from 'dompurify';
+import createDOMPurify, { type WindowLike } from 'dompurify';
 import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
 import { isOrfStoryUrl } from '$lib/backend/utils/urls';
 import type { StoryContent, StorySource } from '$lib/models/story';
@@ -215,7 +215,7 @@ function adjustTables(optimizedDocument: Document): void {
 }
 
 function sanitizeContent(html: string): string {
-  const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as Window);
+  const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as WindowLike);
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     ADD_ATTR: ['target'],
