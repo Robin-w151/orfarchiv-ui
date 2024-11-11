@@ -112,8 +112,17 @@
         srcset: image.srcset,
         alt: image.alt,
       };
+
+      image.tabIndex = 0;
       image.addEventListener('click', () => {
         activeStoryImage = storyImage;
+      });
+      image.addEventListener('keydown', (event) => {
+        const { key } = event;
+        if (key === 'Enter') {
+          event.preventDefault();
+          activeStoryImage = storyImage;
+        }
       });
       return storyImage;
     });

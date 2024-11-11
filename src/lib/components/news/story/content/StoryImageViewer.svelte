@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/controls/Button.svelte';
   import ChevronLeftIcon from '$lib/components/ui/icons/outline/ChevronLeftIcon.svelte';
   import ChevronRightIcon from '$lib/components/ui/icons/outline/ChevronRightIcon.svelte';
   import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
@@ -10,29 +9,34 @@
   export let images: Array<StoryImage> = [];
 
   const dispatch = createEventDispatcher();
-  const backropClass =
-    'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-gray-500/50 dark:bg-gray-900/70 backdrop-blur-md';
-  const containerClass = 'flex justify-center items-center gap-2 px-2 md:gap-4 md:px-4 w-full h-full';
-  const imageContainerClass = 'relative';
+  const backropClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-black';
+  const containerClass = 'flex justify-center items-center relative w-full h-full';
+  const imageContainerClass = '';
   const imageClass = 'w-auto h-auto max-w-full max-h-screen bg-gray-100 dark:bg-gray-300 shadow-2xl';
-  const closeButtonClass = 'absolute top-2 right-2 md:top-4 md:right-4 items-center md:w-12 md:h-12';
-  const navigationCircleClass =
-    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-700/30 active:bg-gray-700/70 backdrop-blur-sm rounded-full transition-all ease-out';
-  const navigationIconClass = 'w-8 h-8';
+  const viewerButtonCircleClass =
+    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500 backdrop-blur-sm rounded-full transition-all ease-out';
+  const viewerButtonIconClass = 'w-8 h-8';
 
-  let closeButtonRef: Button;
+  let closeButtonRef: HTMLButtonElement;
   let oldOverflowValue: string | undefined;
+  let oldActiveElement: Element | null;
 
   $: showNavigation = images.length > 1;
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
+
+    oldActiveElement = document.activeElement;
     closeButtonRef.focus();
   });
 
   onDestroy(() => {
     document.documentElement.style.overflow = oldOverflowValue ?? '';
+
+    if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
+      oldActiveElement.focus();
+    }
   });
 
   function handleCloseButtonClick(): void {
@@ -104,42 +108,41 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class={backropClass} on:click={handleBackdropClick} on:keydown={handleBackdropKeyDown}>
-  <Button
-    class={closeButtonClass}
-    btnType="monochrome"
-    iconOnly
-    round
-    title="Bild schließen"
-    bind:this={closeButtonRef}
-    on:click={handleCloseButtonClick}
-  >
-    <XIcon />
-  </Button>
   <div class={containerClass}>
-    <div class={imageContainerClass}>
-      {#if showNavigation}
-        {#if prevImage(image)}
-          <button class="navigation-button left-2" title="Vorheriges Bild anzeigen" on:click={handlePrevImageClick}>
-            <span class={navigationCircleClass}>
-              <ChevronLeftIcon class={navigationIconClass} />
-            </span>
-          </button>
-        {/if}
-        {#if nextImage(image)}
-          <button class="navigation-button right-2" title="Nächstes Bild anzeigen" on:click={handleNextImageClick}>
-            <span class={navigationCircleClass}>
-              <ChevronRightIcon class={navigationIconClass} />
-            </span>
-          </button>
-        {/if}
+    <button
+      class="viewer-button !top-2 right-2"
+      title="Bild schließen"
+      bind:this={closeButtonRef}
+      on:click={handleCloseButtonClick}
+    >
+      <span class={viewerButtonCircleClass}>
+        <XIcon class={viewerButtonIconClass} />
+      </span>
+    </button>
+    {#if showNavigation}
+      {#if prevImage(image)}
+        <button class="viewer-button left-2" title="Vorheriges Bild anzeigen" on:click={handlePrevImageClick}>
+          <span class={viewerButtonCircleClass}>
+            <ChevronLeftIcon class={viewerButtonIconClass} />
+          </span>
+        </button>
       {/if}
+      {#if nextImage(image)}
+        <button class="viewer-button right-2" title="Nächstes Bild anzeigen" on:click={handleNextImageClick}>
+          <span class={viewerButtonCircleClass}>
+            <ChevronRightIcon class={viewerButtonIconClass} />
+          </span>
+        </button>
+      {/if}
+    {/if}
+    <div class={imageContainerClass}>
       <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} />
     </div>
   </div>
 </div>
 
 <style lang="postcss">
-  .navigation-button {
+  .viewer-button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -156,7 +159,7 @@
       & > span:hover {
         width: 100%;
         height: 100%;
-        background-color: theme('colors.gray.900/70');
+        background-color: theme('colors.gray.500');
       }
     }
   }
