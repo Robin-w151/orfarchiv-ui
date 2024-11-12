@@ -14,7 +14,7 @@
   const imageContainerClass = '';
   const imageClass = 'w-auto h-auto max-w-full max-h-screen bg-gray-100 dark:bg-gray-300 shadow-2xl';
   const viewerButtonCircleClass =
-    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500 backdrop-blur-sm rounded-full transition-all ease-out';
+    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'w-8 h-8';
 
   let closeButtonRef: HTMLButtonElement;
@@ -160,6 +160,7 @@
         width: 100%;
         height: 100%;
         background-color: theme('colors.gray.500');
+        opacity: 0.9;
       }
     }
   }
