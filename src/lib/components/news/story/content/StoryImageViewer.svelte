@@ -17,11 +17,13 @@
     'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'w-8 h-8';
 
+  let showControls = true;
   let closeButtonRef: HTMLButtonElement;
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
 
-  $: showNavigation = images.length > 1;
+  $: isNavigationEnabled = images.length > 1;
+  $: viewerButtonClass = `${showControls ? 'visible' : 'invisible'}`;
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -39,12 +41,13 @@
     }
   });
 
-  function handleCloseButtonClick(): void {
+  function handleCloseButtonClick(event: Event): void {
+    event.stopPropagation();
     closeViewer();
   }
 
   function handleBackdropClick(): void {
-    closeViewer();
+    toggleControls();
   }
 
   function handleBackdropKeyDown(event: KeyboardEvent): void {
@@ -71,6 +74,10 @@
 
   function closeViewer(): void {
     dispatch('close');
+  }
+
+  function toggleControls(): void {
+    showControls = !showControls;
   }
 
   function nextImage(image: StoryImage): StoryImage {
@@ -110,7 +117,7 @@
 <div class={backropClass} on:click={handleBackdropClick} on:keydown={handleBackdropKeyDown}>
   <div class={containerClass}>
     <button
-      class="viewer-button !top-2 right-2"
+      class="viewer-button !top-2 right-2 {viewerButtonClass}"
       title="Bild schließen"
       bind:this={closeButtonRef}
       on:click={handleCloseButtonClick}
@@ -119,16 +126,24 @@
         <XIcon class={viewerButtonIconClass} />
       </span>
     </button>
-    {#if showNavigation}
+    {#if isNavigationEnabled}
       {#if prevImage(image)}
-        <button class="viewer-button left-2" title="Vorheriges Bild anzeigen" on:click={handlePrevImageClick}>
+        <button
+          class="viewer-button left-2 {viewerButtonClass}"
+          title="Vorheriges Bild anzeigen"
+          on:click={handlePrevImageClick}
+        >
           <span class={viewerButtonCircleClass}>
             <ChevronLeftIcon class={viewerButtonIconClass} />
           </span>
         </button>
       {/if}
       {#if nextImage(image)}
-        <button class="viewer-button right-2" title="Nächstes Bild anzeigen" on:click={handleNextImageClick}>
+        <button
+          class="viewer-button right-2 {viewerButtonClass}"
+          title="Nächstes Bild anzeigen"
+          on:click={handleNextImageClick}
+        >
           <span class={viewerButtonCircleClass}>
             <ChevronRightIcon class={viewerButtonIconClass} />
           </span>
@@ -150,6 +165,12 @@
     top: calc(50% - 1.5rem);
     width: 3rem;
     height: 3rem;
+
+    @screen md {
+      top: calc(50% - 2rem);
+      width: 4rem;
+      height: 4rem;
+    }
 
     @media (hover: hover) and (pointer: fine) {
       top: calc(50% - 3rem);
