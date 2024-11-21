@@ -50,7 +50,7 @@
     toggleControls();
   }
 
-  function handleBackdropKeyDown(event: KeyboardEvent): void {
+  function handleKeyDown(event: KeyboardEvent): void {
     const { key } = event;
     if (key === 'ArrowLeft') {
       gotoPrevImage();
@@ -94,10 +94,6 @@
     const next = nextImage(image);
     if (next) {
       image = next;
-
-      if (!nextImage(image)) {
-        closeButtonRef.focus();
-      }
     }
   }
 
@@ -105,16 +101,14 @@
     const prev = prevImage(image);
     if (prev) {
       image = prev;
-
-      if (!prevImage(image)) {
-        closeButtonRef.focus();
-      }
     }
   }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class={backropClass} on:click={handleBackdropClick} on:keydown={handleBackdropKeyDown}>
+<svelte:document on:keydown={handleKeyDown} />
+
+<!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
+<div class={backropClass} on:click={handleBackdropClick}>
   <div class={containerClass}>
     <button
       class="viewer-button !top-2 right-2 {viewerButtonClass}"
