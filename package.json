@@ -101,7 +101,8 @@
   "overrides": {
     "@rgossiaux/svelte-headlessui": {
       "svelte": "^4.2.19"
-    }
+    },
+    "conventional-changelog-conventionalcommits": ">=8.0.0"
   },
   "type": "module"
 }
