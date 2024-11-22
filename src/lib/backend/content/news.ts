@@ -1,6 +1,6 @@
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
-import createDOMPurify from 'dompurify';
+import createDOMPurify, { type WindowLike } from 'dompurify';
 import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
 import { isOrfStoryUrl } from '$lib/backend/utils/urls';
 import type { StoryContent, StorySource } from '$lib/models/story';
@@ -11,7 +11,10 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
 
   let currentUrl = url;
-  let currentData = await fetchSiteHtmlText(currentUrl);
+  let [currentStory, currentData] = await Promise.all([
+    searchStory(currentUrl, { includeOesterreichSource: true }),
+    fetchSiteHtmlText(currentUrl),
+  ]);
   let id;
   let source;
   let originalDocument = createDom(currentData, currentUrl);
@@ -25,6 +28,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
         const [story, data] = await Promise.all([searchStory(readMoreUrl), fetchSiteHtmlText(readMoreUrl)]);
 
         currentUrl = readMoreUrl;
+        currentStory = story;
         currentData = data;
         id = story?.id;
         source = story?.source ?? findSourceFromUrl(currentUrl);
@@ -57,6 +61,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   return {
     content: sanitizeContent(optimizedDocument.body.innerHTML),
     id,
+    timestamp: currentStory?.timestamp,
     source: storySource,
   };
 }
@@ -210,7 +215,7 @@ function adjustTables(optimizedDocument: Document): void {
 }
 
 function sanitizeContent(html: string): string {
-  const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as Window);
+  const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as WindowLike);
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     ADD_ATTR: ['target'],

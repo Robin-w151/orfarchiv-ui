@@ -9,9 +9,20 @@ export interface Story {
   isViewed?: number;
 }
 
+export interface StoryEntity {
+  _id: unknown;
+  id: string;
+  title: string;
+  category: string;
+  url: string;
+  timestamp: Date;
+  source: string;
+}
+
 export interface StoryContent {
   content: string;
   id?: string;
+  timestamp?: string;
   source?: StorySource;
 }
 
@@ -24,4 +35,8 @@ export interface StoryImage {
   src: string;
   srcset: string;
   alt: string;
+}
+
+export interface SearchStoryOptions {
+  includeOesterreichSource?: boolean;
 }
