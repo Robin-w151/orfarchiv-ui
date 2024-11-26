@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import type { OANotification, OANotificationOptions } from '$lib/models/notifications';
 import { createSystemNotification } from '$lib/utils/notifications';
 import { get, writable, type Readable } from 'svelte/store';
@@ -71,10 +70,6 @@ function createNotificationsStore(): NotificationsStore {
   }
 
   return { subscribe, notify, accept, remove };
-}
-
-if (browser) {
-  console.log('notifications-store-initialized');
 }
 
 export default notifications;

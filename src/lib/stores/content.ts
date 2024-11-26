@@ -1,7 +1,6 @@
 import type { StoryContent } from '$lib/models/story';
-import { writable, type Readable } from 'svelte/store';
 import { LRUCache } from 'lru-cache';
-import { browser } from '$app/environment';
+import { writable, type Readable } from 'svelte/store';
 
 export interface ContentStoreState {
   cachedStoryContent: number;
@@ -28,10 +27,6 @@ function setContent(storyId: string, content: StoryContent): void {
   cache.set(storyId, content);
 
   update((...content) => ({ ...content, cachedStoryContent: cache.size }));
-}
-
-if (browser) {
-  console.log('content-store-initialized');
 }
 
 export default { subscribe, getContent, setContent } as ContentStore;

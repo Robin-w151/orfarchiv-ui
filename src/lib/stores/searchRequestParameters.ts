@@ -1,9 +1,8 @@
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
+import { derived, type Readable } from 'svelte/store';
 import searchFilter, { type SearchFilterStoreProps } from './searchFilter';
 import settings from './settings';
-import { derived, type Readable } from 'svelte/store';
 import { distinctUntilChanged } from './utils';
-import { browser } from '$app/environment';
 
 export interface SearchRequestParametersStore
   extends Readable<SearchRequestParameters>,
@@ -23,9 +22,5 @@ const searchRequestParameters = derived([searchFilterChanged, settings], ([$sear
   ...$searchFilterStoreProps,
   sources: $settings.sources,
 })) as SearchRequestParametersStore;
-
-if (browser) {
-  console.log('searchRequestParameters-store-initialized');
-}
 
 export default searchRequestParameters;

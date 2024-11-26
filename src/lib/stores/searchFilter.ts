@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import type { DateFilter, SearchFilter } from '$lib/models/searchRequest';
 import debounce from 'lodash.debounce';
 import { DateTime, type DurationLike } from 'luxon';
@@ -109,10 +108,6 @@ function dateRangeFromNow(duration: DurationLike): [DateTime, DateTime] {
   const from = now.minus(duration).startOf('day');
   const to = now.endOf('day');
   return [from, to];
-}
-
-if (browser) {
-  console.log('searchFilter-store-initialized');
 }
 
 export default {
