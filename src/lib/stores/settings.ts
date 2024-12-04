@@ -1,9 +1,9 @@
+import { browser } from '$app/environment';
+import { SETTINGS_STORE_NAME } from '$lib/configs/client';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
 import { persisted } from 'svelte-local-storage-store';
 import type { Readable } from 'svelte/store';
-import { SETTINGS_STORE_NAME } from '$lib/configs/client';
-import { browser } from '$app/environment';
 
 export interface SettingsStore extends Readable<Settings> {
   setFetchReadMoreContent: (fetchReadMoreContent: boolean) => void;
@@ -98,10 +98,6 @@ function createSettingsStore(): SettingsStore {
     setForceReducedMotion,
     setSource,
   };
-}
-
-if (browser) {
-  console.log('settings-store-initialized');
 }
 
 export default settings;

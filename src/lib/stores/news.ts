@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { fetchContent } from '$lib/api/news';
 import type { Bookmarks } from '$lib/models/bookmarks';
 import type { News, NewsBucket } from '$lib/models/news';
 import type { Story } from '$lib/models/story';
@@ -6,7 +6,6 @@ import { DateTime } from 'luxon';
 import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
-import { fetchContent } from '$lib/api/news';
 
 export interface NewsStore extends Readable<News>, Partial<News> {
   setNews: (news: News, newNews?: News) => void;
@@ -153,10 +152,6 @@ function combineNewsAndBookmarks([news, bookmarks]: [News, Bookmarks]): News {
 
 const extendedStore = derived([news, bookmarks], combineNewsAndBookmarks);
 const { subscribe } = extendedStore;
-
-if (browser) {
-  console.log('news-store-initialized');
-}
 
 export default {
   subscribe,

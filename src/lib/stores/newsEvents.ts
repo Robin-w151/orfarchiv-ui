@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import type { Story } from '$lib/models/story';
 import type { Subscribable } from '$lib/utils/subscriptions';
 import { type Observable, Subject, filter, map } from 'rxjs';
@@ -51,8 +50,4 @@ function createStorySelectStore(): SelectStoryStore {
 
   (store as SelectStoryStore).select = subject.next.bind(subject);
   return store as SelectStoryStore;
-}
-
-if (browser) {
-  console.log('newsEvent-stores-initialized');
 }
