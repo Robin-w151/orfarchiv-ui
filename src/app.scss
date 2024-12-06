@@ -99,6 +99,14 @@
       @apply my-2;
     }
 
+    .fact {
+      @apply my-3 px-4 py-[1px] text-sm bg-gray-100 dark:bg-gray-800 rounded-lg;
+
+      h2 {
+        @apply mt-2 text-base;
+      }
+    }
+
     .byline {
       @apply text-sm text-gray-600 dark:text-gray-400;
     }

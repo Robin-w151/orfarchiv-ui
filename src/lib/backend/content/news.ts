@@ -7,6 +7,8 @@ import type { StoryContent, StorySource } from '$lib/models/story';
 import { searchStory } from '$lib/backend/db/news';
 import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
 
+const ALLOWED_CLASSES = ['fact'];
+
 export async function fetchStoryContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
   logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
 
@@ -42,7 +44,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   const document = createDom(currentData, currentUrl);
   removePrintWarnings(document);
 
-  const optimizedContent = new Readability(document).parse();
+  const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
   if (!optimizedContent) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
     throw new OptimizedContentIsEmptyError(`Optimized content from url='${currentUrl}' is empty`);
