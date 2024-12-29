@@ -39,7 +39,7 @@
     }
 
     figcaption {
-      @apply my-3 italic;
+      @apply mt-2 mb-3 italic text-sm;
     }
 
     figure {
@@ -59,7 +59,7 @@
     }
 
     img {
-      @apply my-2 bg-gray-100 dark:bg-gray-300 cursor-pointer;
+      @apply my-2 bg-gray-100 dark:bg-gray-300 rounded-lg cursor-pointer;
     }
 
     p {
@@ -97,6 +97,14 @@
 
     video {
       @apply my-2;
+    }
+
+    .fact {
+      @apply my-3 px-4 py-[1px] text-sm bg-gray-100 dark:bg-gray-800 rounded-lg;
+
+      h2 {
+        @apply mt-2 text-base;
+      }
     }
 
     .byline {
