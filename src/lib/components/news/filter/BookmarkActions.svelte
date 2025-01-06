@@ -10,7 +10,7 @@
   const filterClass = `flex gap-2 ${defaultPadding} w-full ${defaultBackground}`;
 
   let subscriptions: Array<Subscription> = [];
-  let textFilterInputRef: Input | null = null;
+  let textFilterInputRef: Input | null = $state(null);
 
   onMount(() => {
     subscriptions.push(startSearch.onUpdate(handleStartSearch));
@@ -24,8 +24,8 @@
     textFilterInputRef?.focus();
   }
 
-  function handleTextFilterChange({ detail: textFilter }: { detail: string }) {
-    bookmarks.setTextFilter(textFilter);
+  function handleTextFilterChange(textFilter?: string) {
+    bookmarks.setTextFilter(textFilter ?? '');
   }
 
   function handleDeleteAllBookmarks() {
@@ -41,12 +41,12 @@
   <Input
     id="text-filter-input"
     value={$bookmarks.textFilter}
-    on:change={handleTextFilterChange}
+    onchange={handleTextFilterChange}
     bind:this={textFilterInputRef}
     placeholder="Suche"
   />
   <BookmarkDeletePopover
-    on:removeAllBookmarks={handleDeleteAllBookmarks}
-    on:removeAllViewedBookmarks={handleDeleteAllViewedBookmarks}
+    onRemoveAllBookmarks={handleDeleteAllBookmarks}
+    onRemoveAllViewedBookmarks={handleDeleteAllViewedBookmarks}
   />
 </div>

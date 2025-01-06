@@ -9,15 +9,23 @@
   import Popover from '$lib/components/ui/content/Popover.svelte';
   import EllipsisVerticalIcon from '$lib/components/ui/icons/outline/EllipsisVerticalIcon.svelte';
 
-  export let story: Story;
+  interface Props {
+    story: Story;
+  }
+
+  let { story }: Props = $props();
 </script>
 
 <Popover btnType="secondary" iconOnly title="Weitere Optionen" placement="bottom-end">
-  <EllipsisVerticalIcon slot="button-content" />
-  <PopoverContent class={defaultMenuClass} slot="content" let:onClose>
-    <OpenArticleButton class={defaultMenuItemClass} {story} {onClose} />
-    <BookmarkButton class={defaultMenuItemClass} {story} {onClose} />
-    <ShareButton class={defaultMenuItemClass} {story} {onClose} />
-    <OpenSupportButton class={defaultMenuItemClass} {onClose} />
-  </PopoverContent>
+  {#snippet buttonContent()}
+    <EllipsisVerticalIcon />
+  {/snippet}
+  {#snippet popoverContent(onClose)}
+    <PopoverContent class={defaultMenuClass}>
+      <OpenArticleButton class={defaultMenuItemClass} {story} {onClose} />
+      <BookmarkButton class={defaultMenuItemClass} {story} {onClose} />
+      <ShareButton class={defaultMenuItemClass} {story} {onClose} />
+      <OpenSupportButton class={defaultMenuItemClass} {onClose} />
+    </PopoverContent>
+  {/snippet}
 </Popover>

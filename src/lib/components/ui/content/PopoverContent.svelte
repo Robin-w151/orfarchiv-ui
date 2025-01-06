@@ -1,15 +1,22 @@
 <script lang="ts">
   import { rollFade } from '$lib/utils/transitions';
+  import type { Snippet } from 'svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
-  let contentClass: string;
-  $: contentClass = `
+  interface Props {
+    class?: string;
+    children?: Snippet;
+  }
+
+  let { class: clazz, children }: Props = $props();
+
+  let contentClass: string = $derived(`
     bg-white dark:bg-gray-900/80 dark:backdrop-blur-sm
     rounded-lg shadow-md dark:shadow-2xl
-    ${$$props['class']}
-  `;
+    ${clazz}
+  `);
 </script>
 
 <AccessibleTransition class={contentClass} transition={rollFade}>
-  <slot />
+  {@render children?.()}
 </AccessibleTransition>

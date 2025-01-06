@@ -6,19 +6,20 @@
   import settings from '$lib/stores/settings';
   import { requestSystemNotificationPermission } from '$lib/utils/notifications';
 
-  function handleFetchReadMoreContentChange({ detail: checked }: { detail: boolean }): void {
-    settings.setFetchReadMoreContent(checked);
+  function handleFetchReadMoreContentChange(event: Event & { currentTarget: HTMLInputElement }): void {
+    settings.setFetchReadMoreContent(event.currentTarget.checked);
   }
 
-  function handleCheckNewsUpdatesChange({ detail: checked }: { detail: boolean }): void {
+  function handleCheckNewsUpdatesChange(event: Event & { currentTarget: HTMLInputElement }): void {
+    const checked = event.currentTarget.checked;
     settings.setCheckNewsUpdates(checked);
     if (checked) {
       requestSystemNotificationPermission();
     }
   }
 
-  function handleForceReducedMotion({ detail: checked }: { detail: boolean }): void {
-    settings.setForceReducedMotion(checked);
+  function handleForceReducedMotion(event: Event & { currentTarget: HTMLInputElement }): void {
+    settings.setForceReducedMotion(event.currentTarget.checked);
   }
 </script>
 
@@ -29,7 +30,7 @@
         id="fetch-read-more-content"
         label="Inhalt von weiterführendem Artikel laden"
         checked={$settings.fetchReadMoreContent}
-        on:change={handleFetchReadMoreContentChange}
+        onchange={handleFetchReadMoreContentChange}
       />
     </Item>
     <Item>
@@ -37,7 +38,7 @@
         id="check-news-updates"
         label="Erinnern wenn neue Nachrichten vorhanden sind"
         checked={$settings.checkNewsUpdates}
-        on:change={handleCheckNewsUpdatesChange}
+        onchange={handleCheckNewsUpdatesChange}
       />
     </Item>
     <Item>
@@ -45,7 +46,7 @@
         id="force-reduce-motion"
         label="Bewegungen reduzieren"
         checked={$settings.forceReducedMotion}
-        on:change={handleForceReducedMotion}
+        onchange={handleForceReducedMotion}
       />
     </Item>
   </SectionList>

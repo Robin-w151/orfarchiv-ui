@@ -1,13 +1,16 @@
 <script lang="ts">
   import clsx from 'clsx';
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    class?: string;
+  }
+
+  let { class: clazz }: Props = $props();
 
   const spinnerClass = clsx([`flex justify-center items-center`, `w-6 h-6`, `rounded-full animate-spin`, clazz]);
 </script>
 
-<div class="spinner {spinnerClass}" />
+<div class="spinner {spinnerClass}"></div>
 
 <style lang="postcss">
   .spinner {

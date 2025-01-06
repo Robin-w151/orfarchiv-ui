@@ -3,12 +3,16 @@
   import ChevronRightIcon from '$lib/components/ui/icons/outline/ChevronRightIcon.svelte';
   import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
-  export let image: StoryImage;
-  export let images: Array<StoryImage> = [];
+  interface Props {
+    image: StoryImage;
+    images?: Array<StoryImage>;
+    onClose?: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let { image = $bindable(), images = [], onClose }: Props = $props();
+
   const backropClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-black';
   const containerClass = 'flex justify-center items-center relative w-full h-full';
   const imageContainerClass = '';
@@ -17,20 +21,20 @@
     'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'w-8 h-8';
 
-  let showControls = true;
-  let closeButtonRef: HTMLButtonElement;
+  let showControls = $state(true);
+  let closeButtonRef: HTMLButtonElement | undefined = $state();
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
 
-  $: isNavigationEnabled = images.length > 1;
-  $: viewerButtonClass = `${showControls ? 'visible' : 'invisible'}`;
+  let isNavigationEnabled = $derived(images.length > 1);
+  let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
 
     oldActiveElement = document.activeElement;
-    closeButtonRef.focus();
+    closeButtonRef?.focus();
   });
 
   onDestroy(() => {
@@ -73,7 +77,7 @@
   }
 
   function closeViewer(): void {
-    dispatch('close');
+    onClose?.();
   }
 
   function toggleControls(): void {
@@ -105,16 +109,16 @@
   }
 </script>
 
-<svelte:document on:keydown={handleKeyDown} />
+<svelte:document onkeydown={handleKeyDown} />
 
-<!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
-<div class={backropClass} on:click={handleBackdropClick}>
+<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions  -->
+<div class={backropClass} role="region" onclick={handleBackdropClick}>
   <div class={containerClass}>
     <button
       class="viewer-button !top-2 right-2 {viewerButtonClass}"
       title="Bild schließen"
       bind:this={closeButtonRef}
-      on:click={handleCloseButtonClick}
+      onclick={handleCloseButtonClick}
     >
       <span class={viewerButtonCircleClass}>
         <XIcon class={viewerButtonIconClass} />
@@ -125,7 +129,7 @@
         <button
           class="viewer-button left-2 {viewerButtonClass}"
           title="Vorheriges Bild anzeigen"
-          on:click={handlePrevImageClick}
+          onclick={handlePrevImageClick}
         >
           <span class={viewerButtonCircleClass}>
             <ChevronLeftIcon class={viewerButtonIconClass} />
@@ -136,7 +140,7 @@
         <button
           class="viewer-button right-2 {viewerButtonClass}"
           title="Nächstes Bild anzeigen"
-          on:click={handleNextImageClick}
+          onclick={handleNextImageClick}
         >
           <span class={viewerButtonCircleClass}>
             <ChevronRightIcon class={viewerButtonIconClass} />

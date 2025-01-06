@@ -4,10 +4,10 @@
 </script>
 
 <div class={contentSkeletonClass} data-testid="story-content-skeleton">
-  <span class={contentSkeletonBarClass} />
-  <span class={contentSkeletonBarClass} />
-  <span class={contentSkeletonBarClass} />
-  <span class={contentSkeletonBarClass} />
+  <span class={contentSkeletonBarClass}></span>
+  <span class={contentSkeletonBarClass}></span>
+  <span class={contentSkeletonBarClass}></span>
+  <span class={contentSkeletonBarClass}></span>
 </div>
 
 <style lang="scss">

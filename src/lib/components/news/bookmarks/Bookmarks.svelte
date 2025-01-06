@@ -8,10 +8,10 @@
   import { get } from 'svelte/store';
   import { selectStory } from '$lib/stores/newsEvents';
 
-  $: bookmarksAvailable = $bookmarks.filteredStories?.length > 0;
-  $: bookmarksBucket = { name: 'Lesezeichen', stories: $bookmarks.filteredStories };
+  let bookmarksAvailable = $derived($bookmarks.filteredStories?.length > 0);
+  let bookmarksBucket = $derived({ name: 'Lesezeichen', stories: $bookmarks.filteredStories });
 
-  function handleStorySelect({ detail: { id, next } }: { detail: { id: string; next: boolean } }): void {
+  function handleStorySelect({ id, next }: { id: string; next: boolean }): void {
     const stories = get(bookmarks).stories;
     selectStory.select({ stories, id, next });
   }
@@ -20,7 +20,7 @@
 <Content id="bookmarks">
   <BookmarkActions />
   {#if bookmarksAvailable}
-    <NewsList storyBuckets={[bookmarksBucket]} isLoading={$bookmarks.isLoading} on:selectStory={handleStorySelect} />
+    <NewsList storyBuckets={[bookmarksBucket]} isLoading={$bookmarks.isLoading} onSelectStory={handleStorySelect} />
   {:else if $bookmarks.isLoading}
     <NewsListSkeleton />
   {:else}

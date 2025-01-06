@@ -1,10 +1,17 @@
 <script lang="ts">
-  import { formatTimestamp } from '$lib/utils/datetime.js';
+  import StoryPopover from '$lib/components/news/story/header/options/StoryPopover.svelte';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story } from '$lib/models/story';
-  import StoryPopover from '$lib/components/news/story/header/options/StoryPopover.svelte';
+  import { formatTimestamp } from '$lib/utils/datetime.js';
+  import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 
-  export let story: Story;
+  interface Props {
+    story: Story;
+    onclick?: MouseEventHandler<HTMLElement>;
+    onkeydown?: KeyboardEventHandler<HTMLElement>;
+  }
+
+  let { story, onclick, onkeydown }: Props = $props();
 
   const headerClass = `
     w-full
@@ -23,18 +30,18 @@
     rounded-sm
   `;
 
-  let headerRef: HTMLHeadElement;
+  let headerRef: HTMLHeadElement | undefined = $state();
 
   export function focus(): void {
-    headerRef.focus();
+    headerRef?.focus();
   }
 
-  $: showViewedInfo = story?.isBookmarked && story?.isViewed;
-  $: sourceLabel = getSourceLabel(story?.source);
+  let showViewedInfo = $derived(story?.isBookmarked && story?.isViewed);
+  let sourceLabel = $derived(getSourceLabel(story?.source));
 </script>
 
 {#if story}
-  <header class={headerClass} role="button" on:click on:keydown bind:this={headerRef} tabindex="0">
+  <header class={headerClass} role="button" tabindex="0" {onclick} {onkeydown} bind:this={headerRef}>
     {#if showViewedInfo}
       <span class={viewedBadge}>Gelesen</span>
     {/if}

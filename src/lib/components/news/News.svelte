@@ -27,10 +27,9 @@
   const subscriptions: Array<Subscription> = [];
 
   let checkUpdatesTimeout: any;
-
-  $: showNewsList = hasNews($news as News);
-  $: anySourcesEnabled = hasAnySourcesEnabled($settings as Settings);
-  $: loadMoreButtonDisabled = $news.nextKey === null;
+  let showNewsList = $derived(hasNews($news as News));
+  let anySourcesEnabled = $derived(hasAnySourcesEnabled($settings as Settings));
+  let loadMoreButtonDisabled = $derived($news.nextKey === null);
 
   onMount(async () => {
     subscriptions.push(refreshNews.onUpdate(fetchNewNews));
@@ -137,7 +136,7 @@
     loadMoreNews.notify();
   }
 
-  function handleStorySelect({ detail: { id, next } }: { detail: { id: string; next: boolean } }): void {
+  function handleStorySelect({ id, next }: { id: string; next: boolean }): void {
     const stories = get(news).stories;
     selectStory.select({ stories, id, next });
   }
@@ -153,7 +152,7 @@
       >
     </div>
   {:else if showNewsList}
-    <NewsList storyBuckets={$news.storyBuckets} isLoading={$news.isLoading} on:selectStory={handleStorySelect} />
+    <NewsList storyBuckets={$news.storyBuckets} isLoading={$news.isLoading} onSelectStory={handleStorySelect} />
   {:else if $news.isLoading}
     <NewsListSkeleton />
   {:else}
@@ -162,7 +161,7 @@
     </div>
   {/if}
   {#if showNewsList}
-    <Button disabled={loadMoreButtonDisabled} on:click={handleLoadMoreClick}>Weitere laden</Button>
+    <Button disabled={loadMoreButtonDisabled} onclick={handleLoadMoreClick}>Weitere laden</Button>
   {/if}
 </Content>
 

@@ -8,10 +8,16 @@
   import EnableNetworkNotifications from '$lib/components/utils/EnableNetworkNotifications.svelte';
   import EnableUpdateListener from '$lib/components/utils/EnableUpdateListener.svelte';
   import { defaultAlertTextBox, defaultScreenSize } from '$lib/utils/styles';
-  import { onMount } from 'svelte';
+  import { onMount, type Snippet } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
   import '../app.scss';
   import { API_VERSION } from '$lib/configs/shared';
+
+  interface Props {
+    children?: Snippet;
+  }
+
+  let { children }: Props = $props();
 
   const wrapperClass = `
     flex flex-col gap-2 lg:gap-3
@@ -20,9 +26,8 @@
   `;
   const mainClass = 'flex flex-col gap-2 lg:gap-3';
 
-  let isApiCompatible = true;
-
-  $: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : '';
+  let isApiCompatible = $state(true);
+  let webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
 
   onMount(() => {
     document.documentElement.setAttribute('data-test', 'ready');
@@ -57,7 +62,7 @@
 
   {#if isApiCompatible}
     <main class={mainClass}>
-      <slot />
+      {@render children?.()}
     </main>
   {:else}
     <div class={defaultAlertTextBox}>

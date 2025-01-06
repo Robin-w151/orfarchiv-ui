@@ -1,14 +1,20 @@
 <script lang="ts">
   import clsx from 'clsx';
 
-  const loadingIndicatorClass = clsx(['flex justify-center items-center gap-2', 'w-fit', $$props['class']]);
+  interface Props {
+    class?: string;
+  }
+
+  let { class: clazz }: Props = $props();
+
+  const loadingIndicatorClass = clsx(['flex justify-center items-center gap-2', 'w-fit', clazz]);
   const dotClass = clsx(['w-2 h-2', 'rounded-full']);
 </script>
 
 <div class="loading-indicator {loadingIndicatorClass}">
-  <div class="dot-1 bg-fuchsia-500 {dotClass}" />
-  <div class="dot-2 bg-violet-600 {dotClass}" />
-  <div class="dot-3 bg-blue-700 {dotClass}" />
+  <div class="dot-1 bg-fuchsia-500 {dotClass}"></div>
+  <div class="dot-2 bg-violet-600 {dotClass}"></div>
+  <div class="dot-3 bg-blue-700 {dotClass}"></div>
 </div>
 
 <style lang="scss">

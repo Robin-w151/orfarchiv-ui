@@ -5,11 +5,15 @@
   import { onDestroy, onMount } from 'svelte';
   import { fade } from 'svelte/transition';
 
-  export let delay: number | undefined = 0;
+  interface Props {
+    delay?: number;
+  }
+
+  let { delay = 0 }: Props = $props();
 
   const dotClass = clsx(['absolute', 'w-4 h-4', 'rounded-full']);
 
-  let showIndicator = !delay;
+  let showIndicator = $state(!delay);
   let timeout: any;
 
   onMount(() => {

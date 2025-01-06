@@ -1,16 +1,23 @@
 <script lang="ts">
   import { defaultPadding } from '$lib/utils/styles';
   import ConicGradientSpinner from '$lib/components/ui/loading/ConicGradientSpinner.svelte';
+  import type { Snippet } from 'svelte';
 
-  export let title: string;
-  export let isLoading = false;
+  interface Props {
+    title?: string;
+    isLoading?: boolean;
+    class?: string;
+    children?: Snippet;
+  }
+
+  let { title, isLoading = false, class: clazz, children }: Props = $props();
 
   const sectionClass = `
     flex flex-col items-center
     w-full
     bg-white dark:bg-gray-900
     overflow-clip
-    ${$$props['class']}
+    ${clazz}
   `;
   const headerClass = `
     flex gap-2 justify-center items-center sticky top-0 z-20
@@ -34,6 +41,6 @@
     </header>
   {/if}
   <div class={contentClass}>
-    <slot />
+    {@render children?.()}
   </div>
 </section>

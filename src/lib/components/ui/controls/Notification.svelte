@@ -5,10 +5,14 @@
   import { onMount } from 'svelte';
   import CheckIcon from '../icons/outline/CheckIcon.svelte';
   import XIcon from '../icons/outline/XIcon.svelte';
-  import Button from './Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
+  import Button from './Button.svelte';
 
-  export let notification: OANotification;
+  interface Props {
+    notification: OANotification;
+  }
+
+  let { notification }: Props = $props();
 
   const notificationClass = `
     flex justify-between items-center ${defaultGap}
@@ -26,9 +30,11 @@
     flex items-center ${defaultGap}
   `;
 
-  let closeButtonRef: Button;
+  let closeButtonRef: Button | undefined = $state();
 
-  $: focusLatestNotification($notifications);
+  $effect(() => {
+    focusLatestNotification($notifications);
+  });
 
   onMount(() => {
     focus();
@@ -62,18 +68,11 @@
   </div>
   <div class={actionsClass}>
     {#if notification.options?.onAccept}
-      <Button btnType="monochrome" iconOnly round title="Bestätigen" on:click={handleAcceptClick}>
+      <Button btnType="monochrome" iconOnly round title="Bestätigen" onclick={handleAcceptClick}>
         <CheckIcon />
       </Button>
     {/if}
-    <Button
-      btnType="monochrome"
-      iconOnly
-      round
-      title="Schließen"
-      on:click={handleCloseClick}
-      bind:this={closeButtonRef}
-    >
+    <Button btnType="monochrome" iconOnly round title="Schließen" onclick={handleCloseClick} bind:this={closeButtonRef}>
       <XIcon />
     </Button>
   </div>

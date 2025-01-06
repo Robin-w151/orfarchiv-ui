@@ -3,18 +3,20 @@
   import NewspaperIcon from '$lib/components/ui/icons/outline/NewspaperIcon.svelte';
   import type { Story } from '$lib/models/story';
 
-  export let story: Story;
-  export let onClose: () => void;
+  interface Props {
+    story: Story;
+    class?: string;
+    onClose?: () => void;
+  }
 
-  let clazz: string;
-  export { clazz as class };
+  let { story, class: clazz, onClose }: Props = $props();
 
   function handleOpenArticleClick() {
-    onClose();
+    onClose?.();
   }
 </script>
 
-<Link class={clazz} customStyle href={story.url} on:click={handleOpenArticleClick}>
+<Link class={clazz} customStyle href={story.url} onclick={handleOpenArticleClick}>
   <NewspaperIcon />
   <span>In orf.at öffnen</span>
 </Link>

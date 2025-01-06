@@ -5,7 +5,7 @@
   import Radio from '$lib/components/ui/controls/Radio.svelte';
   import styles, { type ColorScheme } from '$lib/stores/styles';
 
-  let colorScheme: ColorScheme = $styles.colorScheme;
+  let colorScheme: ColorScheme = $state($styles.colorScheme);
 
   function handleColorSchemeRadioChange() {
     if (colorScheme) {
@@ -23,7 +23,7 @@
         label="Automatisch"
         value="system"
         bind:group={colorScheme}
-        on:change={handleColorSchemeRadioChange}
+        onchange={handleColorSchemeRadioChange}
       />
     </Item>
     <Item>
@@ -33,7 +33,7 @@
         label="Hell"
         value="light"
         bind:group={colorScheme}
-        on:change={handleColorSchemeRadioChange}
+        onchange={handleColorSchemeRadioChange}
       />
     </Item>
     <Item>
@@ -43,7 +43,7 @@
         label="Dunkel"
         value="dark"
         bind:group={colorScheme}
-        on:change={handleColorSchemeRadioChange}
+        onchange={handleColorSchemeRadioChange}
       />
     </Item>
   </SectionList>

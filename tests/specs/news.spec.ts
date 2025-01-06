@@ -163,13 +163,14 @@ test.describe('NewsPage', () => {
       await expectExternalLink(articleLink, expectedHref);
     });
 
-    test('bookmark button', async ({ newsPage }) => {
+    test('bookmark button', async ({ page, newsPage }) => {
       const bookmarkButton = newsPage.popover.locator('button').nth(0);
       await bookmarkButton.hover();
       await expect(bookmarkButton).toBeVisible();
       await expect(bookmarkButton).toHaveText('Zu Lesezeichen hinzufügen');
 
       await bookmarkButton.click();
+      await page.waitForTimeout(250);
       await storyMenu.click();
       await expect(bookmarkButton).toHaveText('Von Lesezeichen entfernen');
     });

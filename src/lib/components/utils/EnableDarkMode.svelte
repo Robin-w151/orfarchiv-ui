@@ -1,9 +1,13 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { onDestroy, onMount } from 'svelte';
   import styles, { type ColorScheme } from '$lib/stores/styles';
+  import { onDestroy, onMount } from 'svelte';
 
-  $: if (browser) applyColorScheme($styles.colorScheme ?? 'system');
+  $effect(() => {
+    if (browser) {
+      applyColorScheme($styles.colorScheme ?? 'system');
+    }
+  });
 
   onMount(() => {
     if (browser) {

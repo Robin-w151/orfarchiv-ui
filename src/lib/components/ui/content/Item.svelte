@@ -2,16 +2,32 @@
   import clsx from 'clsx';
   import computeScrollIntoView from '$lib/utils/computeScrollIntoView';
   import { defaultPadding } from '$lib/utils/styles';
+  import type { Snippet } from 'svelte';
+  import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 
-  export let noFlex = false;
-  export let noColumn = false;
-  export let noGap = false;
-  export let noPadding = false;
+  interface Props {
+    noFlex?: boolean;
+    noColumn?: boolean;
+    noGap?: boolean;
+    noPadding?: boolean;
+    class?: string;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLLIElement>;
+    onkeydown?: KeyboardEventHandler<HTMLLIElement>;
+  }
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  let {
+    noFlex = false,
+    noColumn = false,
+    noGap = false,
+    noPadding = false,
+    class: clazz,
+    children,
+    onclick,
+    onkeydown,
+  }: Props = $props();
 
-  let itemRef: HTMLLIElement;
+  let itemRef: HTMLLIElement | undefined = $state();
 
   const itemClass = clsx([
     !noFlex && 'flex',
@@ -24,25 +40,27 @@
   ]);
 
   export function scrollIntoView(): void {
-    const actions = computeScrollIntoView(itemRef, {
-      scrollMode: 'if-needed',
-      block: 'start',
-      viewportInset: { y: 80 },
-    });
-    const canSmoothScroll = 'scrollBehavior' in document.body.style;
-    actions.forEach(({ el, top, left }) => {
-      const topWithOffset = Math.max(top - 80, 0);
-      if (el.scroll && canSmoothScroll) {
-        el.scroll({ top: topWithOffset, left, behavior: 'smooth' });
-      } else {
-        el.scrollTop = topWithOffset;
-        el.scrollLeft = left;
-      }
-    });
+    if (itemRef) {
+      const actions = computeScrollIntoView(itemRef, {
+        scrollMode: 'if-needed',
+        block: 'start',
+        viewportInset: { y: 80 },
+      });
+      const canSmoothScroll = 'scrollBehavior' in document.body.style;
+      actions.forEach(({ el, top, left }) => {
+        const topWithOffset = Math.max(top - 80, 0);
+        if (el.scroll && canSmoothScroll) {
+          el.scroll({ top: topWithOffset, left, behavior: 'smooth' });
+        } else {
+          el.scrollTop = topWithOffset;
+          el.scrollLeft = left;
+        }
+      });
+    }
   }
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<li class={itemClass} on:click on:keydown bind:this={itemRef}>
-  <slot />
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<li class={itemClass} {onclick} {onkeydown} bind:this={itemRef}>
+  {@render children?.()}
 </li>

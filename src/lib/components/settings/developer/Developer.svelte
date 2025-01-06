@@ -8,8 +8,10 @@
   import { humanReadableMemorySize } from '$lib/utils/formatting';
   import { onMount } from 'svelte';
 
-  let estimatedStorageUsage: number | undefined = 0;
-  $: estimatedStorageUsageString = estimatedStorageUsage ? humanReadableMemorySize(estimatedStorageUsage) : 'Unbekannt';
+  let estimatedStorageUsage: number | undefined = $state(0);
+  let estimatedStorageUsageString = $derived(
+    estimatedStorageUsage ? humanReadableMemorySize(estimatedStorageUsage) : 'Unbekannt',
+  );
 
   onMount(async () => {
     estimatedStorageUsage = await getEstimatedUsage();
@@ -66,11 +68,11 @@
     </Item>
     <Item noColumn>
       <span>IndexedDB</span>
-      <Button size="small" on:click={handleResetIndexedDbButtonClick}>Zurücksetzen</Button>
+      <Button size="small" onclick={handleResetIndexedDbButtonClick}>Zurücksetzen</Button>
     </Item>
     <Item noColumn>
       <span>LocalStorage</span>
-      <Button size="small" on:click={handleResetLocalStorageButtonClick}>Zurücksetzen</Button>
+      <Button size="small" onclick={handleResetLocalStorageButtonClick}>Zurücksetzen</Button>
     </Item>
   </SectionList>
 </Section>

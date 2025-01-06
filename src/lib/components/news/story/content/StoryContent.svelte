@@ -7,17 +7,20 @@
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
+  import contentStore from '$lib/stores/content';
   import settings from '$lib/stores/settings';
   import { wait } from '$lib/utils/wait';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
-  import contentStore from '$lib/stores/content';
   import StoryImageViewer from './StoryImageViewer.svelte';
 
-  export let story: Story;
+  interface Props {
+    story: Story;
+    onCollapse?: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let { story, onCollapse }: Props = $props();
 
   const wrapperClass = 'flex flex-col items-center gap-3';
   const contentClass = 'cursor-auto w-full';
@@ -25,16 +28,19 @@
   const errorLinkClass = 'text-blue-700';
   const collapseContentClass = 'py-1.5 w-48 max-w-full';
 
-  let storyContent: StoryContent | undefined = undefined;
-  let storyContentRef: HTMLElement;
-  let storyImages: Array<StoryImage> = [];
-  let activeStoryImage: StoryImage | undefined;
-  let isLoading = true;
+  let storyContent: StoryContent | undefined = $state();
+  let storyContentRef: HTMLElement | undefined = $state();
+  let storyImages: Array<StoryImage> = $state([]);
+  let activeStoryImage: StoryImage | undefined = $state();
+  let isLoading = $state(true);
   let isClosed = false;
 
-  $: sourceLabel = getSourceLabel(storyContent?.source?.name);
-  $: sourceUrl = storyContent?.source?.url ?? story?.url;
-  $: handleContentChange(storyContentRef);
+  let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
+  let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
+
+  $effect(() => {
+    handleContentChange(storyContentRef);
+  });
 
   onMount(async () => {
     try {
@@ -93,14 +99,14 @@
   }
 
   function handleCollapseFieldClick(): void {
-    dispatch('collapse');
+    onCollapse?.();
   }
 
   function handleCollapseFieldKeydown(event: KeyboardEvent): void {
     const code = event.code;
     if (code === 'Enter' || code === 'Space') {
       event.preventDefault();
-      dispatch('collapse');
+      onCollapse?.();
     }
   }
 
@@ -158,13 +164,13 @@
     btnType="secondary"
     iconOnly
     title="Artikel schließen"
-    on:click={handleCollapseFieldClick}
-    on:keydown={handleCollapseFieldKeydown}
+    onclick={handleCollapseFieldClick}
+    onkeydown={handleCollapseFieldKeydown}
   >
     <ChevronUpIcon />
   </Button>
 </div>
 
 {#if activeStoryImage}
-  <StoryImageViewer images={storyImages} bind:image={activeStoryImage} on:close={handleImageClose} />
+  <StoryImageViewer images={storyImages} bind:image={activeStoryImage} onClose={handleImageClose} />
 {/if}
