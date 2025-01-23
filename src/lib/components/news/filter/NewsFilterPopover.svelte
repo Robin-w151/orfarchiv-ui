@@ -1,18 +1,38 @@
 <script lang="ts">
-  import DateInput from '$lib/components/ui/controls/DateInput.svelte';
-  import TextGradient from '$lib/components/ui/content/TextGradient.svelte';
-  import CalendarIcon from '$lib/components/ui/icons/outline/CalendarIcon.svelte';
-  import { createEventDispatcher } from 'svelte';
-  import type { DateTime } from 'luxon';
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import PopoverContent from '$lib/components/ui/content/PopoverContent.svelte';
-  import FunnelIcon from '$lib/components/ui/icons/outline/FunnelIcon.svelte';
   import Popover from '$lib/components/ui/content/Popover.svelte';
+  import PopoverContent from '$lib/components/ui/content/PopoverContent.svelte';
+  import TextGradient from '$lib/components/ui/content/TextGradient.svelte';
+  import Button from '$lib/components/ui/controls/Button.svelte';
+  import DateInput from '$lib/components/ui/controls/DateInput.svelte';
+  import CalendarIcon from '$lib/components/ui/icons/outline/CalendarIcon.svelte';
+  import FunnelIcon from '$lib/components/ui/icons/outline/FunnelIcon.svelte';
+  import type { DateTime } from 'luxon';
 
-  export let from: DateTime | undefined;
-  export let to: DateTime | undefined;
+  interface Props {
+    from?: DateTime;
+    to?: DateTime;
+    onFromChange?: (from?: string) => void;
+    onToChange?: (to?: string) => void;
+    onApply?: () => void;
+    onReset?: () => void;
+    onSelectToday?: () => void;
+    onSelectLastWeek?: () => void;
+    onSelectLastMonth?: () => void;
+    onSelectLastYear?: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    from,
+    to,
+    onFromChange,
+    onToChange,
+    onApply,
+    onReset,
+    onSelectToday,
+    onSelectLastWeek,
+    onSelectLastMonth,
+    onSelectLastYear,
+  }: Props = $props();
 
   const menuClass = `
     flex flex-col items-center gap-5
@@ -25,88 +45,93 @@
   const menuActionsClass = `grid grid-cols-2 gap-x-3 gap-y-2 w-full`;
   const menuButtonClass = `!w-full`;
 
-  $: fromDate = from?.toISODate();
-  $: toDate = to?.toISODate();
+  let fromDate = $derived(from?.toISODate());
+  let toDate = $derived(to?.toISODate());
 
-  function handleFromChange({ detail: from }: { detail: string }) {
-    dispatch('fromChange', from);
+  function handleFromChange(from?: string | null) {
+    onFromChange?.(from ?? undefined);
   }
 
-  function handleToChange({ detail: to }: { detail: string }) {
-    dispatch('toChange', to);
+  function handleToChange(to?: string | null) {
+    onToChange?.(to ?? undefined);
   }
 
   function handleApplyClick() {
-    dispatch('apply');
+    onApply?.();
   }
 
   function handleResetClick() {
-    dispatch('reset');
+    onReset?.();
   }
 
   function handleSelectTodayClick() {
-    dispatch('selectToday');
+    onSelectToday?.();
   }
 
   function handleSelectLastWeekClick() {
-    dispatch('selectLastWeek');
+    onSelectLastWeek?.();
   }
 
   function handleSelectLastMonthClick() {
-    dispatch('selectLastMonth');
+    onSelectLastMonth?.();
   }
 
   function handleSelectLastYearClick() {
-    dispatch('selectLastYear');
+    onSelectLastYear?.();
   }
 </script>
 
 <Popover btnType="secondary" iconOnly title="Weitere Filter-Optionen" placement="bottom-end">
-  <FunnelIcon slot="button-content" />
-  <PopoverContent class={menuClass} slot="content" let:onClose>
-    <section class={menuSectionClass}>
-      <span class={menuSectionTitleClass}>
-        <CalendarIcon />
-        <TextGradient>Zeitraum</TextGradient>
-      </span>
+  {#snippet buttonContent()}
+    <FunnelIcon />
+  {/snippet}
+  {#snippet popoverContent(onClose)}
+    <PopoverContent class={menuClass}>
+      <section class={menuSectionClass}>
+        <span class={menuSectionTitleClass}>
+          <CalendarIcon />
+          <TextGradient>Zeitraum</TextGradient>
+        </span>
+        <div class={menuActionsClass}>
+          <Button class={menuButtonClass} btnType="secondary" size="small" onclick={handleSelectTodayClick}
+            >Heute</Button
+          >
+          <Button class={menuButtonClass} btnType="secondary" size="small" onclick={handleSelectLastWeekClick}
+            >Letzte Woche</Button
+          >
+          <Button class={menuButtonClass} btnType="secondary" size="small" onclick={handleSelectLastMonthClick}
+            >Letzter Monat</Button
+          >
+          <Button class={menuButtonClass} btnType="secondary" size="small" onclick={handleSelectLastYearClick}
+            >Letztes Jahr</Button
+          >
+        </div>
+        <div class={menuSectionItemClass}>
+          <label for="from-input">Von</label>
+          <DateInput id="from-input" value={fromDate} onchange={handleFromChange} />
+        </div>
+        <div class={menuSectionItemClass}>
+          <label for="to-input">Bis</label>
+          <DateInput id="to-input" value={toDate} onchange={handleToChange} />
+        </div>
+      </section>
       <div class={menuActionsClass}>
-        <Button class={menuButtonClass} btnType="secondary" size="small" on:click={handleSelectTodayClick}>Heute</Button
+        <Button
+          class={menuButtonClass}
+          btnType="secondary"
+          onclick={() => {
+            handleResetClick();
+            onClose();
+          }}>Zurücksetzen</Button
         >
-        <Button class={menuButtonClass} btnType="secondary" size="small" on:click={handleSelectLastWeekClick}
-          >Letzte Woche</Button
-        >
-        <Button class={menuButtonClass} btnType="secondary" size="small" on:click={handleSelectLastMonthClick}
-          >Letzter Monat</Button
-        >
-        <Button class={menuButtonClass} btnType="secondary" size="small" on:click={handleSelectLastYearClick}
-          >Letztes Jahr</Button
+        <Button
+          class={menuButtonClass}
+          onclick={() => {
+            handleApplyClick();
+            onClose();
+          }}>Anwenden</Button
         >
       </div>
-      <div class={menuSectionItemClass}>
-        <label for="from-input">Von</label>
-        <DateInput id="from-input" value={fromDate} on:change={handleFromChange} />
-      </div>
-      <div class={menuSectionItemClass}>
-        <label for="to-input">Bis</label>
-        <DateInput id="to-input" value={toDate} on:change={handleToChange} />
-      </div>
-    </section>
-    <div class={menuActionsClass}>
-      <Button
-        class={menuButtonClass}
-        btnType="secondary"
-        on:click={() => {
-          handleResetClick();
-          onClose();
-        }}>Zurücksetzen</Button
-      >
-      <Button
-        class={menuButtonClass}
-        on:click={() => {
-          handleApplyClick();
-          onClose();
-        }}>Anwenden</Button
-      >
-    </div>
-  </PopoverContent>
+    </PopoverContent>
+  {/snippet}
 </Popover>

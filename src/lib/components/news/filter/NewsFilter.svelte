@@ -11,7 +11,7 @@
 
   const filterClass = `flex gap-2 ${defaultPadding} w-full ${defaultBackground}`;
 
-  let textFilterInputRef: Input | null = null;
+  let textFilterInputRef: Input | null = $state(null);
 
   onMount(() => {
     subscriptions.push(startSearch.onUpdate(handleStartSearch));
@@ -25,15 +25,15 @@
     textFilterInputRef?.focus();
   }
 
-  function handleTextFilterChange({ detail: textFilter }: { detail: string }) {
+  function handleTextFilterChange(textFilter?: string) {
     searchFilter.setTextFilter(textFilter);
   }
 
-  function handleDateFilterFromChange({ detail: from }: { detail: string }) {
+  function handleDateFilterFromChange(from?: string) {
     searchFilter.setFrom(from);
   }
 
-  function handleDateFilterToChange({ detail: to }: { detail: string }) {
+  function handleDateFilterToChange(to?: string) {
     searchFilter.setTo(to);
   }
 </script>
@@ -42,20 +42,20 @@
   <Input
     id="text-filter-input"
     value={$searchFilter.textFilter}
-    on:change={handleTextFilterChange}
+    onchange={handleTextFilterChange}
     bind:this={textFilterInputRef}
     placeholder="Suche"
   />
   <NewsFilterPopover
     from={$searchFilter.tempSearchFilter.dateFilter?.from}
     to={$searchFilter.tempSearchFilter.dateFilter?.to}
-    on:fromChange={handleDateFilterFromChange}
-    on:toChange={handleDateFilterToChange}
-    on:apply={searchFilter.applyTempSearchFilter}
-    on:reset={searchFilter.resetDateFilter}
-    on:selectToday={searchFilter.selectDateFilterToday}
-    on:selectLastWeek={searchFilter.selectDateFilterLastWeek}
-    on:selectLastMonth={searchFilter.selectDateFilterLastMonth}
-    on:selectLastYear={searchFilter.selectDateFilterLastYear}
+    onFromChange={handleDateFilterFromChange}
+    onToChange={handleDateFilterToChange}
+    onApply={searchFilter.applyTempSearchFilter}
+    onReset={searchFilter.resetDateFilter}
+    onSelectToday={searchFilter.selectDateFilterToday}
+    onSelectLastWeek={searchFilter.selectDateFilterLastWeek}
+    onSelectLastMonth={searchFilter.selectDateFilterLastMonth}
+    onSelectLastYear={searchFilter.selectDateFilterLastYear}
   />
 </div>

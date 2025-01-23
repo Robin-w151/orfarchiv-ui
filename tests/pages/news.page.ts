@@ -43,7 +43,7 @@ export class NewsPage {
   }
 
   get popover(): Locator {
-    return this.page.locator('body > #headlessui-portal-root');
+    return this.page.locator('div[data-testid="popover"]');
   }
 
   constructor(private readonly page: Page) {}

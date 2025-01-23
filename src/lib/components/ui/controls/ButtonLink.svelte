@@ -1,25 +1,43 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { preloadData } from '$app/navigation';
+  import type { MouseEventHandler } from 'svelte/elements';
   import { buttonClassFn, type Size } from './button.styles';
+  import type { Snippet } from 'svelte';
 
-  export let href: string;
-  export let title: string;
-  export let target: string | undefined = undefined;
-  export let size: Size = 'normal';
-  export let iconOnly = false;
-  export let round = false;
-  export let preventDefault = false;
-  export let prefetch = false;
+  interface Props {
+    href: string;
+    title: string;
+    target?: string;
+    size?: Size;
+    iconOnly?: boolean;
+    round?: boolean;
+    preventDefault?: boolean;
+    prefetch?: boolean;
+    class?: string;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLAnchorElement>;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    href,
+    title,
+    target,
+    size = 'normal',
+    iconOnly = false,
+    round = false,
+    preventDefault = false,
+    prefetch = false,
+    class: clazz,
+    children,
+    onclick,
+  }: Props = $props();
 
   const buttonClass = buttonClassFn({
     btnType: 'secondary',
     size,
     iconOnly,
     round,
-    clazz: $$props['class'],
+    clazz,
   });
 
   function triggerPrefetchRoute(): void {
@@ -28,11 +46,11 @@
     }
   }
 
-  function handleClick(event: Event): void {
+  function handleClick(event: MouseEvent & { currentTarget: HTMLAnchorElement }): void {
     if (preventDefault) {
       event.preventDefault();
     }
-    dispatch('click');
+    onclick?.(event);
   }
 
   function handleFocus(): void {
@@ -49,9 +67,9 @@
   {href}
   {target}
   {title}
-  on:click={handleClick}
-  on:focus={handleFocus}
-  on:mouseover={handleMouseOver}
+  onclick={handleClick}
+  onfocus={handleFocus}
+  onmouseover={handleMouseOver}
 >
-  <slot />
+  {@render children?.()}
 </a>

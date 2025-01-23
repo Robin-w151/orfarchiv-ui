@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { inject } from '@vercel/analytics';
   import { injectSpeedInsights } from '@vercel/speed-insights';
   import { browser } from '$app/environment';

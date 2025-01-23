@@ -1,10 +1,13 @@
 <script lang="ts">
   import { NOTIFICATION_NETWORK_OFFLINE_WARNING } from '$lib/configs/client';
   import notifications from '$lib/stores/notifications';
-  import { onlineStore } from 'svelte-legos';
+  import { onlineStore } from '$lib/stores/svelte-legos/online';
 
   const online = onlineStore();
-  $: warnIfOffline($online);
+
+  $effect(() => {
+    warnIfOffline($online);
+  });
 
   function warnIfOffline(online: boolean) {
     if (!online) {

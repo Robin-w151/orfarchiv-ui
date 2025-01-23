@@ -10,10 +10,10 @@
 <Item>
   <div class={headerClass}>
     <div class="info {infoClass}">
-      <span class="title {textClass}" />
-      <span class="metadata {textClass}" />
+      <span class="title {textClass}"></span>
+      <span class="metadata {textClass}"></span>
     </div>
-    <div class={buttonClass} />
+    <div class={buttonClass}></div>
   </div>
 </Item>
 

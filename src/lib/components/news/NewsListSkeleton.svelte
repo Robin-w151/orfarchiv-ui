@@ -6,10 +6,8 @@
 
 <Section title="Aktuell" isLoading>
   <SectionList>
-    <StorySkeleton />
-    <StorySkeleton />
-    <StorySkeleton />
-    <StorySkeleton />
-    <StorySkeleton />
+    {#each { length: 5 } as _}
+      <StorySkeleton />
+    {/each}
   </SectionList>
 </Section>

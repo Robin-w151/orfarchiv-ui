@@ -23,7 +23,7 @@
   const headerTitleClass = 'focus:bg-blue-100 dark:focus:bg-blue-900 outline-none rounded-md';
   const headerActionsClass = 'flex gap-2';
 
-  $: isNewsPage = $page.url.pathname === '/';
+  let isNewsPage = $derived($page.url.pathname === '/');
 
   function handleRefreshButtonClick() {
     refreshNews.notify();
@@ -52,14 +52,14 @@
   </h1>
   <nav class={headerActionsClass}>
     {#if isNewsPage}
-      <ButtonLink href="/" title="Aktualisieren" iconOnly on:click={handleRefreshButtonClick} preventDefault>
+      <ButtonLink href="/" title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
         <RefreshIcon />
       </ButtonLink>
       <Button
         title="Artikel offline verfügbar machen"
         iconOnly
         btnType="secondary"
-        on:click={handleCacheForOfflineUseClick}
+        onclick={handleCacheForOfflineUseClick}
       >
         <CloudArrowDown />
       </Button>

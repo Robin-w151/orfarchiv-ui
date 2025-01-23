@@ -1,13 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
   import Button from './Button.svelte';
 
-  export let id: string;
-  export let value = '';
-  export let placeholder: string | undefined = undefined;
+  interface Props {
+    id: string;
+    value?: string;
+    placeholder?: string;
+    onchange?: (value?: string) => void;
+    onclear?: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let { id, value = $bindable(''), placeholder, onchange, onclear }: Props = $props();
 
   const wrapperClass = `flex items-center relative w-full flex-1`;
   const inputClass = `
@@ -22,25 +25,27 @@
     absolute right-2
   `;
 
-  let inputRef: HTMLInputElement;
+  let inputRef: HTMLInputElement | undefined = $state();
+  let showClearButton = $derived(!!value);
 
-  $: dispatch('change', value);
-  $: showClearButton = !!value;
+  $effect(() => {
+    onchange?.(value);
+  });
 
   export function focus() {
-    inputRef.focus();
+    inputRef?.focus();
   }
 
   function handleClearButtonClick() {
     value = '';
-    dispatch('clear');
-    inputRef.focus();
+    onclear?.();
+    inputRef?.focus();
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       event.preventDefault();
-      inputRef.blur();
+      inputRef?.blur();
     }
   }
 </script>
@@ -50,7 +55,7 @@
     class={inputClass}
     type="text"
     {id}
-    on:keydown={handleKeydown}
+    onkeydown={handleKeydown}
     bind:value
     bind:this={inputRef}
     {placeholder}
@@ -64,8 +69,8 @@
       iconOnly
       round
       title="Eingabe löschen"
-      on:click={handleClearButtonClick}
-      on:keydown={handleKeydown}
+      onclick={handleClearButtonClick}
+      onkeydown={handleKeydown}
     >
       <XIcon />
     </Button>

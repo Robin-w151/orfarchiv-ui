@@ -1,21 +1,23 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { inputClass, labelClass, wrapperClass } from './checkbox.styles';
 
-  export let id: string;
-  export let name: string;
-  export let label: string;
-  export let value: string;
-  export let group: string;
+  interface Props {
+    id: string;
+    name: string;
+    label: string;
+    value: string;
+    group: string;
+    onchange?: (value: string) => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let { id, name, label, value, group = $bindable(), onchange }: Props = $props();
 
   function handleChange() {
-    dispatch('change', value);
+    onchange?.(value);
   }
 </script>
 
 <span class={wrapperClass}>
-  <input class={inputClass} type="radio" {id} {name} {value} bind:group on:change={handleChange} />
+  <input class={inputClass} type="radio" {id} {name} {value} bind:group onchange={handleChange} />
   <label class={labelClass} for={id}>{label}</label>
 </span>

@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  interface Props {
+    id: string;
+    value?: string | null;
+    onchange?: (value?: string | null) => void;
+  }
 
-  export let id: string;
-  export let value: string | null | undefined = '';
-
-  const dispatch = createEventDispatcher();
+  let { id, value = $bindable(''), onchange }: Props = $props();
 
   const inputClass = `
     flex-1 w-full
@@ -15,20 +16,22 @@
     transition
   `;
 
-  let inputRef: HTMLInputElement;
+  let inputRef: HTMLInputElement | undefined = $state();
 
-  $: dispatch('change', value);
+  $effect(() => {
+    onchange?.(value);
+  });
 
   export function focus() {
-    inputRef.focus();
+    inputRef?.focus();
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       event.preventDefault();
-      inputRef.blur();
+      inputRef?.blur();
     }
   }
 </script>
 
-<input class={inputClass} type="date" {id} on:keydown={handleKeydown} bind:value bind:this={inputRef} />
+<input class={inputClass} type="date" {id} onkeydown={handleKeydown} bind:value bind:this={inputRef} />

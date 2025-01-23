@@ -1,20 +1,24 @@
 <script lang="ts">
-  import clsx from 'clsx';
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import { defaultPadding } from '$lib/utils/styles';
-  import StoryHeader from '$lib/components/news/story/header/StoryHeader.svelte';
   import StoryContent from '$lib/components/news/story/content/StoryContent.svelte';
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+  import StoryHeader from '$lib/components/news/story/header/StoryHeader.svelte';
+  import Item from '$lib/components/ui/content/Item.svelte';
+  import AccessibleTransition from '$lib/components/ui/transitions/AccessibleTransition.svelte';
   import type { Story } from '$lib/models/story';
   import { selectStory } from '$lib/stores/newsEvents';
+  import { defaultPadding } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import AccessibleTransition from '$lib/components/ui/transitions/AccessibleTransition.svelte';
   import { rollDown } from '$lib/utils/transitions';
+  import clsx from 'clsx';
+  import { onDestroy, onMount, tick } from 'svelte';
 
-  export let story: Story;
+  interface Props {
+    story: Story;
+    onSelectStory?: ({ id, next }: { id: string; next: boolean }) => void;
+  }
+
+  let { story, onSelectStory }: Props = $props();
 
   const subscriptions: Array<Subscription> = [];
-  const dispatch = createEventDispatcher();
 
   const headerClass = `
     flex flex-row items-center gap-3 top-[47px] sm:top-[53px]
@@ -26,16 +30,17 @@
   `;
   const contentClass = `${defaultPadding} mt-[2px] cursor-auto`;
 
-  let itemRef: Item;
-  let headerRef: StoryHeader;
+  let itemRef: Item | undefined = $state();
+  let headerRef: StoryHeader | undefined = $state();
   let showContentInitial = false;
-  let showContent = false;
+  let showContent = $state(false);
+  let headerClassSticky = $derived(
+    clsx([showContent && 'sticky z-10 mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900']),
+  );
 
-  $: handleContentViewCollapse(showContent);
-
-  $: headerClassSticky = clsx([
-    showContent && 'sticky z-10 mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900',
-  ]);
+  $effect(() => {
+    handleContentViewCollapse(showContent);
+  });
 
   onMount(() => {
     subscriptions.push(selectStory.subscribe(handleStorySelect));
@@ -46,7 +51,7 @@
   });
 
   function scrollIntoView(): void {
-    tick().then(() => itemRef.scrollIntoView());
+    tick().then(() => itemRef?.scrollIntoView());
   }
 
   function toggleShowContent(): void {
@@ -85,30 +90,30 @@
     }
     if (code === 'ArrowUp' && ctrlKey) {
       event.preventDefault();
-      dispatch('selectStory', { id: story.id, next: false });
+      onSelectStory?.({ id: story.id, next: false });
     }
     if (code === 'ArrowDown' && ctrlKey) {
       event.preventDefault();
-      dispatch('selectStory', { id: story.id, next: true });
+      onSelectStory?.({ id: story.id, next: true });
     }
   }
 
   function handleStorySelect(storyId?: string): void {
     if (story.id === storyId) {
-      headerRef.focus();
+      headerRef?.focus();
       scrollIntoView();
     }
   }
 </script>
 
 <Item bind:this={itemRef} noGap noPadding>
-  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-  <div class="header {headerClass} {headerClassSticky}" on:click={handleHeaderWrapperClick}>
-    <StoryHeader {story} on:click={handleHeaderClick} on:keydown={handleHeaderKeydown} bind:this={headerRef} />
+  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+  <div class="header {headerClass} {headerClassSticky}" onclick={handleHeaderWrapperClick}>
+    <StoryHeader {story} onclick={handleHeaderClick} onkeydown={handleHeaderKeydown} bind:this={headerRef} />
   </div>
   {#if showContent}
     <AccessibleTransition class="content {contentClass}" transition={rollDown} onlyIn>
-      <StoryContent {story} on:collapse={handleStoryContentCollapse} />
+      <StoryContent {story} onCollapse={handleStoryContentCollapse} />
     </AccessibleTransition>
   {/if}
 </Item>

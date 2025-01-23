@@ -6,8 +6,8 @@
   import settings from '$lib/stores/settings';
   import { sources } from '$lib/models/settings.js';
 
-  function handleSourceChange(source: string, { detail: checked }: { detail: boolean }) {
-    settings.setSource(source, checked);
+  function handleSourceChange(source: string, event: Event & { currentTarget: HTMLInputElement }): void {
+    settings.setSource(source, event.currentTarget.checked);
   }
 </script>
 
@@ -19,7 +19,7 @@
           id={`source-${key}`}
           {label}
           checked={$settings.sources?.includes(key)}
-          on:change={handleSourceChange.bind(null, key)}
+          onchange={handleSourceChange.bind(null, key)}
         />
       </Item>
     {/each}

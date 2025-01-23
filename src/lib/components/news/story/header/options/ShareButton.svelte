@@ -4,15 +4,17 @@
   import ShareIcon from '$lib/components/ui/icons/outline/ShareIcon.svelte';
   import type { Story } from '$lib/models/story';
 
-  export let story: Story;
-  export let onClose: () => void;
+  interface Props {
+    story: Story;
+    class?: string;
+    onClose?: () => void;
+  }
 
-  let clazz: string;
-  export { clazz as class };
+  let { story, class: clazz, onClose }: Props = $props();
 
-  $: shareData = story?.url ? { text: story?.url } : undefined;
-  $: showShareButton = shareData && isWebShareAvailable(shareData);
-  $: showCopyToClipboardButton = isClipboardAvailable();
+  let shareData = $derived(story?.url ? { text: story?.url } : undefined);
+  let showShareButton = $derived(shareData && isWebShareAvailable(shareData));
+  let showCopyToClipboardButton = $derived(isClipboardAvailable());
 
   function isWebShareAvailable(data: ShareData): boolean {
     return navigator.canShare?.(data) && !!navigator.share;
@@ -24,7 +26,7 @@
 
   function handleShareArticleClick() {
     navigator.share(shareData);
-    onClose();
+    onClose?.();
   }
 
   function handleCopyToClipboardClick() {
@@ -40,18 +42,18 @@
     });
 
     navigator.clipboard.write([clipboardItem]);
-    onClose();
+    onClose?.();
   }
 </script>
 
 {#if showShareButton}
-  <Button class={clazz} customStyle on:click={handleShareArticleClick}>
+  <Button class={clazz} customStyle onclick={handleShareArticleClick}>
     <ShareIcon />
     <span>Artikel teilen</span>
   </Button>
 {/if}
 {#if showCopyToClipboardButton}
-  <Button class={clazz} customStyle on:click={handleCopyToClipboardClick}>
+  <Button class={clazz} customStyle onclick={handleCopyToClipboardClick}>
     <ClipboardDocumentIcon />
     <span>In Zwischenablage kopieren</span>
   </Button>

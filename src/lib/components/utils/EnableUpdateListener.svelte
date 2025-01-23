@@ -5,7 +5,7 @@
   import { onMount } from 'svelte';
   import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
 
-  let isRestarting = false;
+  let isRestarting = $state(false);
 
   onMount(async () => {
     listenForUpdates(({ restart }) => {

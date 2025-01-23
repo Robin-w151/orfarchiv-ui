@@ -1,22 +1,31 @@
 <script lang="ts">
   import settings from '$lib/stores/settings';
   import { transitionDefaults, useReducedMotion } from '$lib/utils/transitions';
+  import type { Snippet } from 'svelte';
   import { fade, type TransitionConfig } from 'svelte/transition';
 
-  export let transition: (node: Element, props: any) => TransitionConfig = fade;
-  export let transitionProps: TransitionConfig | undefined = undefined;
-  export let onlyIn = false;
+  interface Props {
+    transition?: (node: Element, props: any) => TransitionConfig;
+    transitionProps?: TransitionConfig;
+    onlyIn?: boolean;
+    class?: string;
+    children?: Snippet;
+  }
 
-  $: transition = useReducedMotion() || $settings.forceReducedMotion ? fade : transition;
-  $: transitionProps = useReducedMotion() || $settings.forceReducedMotion ? transitionDefaults : transitionProps;
+  let { transition = fade, transitionProps, onlyIn = false, class: clazz, children }: Props = $props();
+
+  let usedTransition = $derived(useReducedMotion() || $settings.forceReducedMotion ? fade : transition);
+  let usedTransitionProps = $derived(
+    useReducedMotion() || $settings.forceReducedMotion ? transitionDefaults : transitionProps,
+  );
 </script>
 
 {#if onlyIn}
-  <div class={$$props['class']} in:transition|global={transitionProps}>
-    <slot />
+  <div class={clazz} in:usedTransition|global={usedTransitionProps}>
+    {@render children?.()}
   </div>
 {:else}
-  <div class={$$props['class']} transition:transition|global={transitionProps}>
-    <slot />
+  <div class={clazz} transition:usedTransition|global={usedTransitionProps}>
+    {@render children?.()}
   </div>
 {/if}

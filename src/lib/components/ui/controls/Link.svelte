@@ -1,10 +1,17 @@
 <script lang="ts">
-  export let href: string;
-  export let target: string | undefined = '_blank';
+  import type { Snippet } from 'svelte';
+  import type { MouseEventHandler } from 'svelte/elements';
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-  export let customStyle = false;
+  interface Props {
+    href: string;
+    target?: string;
+    class?: string;
+    customStyle?: boolean;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLAnchorElement>;
+  }
+
+  let { href, target = '_blank', customStyle = false, class: clazz, children, onclick }: Props = $props();
 
   let rel = target === '_blank' ? 'noopener noreferrer' : undefined;
 
@@ -18,6 +25,6 @@
   `;
 </script>
 
-<a class={linkClass} {href} {target} {rel}>
-  <slot />
+<a class={linkClass} {href} {target} {rel} {onclick}>
+  {@render children?.()}
 </a>

@@ -1,12 +1,16 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/controls/Button.svelte';
+  import Popover from '$lib/components/ui/content/Popover.svelte';
   import PopoverContent from '$lib/components/ui/content/PopoverContent.svelte';
+  import Button from '$lib/components/ui/controls/Button.svelte';
   import TrashIcon from '$lib/components/ui/icons/outline/TrashIcon.svelte';
   import { defaultMenuClass } from '$lib/utils/styles';
-  import { createEventDispatcher } from 'svelte';
-  import Popover from '$lib/components/ui/content/Popover.svelte';
 
-  const dispatch = createEventDispatcher();
+  interface Props {
+    onRemoveAllBookmarks?: () => void;
+    onRemoveAllViewedBookmarks?: () => void;
+  }
+
+  let { onRemoveAllBookmarks, onRemoveAllViewedBookmarks }: Props = $props();
 
   const menuDeleteItemClass = `
     flex gap-2
@@ -19,38 +23,42 @@
   `;
 
   function handleRemoveAllBookmarksButtonClick() {
-    dispatch('removeAllBookmarks');
+    onRemoveAllBookmarks?.();
   }
 
   function handleRemoveAllViewedBookmarksButtonClick() {
-    dispatch('removeAllViewedBookmarks');
+    onRemoveAllViewedBookmarks?.();
   }
 </script>
 
 <Popover btnType="secondary" iconOnly title="Lesezeichen löschen" placement="bottom-end">
-  <TrashIcon slot="button-content" />
-  <PopoverContent class={defaultMenuClass} slot="content" let:onClose>
-    <Button
-      class={menuDeleteItemClass}
-      customStyle
-      on:click={() => {
-        handleRemoveAllBookmarksButtonClick();
-        onClose();
-      }}
-    >
-      <TrashIcon />
-      <span>Alle Lesezeichen löschen</span>
-    </Button>
-    <Button
-      class={menuDeleteItemClass}
-      customStyle
-      on:click={() => {
-        handleRemoveAllViewedBookmarksButtonClick();
-        onClose();
-      }}
-    >
-      <TrashIcon />
-      <span>Gelesene Lesezeichen löschen</span>
-    </Button>
-  </PopoverContent>
+  {#snippet buttonContent()}
+    <TrashIcon />
+  {/snippet}
+  {#snippet popoverContent(onClose)}
+    <PopoverContent class={defaultMenuClass}>
+      <Button
+        class={menuDeleteItemClass}
+        customStyle
+        onclick={() => {
+          handleRemoveAllBookmarksButtonClick();
+          onClose();
+        }}
+      >
+        <TrashIcon />
+        <span>Alle Lesezeichen löschen</span>
+      </Button>
+      <Button
+        class={menuDeleteItemClass}
+        customStyle
+        onclick={() => {
+          handleRemoveAllViewedBookmarksButtonClick();
+          onClose();
+        }}
+      >
+        <TrashIcon />
+        <span>Gelesene Lesezeichen löschen</span>
+      </Button>
+    </PopoverContent>
+  {/snippet}
 </Popover>

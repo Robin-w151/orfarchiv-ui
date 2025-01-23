@@ -5,30 +5,32 @@
   import type { Story } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
 
-  export let story: Story;
-  export let onClose: () => void;
+  interface Props {
+    story: Story;
+    class?: string;
+    onClose?: () => void;
+  }
 
-  let clazz: string;
-  export { clazz as class };
+  let { story, class: clazz, onClose }: Props = $props();
 
   function handleAddToBookmarksClick() {
     bookmarks.add(story);
-    onClose();
+    onClose?.();
   }
 
   function handleRemoveFromBookmarksClick() {
     bookmarks.remove(story);
-    onClose();
+    onClose?.();
   }
 </script>
 
 {#if story.isBookmarked}
-  <Button class={clazz} customStyle on:click={handleRemoveFromBookmarksClick}>
+  <Button class={clazz} customStyle onclick={handleRemoveFromBookmarksClick}>
     <BookmarkSlashIcon />
     <span>Von Lesezeichen entfernen</span>
   </Button>
 {:else}
-  <Button class={clazz} customStyle on:click={handleAddToBookmarksClick}>
+  <Button class={clazz} customStyle onclick={handleAddToBookmarksClick}>
     <BookmarkIcon />
     <span>Zu Lesezeichen hinzufügen</span>
   </Button>

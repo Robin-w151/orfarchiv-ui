@@ -1,10 +1,5 @@
 <script lang="ts">
   import { startSearch } from '$lib/stores/newsEvents';
-  import { onMount } from 'svelte';
-
-  onMount(() => {
-    document.body.addEventListener('keydown', handleKeydown);
-  });
 
   function handleKeydown(event: KeyboardEvent) {
     if (isSearchShortcut(event)) {
@@ -18,3 +13,5 @@
     return (metaKey || ctrlKey) && ['f', 'k'].includes(key);
   }
 </script>
+
+<svelte:document onkeydown={handleKeydown} />

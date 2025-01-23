@@ -4,8 +4,13 @@
   import SectionList from '$lib/components/ui/content/SectionList.svelte';
   import type { NewsBucket } from '$lib/models/news';
 
-  export let storyBuckets: Array<NewsBucket> | undefined = undefined;
-  export let isLoading = false;
+  interface Props {
+    storyBuckets?: Array<NewsBucket>;
+    isLoading?: boolean;
+    onSelectStory?: ({ id, next }: { id: string; next: boolean }) => void;
+  }
+
+  let { storyBuckets, isLoading = false, onSelectStory }: Props = $props();
 
   const listClass = `cursor-pointer`;
 </script>
@@ -16,7 +21,7 @@
       <Section title={bucket.name} {isLoading}>
         <SectionList class={listClass}>
           {#each bucket.stories as story (story.id)}
-            <Story {story} on:selectStory />
+            <Story {story} {onSelectStory} />
           {/each}
         </SectionList>
       </Section>

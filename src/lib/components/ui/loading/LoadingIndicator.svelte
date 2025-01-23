@@ -1,7 +1,11 @@
 <script lang="ts">
   import clsx from 'clsx';
 
-  export let large = false;
+  interface Props {
+    large?: boolean;
+  }
+
+  let { large = false }: Props = $props();
 
   const ringClass = clsx([
     'flex justify-center items-center',
@@ -20,7 +24,7 @@
 </script>
 
 <div class="loading-ring {ringClass}">
-  <div class="loading-inner-ring {innerRingClass}" />
+  <div class="loading-inner-ring {innerRingClass}"></div>
 </div>
 
 <style>
