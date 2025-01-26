@@ -122,7 +122,7 @@
 
     &::after {
       content: '';
-      animation: skeleton-animation 1.5s infinite;
+      animation: skeleton-animation 1.6s infinite;
       height: 100%;
       left: 0;
       position: absolute;
@@ -130,7 +130,11 @@
       top: 0;
       transform: translateX(-100%);
       z-index: 1;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+
+      :root.dark & {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+      }
     }
   }
 

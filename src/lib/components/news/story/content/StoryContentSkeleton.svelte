@@ -1,13 +1,16 @@
 <script lang="ts">
+  import { skeletonStore } from '$lib/stores/runes/skeleton.svelte';
+
   const contentSkeletonClass = 'content-skeleton flex flex-col items-start w-full';
-  const contentSkeletonBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm animate-pulse';
+  const contentSkeletonBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';
+  const skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
 </script>
 
 <div class={contentSkeletonClass} data-testid="story-content-skeleton">
-  <span class={contentSkeletonBarClass}></span>
-  <span class={contentSkeletonBarClass}></span>
-  <span class={contentSkeletonBarClass}></span>
-  <span class={contentSkeletonBarClass}></span>
+  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
+  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
+  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
+  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
 </div>
 
 <style lang="scss">
