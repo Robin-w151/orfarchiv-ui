@@ -39,7 +39,9 @@ export class NewsPage {
   }
 
   get newsNoContentInfo(): Locator {
-    return this.page.locator('text=Keine News vorhanden');
+    return this.page.locator(
+      'text=Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die Filter.',
+    );
   }
 
   get popover(): Locator {

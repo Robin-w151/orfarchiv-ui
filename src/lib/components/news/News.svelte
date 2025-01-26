@@ -16,13 +16,14 @@
   import notifications from '$lib/stores/notifications';
   import searchRequestParameters from '$lib/stores/searchRequestParameters';
   import settings from '$lib/stores/settings';
-  import { defaultAlertTextBox } from '$lib/utils/styles';
+  import { defaultAlertTextBox, defaultBackground } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import InformationCircleIcon from '../ui/icons/outline/InformationCircleIcon.svelte';
+  import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
-  import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -140,6 +141,10 @@
     const stories = get(news).stories;
     selectStory.select({ stories, id, next });
   }
+
+  function handleTryAgainClick(): void {
+    fetchNews(get(searchRequestParameters));
+  }
 </script>
 
 <Content id="news">
@@ -156,8 +161,13 @@
   {:else if $news.isLoading}
     <NewsListSkeleton />
   {:else}
-    <div class={defaultAlertTextBox}>
-      <span>Keine News vorhanden. Versuchen Sie es später erneut.</span>
+    <div class="flex flex-col items-center gap-8 sm:gap-16 p-8 sm:p-32 w-full {defaultBackground}">
+      <InformationCircleIcon class="w-12 h-12 sm:w-24 sm:h-24" />
+      <span class="text-center sm:text-lg"
+        >Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die
+        Filter.</span
+      >
+      <Button btnType="secondary" onclick={handleTryAgainClick}>Erneut versuchen</Button>
     </div>
   {/if}
   {#if showNewsList}
