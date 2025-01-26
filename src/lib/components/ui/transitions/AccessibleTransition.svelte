@@ -1,6 +1,6 @@
 <script lang="ts">
-  import settings from '$lib/stores/settings';
-  import { transitionDefaults, useReducedMotion } from '$lib/utils/transitions';
+  import { reducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { transitionDefaults } from '$lib/utils/transitions';
   import type { Snippet } from 'svelte';
   import { fade, type TransitionConfig } from 'svelte/transition';
 
@@ -14,10 +14,8 @@
 
   let { transition = fade, transitionProps, onlyIn = false, class: clazz, children }: Props = $props();
 
-  let usedTransition = $derived(useReducedMotion() || $settings.forceReducedMotion ? fade : transition);
-  let usedTransitionProps = $derived(
-    useReducedMotion() || $settings.forceReducedMotion ? transitionDefaults : transitionProps,
-  );
+  let usedTransition = $derived(reducedMotionStore.useReducedMotion ? fade : transition);
+  let usedTransitionProps = $derived(reducedMotionStore.useReducedMotion ? transitionDefaults : transitionProps);
 </script>
 
 {#if onlyIn}

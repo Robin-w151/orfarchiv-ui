@@ -1,6 +1,15 @@
 <script lang="ts">
   import NewsList from '$lib/components/news/NewsList.svelte';
+  import NewsListSkeleton from '$lib/components/news/NewsListSkeleton.svelte';
   import type { NewsBucket } from '$lib/models/news';
+  import settings from '$lib/stores/settings';
+
+  interface Props {
+    isLoading: boolean;
+    forceReducedMotion: boolean;
+  }
+
+  let { isLoading = false, forceReducedMotion = false }: Props = $props();
 
   const newsBucket: NewsBucket = {
     name: 'Donnerstag, 06.04.2023',
@@ -48,8 +57,16 @@
       },
     ],
   };
+
+  $effect(() => {
+    settings.setForceReducedMotion(forceReducedMotion);
+  });
 </script>
 
 <div class="w-full max-w-screen-lg">
-  <NewsList storyBuckets={[newsBucket]} isLoading={false} />
+  {#if isLoading}
+    <NewsListSkeleton />
+  {:else}
+    <NewsList storyBuckets={[newsBucket]} {isLoading} />
+  {/if}
 </div>

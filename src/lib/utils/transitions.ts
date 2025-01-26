@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import { cubicInOut, linear } from 'svelte/easing';
 
 export const transitionDefaults = {
@@ -26,13 +25,4 @@ export function rollDown(node: Element) {
       return `max-height: ${t * height}px; opacity: ${t * opacity}; overflow: hidden`;
     },
   };
-}
-
-export function useReducedMotion(): boolean {
-  if (!browser) {
-    return false;
-  }
-
-  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  return mediaQuery.matches;
 }
