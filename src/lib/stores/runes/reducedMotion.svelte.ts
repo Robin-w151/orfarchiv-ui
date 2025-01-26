@@ -4,6 +4,7 @@ import settings from '../settings';
 class ReducedMotionStore {
   private prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
   private forceReducedMotion = $state(false);
+
   useReducedMotion = $derived(this.forceReducedMotion || this.prefersReducedMotion.current);
 
   constructor() {

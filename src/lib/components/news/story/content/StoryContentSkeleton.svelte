@@ -7,10 +7,9 @@
 </script>
 
 <div class={contentSkeletonClass} data-testid="story-content-skeleton">
-  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
-  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
-  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
-  <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
+  {#each { length: 4 } as _}
+    <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
+  {/each}
 </div>
 
 <style lang="scss">
