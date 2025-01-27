@@ -6,7 +6,7 @@ const args = {
 };
 
 export default {
-  title: 'Loading/SpinningDots',
+  title: 'Loading/Indicators/SpinningDots',
   component: SpinningDotsLoadingIndicatorView,
   args,
 };

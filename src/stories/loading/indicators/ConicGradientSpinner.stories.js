@@ -1,8 +1,8 @@
 import ConicGradientSpinner from '$lib/components/ui/loading/ConicGradientSpinner.svelte';
-import '../../app.scss';
+import '../../../app.scss';
 
 export default {
-  title: 'Loading/ConicGradient',
+  title: 'Loading/Indicators/ConicGradient',
   component: ConicGradientSpinner,
 };
 

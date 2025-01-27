@@ -1,7 +1,7 @@
 import ThreeDotsLoadingIndicator from '$lib/components/ui/loading/ThreeDotsLoadingIndicator.svelte';
 
 export default {
-  title: 'Loading/ThreeDots',
+  title: 'Loading/Indicators/ThreeDots',
   component: ThreeDotsLoadingIndicator,
 };
 
