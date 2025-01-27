@@ -7,7 +7,7 @@
 </script>
 
 <div class={contentSkeletonClass} data-testid="story-content-skeleton">
-  {#each { length: 4 } as _}
+  {#each { length: 8 } as _}
     <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
   {/each}
 </div>
@@ -21,10 +21,10 @@
 
     span:nth-child(1) {
       margin: calc(4px + 0.5rem) 0;
-      width: 40%;
+      width: 15%;
     }
     span:nth-child(2) {
-      width: 95%;
+      width: 93%;
     }
     span:nth-child(3) {
       width: 85%;
@@ -32,6 +32,20 @@
     span:nth-child(4) {
       margin-bottom: calc(4px + 0.5rem);
       width: 90%;
+    }
+    span:nth-child(5) {
+      margin-bottom: calc(4px + 0.5rem);
+      width: 40%;
+    }
+    span:nth-child(6) {
+      width: 92%;
+    }
+    span:nth-child(7) {
+      width: 96%;
+    }
+    span:nth-child(8) {
+      margin-bottom: calc(4px + 0.5rem);
+      width: 88%;
     }
   }
 </style>
