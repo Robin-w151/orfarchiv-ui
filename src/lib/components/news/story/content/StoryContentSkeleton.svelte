@@ -21,7 +21,7 @@
 
     span:nth-child(1) {
       margin: calc(4px + 0.5rem) 0;
-      width: 15%;
+      width: 30%;
     }
     span:nth-child(2) {
       width: 93%;
