@@ -16,4 +16,5 @@ export interface OANotificationOptions extends OANotificationHandlers {
   replaceInCategory?: boolean;
   forceAppNotification?: boolean;
   requiredPathForFocus?: string;
+  timeoutInMs?: number;
 }

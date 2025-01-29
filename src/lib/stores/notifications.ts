@@ -40,6 +40,10 @@ function createNotificationsStore(): NotificationsStore {
       } else {
         set([...currentNotifications, notification]);
       }
+
+      if (options?.timeoutInMs) {
+        setTimeout(() => remove(id), options.timeoutInMs);
+      }
     }
   }
 

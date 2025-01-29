@@ -2,7 +2,9 @@
   import Button from '$lib/components/ui/controls/Button.svelte';
   import ClipboardDocumentIcon from '$lib/components/ui/icons/outline/ClipboardDocumentIcon.svelte';
   import ShareIcon from '$lib/components/ui/icons/outline/ShareIcon.svelte';
+  import { NOTIFICATION_COPY_LINK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
+  import notifications from '$lib/stores/notifications';
 
   interface Props {
     story: Story;
@@ -29,7 +31,7 @@
     onClose?.();
   }
 
-  function handleCopyToClipboardClick() {
+  async function handleCopyToClipboardClick() {
     const text = new Blob([story.url], { type: 'text/plain' });
     const html = new Blob(
       [`<a id="${story.id}" data-timestamp="${story.timestamp}" href="${story.url}">${story.title}</a>`],
@@ -42,6 +44,11 @@
     });
 
     navigator.clipboard.write([clipboardItem]);
+    notifications.notify('Link kopiert', 'Der Link zum Artikel wurde in die Zwischenablage kopiert.', {
+      forceAppNotification: true,
+      timeoutInMs: NOTIFICATION_COPY_LINK_TIMEOUT,
+    });
+
     onClose?.();
   }
 </script>
