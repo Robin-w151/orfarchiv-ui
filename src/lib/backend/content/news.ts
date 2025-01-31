@@ -228,7 +228,7 @@ function sanitizeContent(html: string): string {
 }
 
 function extractTextForSpeechSynthesis(optimizedDocument: Document, originalDocument: Document): string {
-  const unwantetPatterns = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i];
+  const unwantetPatterns = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i, /^online\s+seit/i];
   const keywordText = originalDocument.querySelector('div.keyword')?.textContent?.trim();
   if (keywordText) {
     unwantetPatterns.push(new RegExp(`^${keywordText}$`));
