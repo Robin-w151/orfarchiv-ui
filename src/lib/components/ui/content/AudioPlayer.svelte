@@ -13,10 +13,13 @@
   import XIcon from '../icons/outline/XIcon.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
-  const wrapperClass = ['fixed bottom-0 left-0 right-0 z-30 flex justify-end'];
+  let minimized = $state(false);
+  let sourceLabel = $derived(getSourceLabel(audioStore.story?.source));
+
+  const wrapperClass = $derived(['fixed bottom-0 right-0 z-30 flex justify-end', !minimized && 'w-full sm:w-[32rem]']);
   const playerClass = [
     'flex flex-col gap-4 mx-6 my-4 p-4',
-    'w-full max-w-md',
+    'w-full',
     'bg-gray-100/90 dark:bg-gray-600/80',
     'rounded-xl shadow-md backdrop-blur-md',
   ];
@@ -29,9 +32,6 @@
   const titleClass = ['flex flex-col flex-1 items-start'];
   const metadataClass = ['flex flex-wrap items-center gap-x-1 text-sm text-gray-600 dark:text-gray-300'];
   const controlsClass = ['flex justify-center gap-2'];
-
-  let minimized = $state(false);
-  let sourceLabel = $derived(getSourceLabel(audioStore.story?.source));
 
   function handleToggleMinimized() {
     minimized = !minimized;
