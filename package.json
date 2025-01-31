@@ -54,6 +54,7 @@
     "dexie": "4.0.11",
     "dompurify": "3.2.4",
     "dotenv-flow": "4.1.0",
+    "easy-speech": "^2.4.0",
     "escodegen": "2.1.0",
     "eslint": "9.19.0",
     "eslint-config-prettier": "10.0.1",

@@ -3,11 +3,14 @@
   import Button from '$lib/components/ui/controls/Button.svelte';
   import Link from '$lib/components/ui/controls/Link.svelte';
   import ChevronUpIcon from '$lib/components/ui/icons/outline/ChevronUpIcon.svelte';
+  import PauseCircleIcon from '$lib/components/ui/icons/outline/PauseCircleIcon.svelte';
+  import PlayCircleIcon from '$lib/components/ui/icons/outline/PlayCircleIcon.svelte';
   import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
+  import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
   import { wait } from '$lib/utils/wait';
   import { onDestroy, onMount } from 'svelte';
@@ -37,6 +40,7 @@
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
+  let isPlaying = $derived(audioStore.story?.id === story.id && audioStore.isPlaying);
 
   $effect(() => {
     handleContentChange(storyContentRef);
@@ -57,6 +61,7 @@
       storyContent = await fetchContentWithRetry(story);
       if (storyContent) {
         contentStore.setContent(story.id, storyContent);
+        console.log(storyContent.contentText);
 
         if (storyContent.id) {
           const originalContent = { ...storyContent };
@@ -137,6 +142,19 @@
   function handleImageClose(): void {
     activeStoryImage = undefined;
   }
+
+  function handlePlayArticle(): void {
+    if (isPlaying) {
+      audioStore.pause();
+      return;
+    }
+
+    if (!storyContent?.contentText) {
+      return;
+    }
+
+    audioStore.read(story, storyContent.contentText);
+  }
 </script>
 
 <div class={wrapperClass}>
@@ -148,6 +166,18 @@
         <div class={contentInfoClass}>Inhalt geladen von {sourceLabel}</div>
       {/if}
       <div bind:this={storyContentRef}>
+        {#if audioStore.isAvailable}
+          <div class="inline-block float-right ml-2 mb-2">
+            <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
+              {#if isPlaying}
+                <PauseCircleIcon />
+              {:else}
+                <PlayCircleIcon />
+              {/if}
+              <span>Vorlesen</span>
+            </Button>
+          </div>
+        {/if}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html storyContent.content}
       </div>

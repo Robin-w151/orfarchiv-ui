@@ -21,6 +21,7 @@ export interface StoryEntity {
 
 export interface StoryContent {
   content: string;
+  contentText: string;
   id?: string;
   timestamp?: string;
   source?: StorySource;

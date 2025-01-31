@@ -12,6 +12,7 @@
   import { pwaInfo } from 'virtual:pwa-info';
   import '../app.scss';
   import { API_VERSION } from '$lib/configs/shared';
+  import AudioPlayer from '$lib/components/ui/content/AudioPlayer.svelte';
 
   interface Props {
     children?: Snippet;
@@ -21,7 +22,7 @@
 
   const wrapperClass = `
     flex flex-col gap-2 lg:gap-3
-    p-2 pb-6 lg:p-4 lg:pb-6
+    p-2 pb-20 lg:p-4 lg:pb-20
     ${defaultScreenSize}
   `;
   const mainClass = 'flex flex-col gap-2 lg:gap-3';
@@ -61,6 +62,7 @@
   <Header />
 
   {#if isApiCompatible}
+    <AudioPlayer />
     <main class={mainClass}>
       {@render children?.()}
     </main>
