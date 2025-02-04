@@ -8,6 +8,7 @@
   import Developer from './developer/Developer.svelte';
   import { PUBLIC_APP_MODE } from '$env/static/public';
   import Audio from './audio/Audio.svelte';
+  import { audioStore } from '$lib/stores/runes/audio.svelte';
 
   const gridClass = `
     grid grid-cols-auto sm:grid-cols-[1fr_1fr] ${defaultGap}
@@ -24,7 +25,9 @@
       <General />
       <Appearance />
       <Info />
-      <Audio />
+      {#if audioStore.isAvailable}
+        <Audio />
+      {/if}
       {#if PUBLIC_APP_MODE === 'dev'}
         <Developer />
       {/if}
