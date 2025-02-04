@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 import type { Story } from '$lib/models/story';
 import { isMediaSessionAvailable } from '$lib/utils/web-api-support';
 import EasySpeech from 'easy-speech';
+import settings from '../settings';
 
 function AudioStore() {
   let isAvailable = $state(false);
@@ -10,6 +11,7 @@ function AudioStore() {
   let volume = $state(1);
   let utterance: { text: string; voice?: SpeechSynthesisVoice; rate: number; volume: number } | undefined;
   let voice: SpeechSynthesisVoice | undefined;
+  let voices: Array<SpeechSynthesisVoice> = $state([]);
 
   const isActive = $derived<boolean>(!!story);
 
@@ -19,7 +21,8 @@ function AudioStore() {
       if (speechSynthesis && speechSynthesisUtterance) {
         try {
           await EasySpeech.init({ maxTimeout: 5000, interval: 250 });
-          voice = EasySpeech.voices().find((voice) => /de/i.test(voice.lang));
+          voices = EasySpeech.voices().filter((voice) => /de/i.test(voice.lang));
+          voice = voices[0];
           EasySpeech.on({
             resume: () => {
               isPlaying = true;
@@ -30,6 +33,14 @@ function AudioStore() {
             end: () => {
               isPlaying = false;
             },
+          });
+
+          settings.subscribe((settings) => {
+            if (settings.audioVoice) {
+              voice = voices.find((voice) => voice.voiceURI === settings.audioVoice);
+            } else {
+              voice = voices[0];
+            }
           });
 
           isAvailable = true;
@@ -81,7 +92,7 @@ function AudioStore() {
     utterance = {
       text: newText,
       voice,
-      rate: 1.3,
+      rate: 1.2,
       volume,
     };
     EasySpeech.speak(utterance);
@@ -166,6 +177,12 @@ function AudioStore() {
     },
     get volume() {
       return volume;
+    },
+    get voices() {
+      return voices;
+    },
+    get voice() {
+      return voice;
     },
     read,
     play,

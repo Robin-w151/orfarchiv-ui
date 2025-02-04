@@ -7,6 +7,7 @@
   import Appearance from '$lib/components/settings/appearance/Appearance.svelte';
   import Developer from './developer/Developer.svelte';
   import { PUBLIC_APP_MODE } from '$env/static/public';
+  import Audio from './audio/Audio.svelte';
 
   const gridClass = `
     grid grid-cols-auto sm:grid-cols-[1fr_1fr] ${defaultGap}
@@ -23,6 +24,7 @@
       <General />
       <Appearance />
       <Info />
+      <Audio />
       {#if PUBLIC_APP_MODE === 'dev'}
         <Developer />
       {/if}

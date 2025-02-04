@@ -3,6 +3,7 @@ export interface Settings {
   checkNewsUpdates: boolean;
   forceReducedMotion: boolean;
   sources: Array<string>;
+  audioVoice?: string;
 }
 
 export interface Source {

@@ -1,14 +1,14 @@
-import InputComponent from '$lib/components/ui/controls/Input.svelte';
+import SelectView from './SelectView.svelte';
 
 const args = {
-  id: 'input',
-  value: '',
+  id: 'select',
+  value: '1',
   placeholder: 'Enter text here',
 };
 
 export default {
-  title: 'Controls/Input',
-  component: InputComponent,
+  title: 'Controls/Select',
+  component: SelectView,
   args,
   argTypes: {
     id: {
@@ -18,23 +18,23 @@ export default {
     },
     value: {
       type: 'string',
-      description: 'Current value of the input control',
+      description: 'Current value of the select control',
       control: 'text',
     },
     placeholder: {
       type: 'string',
-      description: 'Placeholder text of the input control',
+      description: 'Placeholder text of the select control',
       control: 'text',
     },
     onchange: {
       action: 'change',
-      description: 'Called when the value of the input control is changed',
+      description: 'Called when the value of the select control is changed',
     },
   },
 };
 
-export const Input = (args) => ({
-  Component: InputComponent,
+export const Select = (args) => ({
+  Component: SelectView,
   props: args,
   on: {
     onchange: args.onchange,
