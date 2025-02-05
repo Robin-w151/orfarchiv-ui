@@ -54,15 +54,15 @@ function AudioStore() {
 
   if (isMediaSessionAvailable()) {
     navigator.mediaSession.setActionHandler('play', () => {
-      console.log('play');
+      console.log('media-session action: play');
       play();
     });
     navigator.mediaSession.setActionHandler('pause', () => {
-      console.log('pause');
+      console.log('media-session action: pause');
       pause();
     });
     navigator.mediaSession.setActionHandler('stop', () => {
-      console.log('stop');
+      console.log('media-session action: stop');
       end();
     });
   }

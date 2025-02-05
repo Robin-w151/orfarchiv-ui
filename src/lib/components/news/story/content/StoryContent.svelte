@@ -61,7 +61,9 @@
       storyContent = await fetchContentWithRetry(story);
       if (storyContent) {
         contentStore.setContent(story.id, storyContent);
+        console.groupCollapsed('text-content');
         console.log(storyContent.contentText);
+        console.groupEnd();
 
         if (storyContent.id) {
           const originalContent = { ...storyContent };
