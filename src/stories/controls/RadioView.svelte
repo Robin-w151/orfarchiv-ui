@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Radio from '$lib/components/ui/controls/Radio.svelte';
+  import Radio from '$lib/components/shared/controls/Radio.svelte';
 
   interface Props {
     id: string;

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import Checkbox from '$lib/components/ui/controls/Checkbox.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
+  import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
   import settings from '$lib/stores/settings';
   import { sources } from '$lib/models/settings.js';
 

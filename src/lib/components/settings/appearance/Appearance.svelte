@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import Radio from '$lib/components/ui/controls/Radio.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
+  import Radio from '$lib/components/shared/controls/Radio.svelte';
   import styles, { type ColorScheme } from '$lib/stores/styles';
 
   let colorScheme: ColorScheme = $state($styles.colorScheme);

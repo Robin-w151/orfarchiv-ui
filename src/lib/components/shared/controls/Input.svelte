@@ -1,5 +1,5 @@
 <script lang="ts">
-  import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
+  import XIcon from '$lib/components/shared/icons/outline/XIcon.svelte';
   import Button from './Button.svelte';
 
   interface Props {

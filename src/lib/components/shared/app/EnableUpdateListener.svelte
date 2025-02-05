@@ -3,7 +3,7 @@
   import notifications from '$lib/stores/notifications';
   import { listenForUpdates } from '$lib/utils/updateListener';
   import { onMount } from 'svelte';
-  import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
+  import SpinningDotsIndicator from '$lib/components/shared/loading/SpinningDotsIndicator.svelte';
 
   let isRestarting = $state(false);
 

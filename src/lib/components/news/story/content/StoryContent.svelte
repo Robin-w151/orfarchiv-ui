@@ -1,10 +1,10 @@
 <script lang="ts">
   import { fetchContent } from '$lib/api/news';
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import Link from '$lib/components/ui/controls/Link.svelte';
-  import ChevronUpIcon from '$lib/components/ui/icons/outline/ChevronUpIcon.svelte';
-  import PauseCircleIcon from '$lib/components/ui/icons/outline/PauseCircleIcon.svelte';
-  import PlayCircleIcon from '$lib/components/ui/icons/outline/PlayCircleIcon.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
+  import ChevronUpIcon from '$lib/components/shared/icons/outline/ChevronUpIcon.svelte';
+  import PauseCircleIcon from '$lib/components/shared/icons/outline/PauseCircleIcon.svelte';
+  import PlayCircleIcon from '$lib/components/shared/icons/outline/PlayCircleIcon.svelte';
   import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';

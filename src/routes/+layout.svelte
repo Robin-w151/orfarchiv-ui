@@ -1,78 +1,14 @@
 <script lang="ts">
-  import { fetchInfo } from '$lib/api/info';
-  import Header from '$lib/components/ui/content/Header.svelte';
-  import Notifications from '$lib/components/ui/controls/Notifications.svelte';
-  import EnableAnalytics from '$lib/components/utils/EnableAnalytics.svelte';
-  import EnableDarkMode from '$lib/components/utils/EnableDarkMode.svelte';
-  import EnableGlobalKeybindings from '$lib/components/utils/EnableGlobalKeybindings.svelte';
-  import EnableNetworkNotifications from '$lib/components/utils/EnableNetworkNotifications.svelte';
-  import EnableUpdateListener from '$lib/components/utils/EnableUpdateListener.svelte';
-  import { defaultAlertTextBox, defaultScreenSize } from '$lib/utils/styles';
-  import { onMount, type Snippet } from 'svelte';
-  import { pwaInfo } from 'virtual:pwa-info';
-  import '../app.scss';
-  import { API_VERSION } from '$lib/configs/shared';
-  import AudioPlayer from '$lib/components/ui/content/AudioPlayer.svelte';
+  import AppLayout from '$lib/components/shared/app/AppLayout.svelte';
+  import { type Snippet } from 'svelte';
 
   interface Props {
     children?: Snippet;
   }
 
   let { children }: Props = $props();
-
-  const wrapperClass = `
-    flex flex-col gap-2 lg:gap-3
-    p-2 pb-20 lg:p-4 lg:pb-20
-    ${defaultScreenSize}
-  `;
-  const mainClass = 'flex flex-col gap-2 lg:gap-3';
-
-  let isApiCompatible = $state(true);
-  let webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
-
-  onMount(() => {
-    document.documentElement.setAttribute('data-test', 'ready');
-
-    checkApiVersion();
-  });
-
-  async function checkApiVersion(): Promise<void> {
-    try {
-      const { apiVersion } = await fetchInfo();
-      isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
-    } catch (_error) {
-      console.warn('Could not determine current API version!');
-    }
-  }
 </script>
 
-<svelte:head>
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html webManifestLink}
-</svelte:head>
-
-<EnableDarkMode />
-<EnableAnalytics />
-<EnableGlobalKeybindings />
-<EnableNetworkNotifications />
-<EnableUpdateListener />
-
-<div class={wrapperClass}>
-  <Notifications />
-  <Header />
-
-  {#if isApiCompatible}
-    <AudioPlayer />
-    <main class={mainClass}>
-      {@render children?.()}
-    </main>
-  {:else}
-    <div class={defaultAlertTextBox}>
-      <strong>Veraltete Version</strong>
-      <span
-        >Diese Version ist veraltet und nicht mehr kompatibel. Bitte schließen Sie alle Tabs und öffnen dann ORF Archiv
-        erneut.
-      </span>
-    </div>
-  {/if}
-</div>
+<AppLayout>
+  {@render children?.()}
+</AppLayout>

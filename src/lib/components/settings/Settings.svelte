@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Content from '$lib/components/ui/content/Content.svelte';
+  import Content from '$lib/components/shared/content/Content.svelte';
   import { defaultGap } from '$lib/utils/styles';
   import General from './general/General.svelte';
   import Sources from './sources/Sources.svelte';

@@ -1,4 +1,4 @@
-import InputComponent from '$lib/components/ui/controls/Input.svelte';
+import InputComponent from '$lib/components/shared/controls/Input.svelte';
 
 const args = {
   id: 'input',

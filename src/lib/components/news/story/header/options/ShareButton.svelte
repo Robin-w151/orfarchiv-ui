@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import ClipboardDocumentIcon from '$lib/components/ui/icons/outline/ClipboardDocumentIcon.svelte';
-  import ShareIcon from '$lib/components/ui/icons/outline/ShareIcon.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import ClipboardDocumentIcon from '$lib/components/shared/icons/outline/ClipboardDocumentIcon.svelte';
+  import ShareIcon from '$lib/components/shared/icons/outline/ShareIcon.svelte';
   import { NOTIFICATION_COPY_LINK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
   import notifications from '$lib/stores/notifications';

@@ -1,4 +1,4 @@
-import DateInputComponent from '$lib/components/ui/controls/DateInput.svelte';
+import DateInputComponent from '$lib/components/shared/controls/DateInput.svelte';
 
 const args = {
   id: 'date-input',

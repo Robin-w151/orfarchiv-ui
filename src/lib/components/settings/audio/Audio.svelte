@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
-  import Select from '$lib/components/ui/controls/Select.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
+  import Select from '$lib/components/shared/controls/Select.svelte';
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defaultPadding } from '$lib/utils/styles';
-  import ConicGradientSpinner from '$lib/components/ui/loading/ConicGradientSpinner.svelte';
+  import ConicGradientSpinner from '$lib/components/shared/loading/ConicGradientSpinner.svelte';
   import type { Snippet } from 'svelte';
 
   interface Props {

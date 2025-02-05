@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Link from '$lib/components/ui/controls/Link.svelte';
-  import QuestionMarkCircleIcon from '$lib/components/ui/icons/outline/QuestionMarkCircleIcon.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
+  import QuestionMarkCircleIcon from '$lib/components/shared/icons/outline/QuestionMarkCircleIcon.svelte';
 
   interface Props {
     class?: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Select from '$lib/components/ui/controls/Select.svelte';
+  import Select from '$lib/components/shared/controls/Select.svelte';
 
   interface Props {
     id: string;

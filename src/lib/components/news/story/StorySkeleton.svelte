@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Item from '$lib/components/ui/content/Item.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
   import { skeletonStore } from '$lib/stores/runes/skeleton.svelte';
 
   const headerClass = 'flex flex-row items-center gap-3';

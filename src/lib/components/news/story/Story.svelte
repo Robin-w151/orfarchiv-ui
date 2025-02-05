@@ -1,8 +1,8 @@
 <script lang="ts">
   import StoryContent from '$lib/components/news/story/content/StoryContent.svelte';
   import StoryHeader from '$lib/components/news/story/header/StoryHeader.svelte';
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import AccessibleTransition from '$lib/components/ui/transitions/AccessibleTransition.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
+  import AccessibleTransition from '$lib/components/shared/transitions/AccessibleTransition.svelte';
   import type { Story } from '$lib/models/story';
   import { selectStory } from '$lib/stores/newsEvents';
   import { defaultPadding } from '$lib/utils/styles';

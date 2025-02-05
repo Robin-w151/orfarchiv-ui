@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Notification from '$lib/components/ui/controls/Notification.svelte';
+  import Notification from '$lib/components/shared/controls/Notification.svelte';
 
   interface Props {
     id: string;
