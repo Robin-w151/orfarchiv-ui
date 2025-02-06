@@ -10,6 +10,7 @@ export interface SettingsStore extends Readable<Settings> {
   setCheckNewsUpdates: (checkNewsUpdates: boolean) => void;
   setForceReducedMotion: (forceReducedMotion: boolean) => void;
   setSource: (source: string, included: boolean) => void;
+  setAudioVoice: (audioVoice: string | undefined) => void;
 }
 
 const initialState: Settings = {
@@ -17,6 +18,7 @@ const initialState: Settings = {
   checkNewsUpdates: false,
   forceReducedMotion: false,
   sources: sources.map((source) => source.key),
+  audioVoice: undefined,
 };
 
 sanitizeLocalStorage();
@@ -91,12 +93,17 @@ function createSettingsStore(): SettingsStore {
     });
   }
 
+  function setAudioVoice(audioVoice: string | undefined): void {
+    update((settings) => ({ ...settings, audioVoice }));
+  }
+
   return {
     subscribe,
     setFetchReadMoreContent,
     setCheckNewsUpdates,
     setForceReducedMotion,
     setSource,
+    setAudioVoice,
   };
 }
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import bookmarks from '$lib/stores/bookmarks';
-  import Content from '$lib/components/ui/content/Content.svelte';
+  import Content from '$lib/components/shared/content/Content.svelte';
   import NewsList from '../NewsList.svelte';
   import { defaultAlertTextBox } from '$lib/utils/styles';
   import BookmarkActions from '../filter/BookmarkActions.svelte';

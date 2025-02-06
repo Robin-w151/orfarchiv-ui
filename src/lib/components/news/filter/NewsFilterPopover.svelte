@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Popover from '$lib/components/ui/content/Popover.svelte';
-  import PopoverContent from '$lib/components/ui/content/PopoverContent.svelte';
-  import TextGradient from '$lib/components/ui/content/TextGradient.svelte';
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import DateInput from '$lib/components/ui/controls/DateInput.svelte';
-  import CalendarIcon from '$lib/components/ui/icons/outline/CalendarIcon.svelte';
-  import FunnelIcon from '$lib/components/ui/icons/outline/FunnelIcon.svelte';
+  import Popover from '$lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
+  import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import DateInput from '$lib/components/shared/controls/DateInput.svelte';
+  import CalendarIcon from '$lib/components/shared/icons/outline/CalendarIcon.svelte';
+  import FunnelIcon from '$lib/components/shared/icons/outline/FunnelIcon.svelte';
   import type { DateTime } from 'luxon';
 
   interface Props {

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Popover from '$lib/components/ui/content/Popover.svelte';
-  import PopoverContent from '$lib/components/ui/content/PopoverContent.svelte';
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import TrashIcon from '$lib/components/ui/icons/outline/TrashIcon.svelte';
+  import Popover from '$lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import TrashIcon from '$lib/components/shared/icons/outline/TrashIcon.svelte';
   import { defaultMenuClass } from '$lib/utils/styles';
 
   interface Props {

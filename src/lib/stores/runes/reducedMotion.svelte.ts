@@ -1,17 +1,21 @@
 import { MediaQuery } from 'svelte/reactivity';
 import settings from '../settings';
 
-class ReducedMotionStore {
-  private prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
-  private forceReducedMotion = $state(false);
+function ReducedMotionStore() {
+  const prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
+  let forceReducedMotion = $state(false);
 
-  useReducedMotion = $derived(this.forceReducedMotion || this.prefersReducedMotion.current);
+  const useReducedMotion = $derived(forceReducedMotion || prefersReducedMotion.current);
 
-  constructor() {
-    settings.subscribe((settings) => {
-      this.forceReducedMotion = settings.forceReducedMotion;
-    });
-  }
+  settings.subscribe((settings) => {
+    forceReducedMotion = settings.forceReducedMotion;
+  });
+
+  return {
+    get useReducedMotion() {
+      return useReducedMotion;
+    },
+  };
 }
 
-export const reducedMotionStore = new ReducedMotionStore();
+export const reducedMotionStore = ReducedMotionStore();

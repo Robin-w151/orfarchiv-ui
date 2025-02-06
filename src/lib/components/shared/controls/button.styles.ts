@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 
 export type BtnType = 'primary' | 'secondary' | 'monochrome';
-export type Size = 'small' | 'normal';
+export type Size = 'small' | 'normal' | 'large';
 
 interface Variant {
   color: string;
@@ -37,6 +37,9 @@ const sizeClass = (size: Size, iconOnly: boolean) =>
     size === 'small' && !iconOnly && 'w-20',
     size === 'normal' && (iconOnly ? 'p-2' : 'px-3 py-2'),
     size === 'normal' && !iconOnly && 'w-28',
+    size === 'large' && 'text-lg',
+    size === 'large' && (iconOnly ? 'p-3' : 'px-4 py-3'),
+    size === 'large' && !iconOnly && 'w-32',
     'min-w-fit',
   ]);
 const roundedClass = (round: boolean) => (round ? 'rounded-full' : 'rounded-md');

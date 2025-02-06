@@ -29,13 +29,6 @@ const config = {
   build: {
     sourcemap: true,
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern',
-      },
-    },
-  },
   server: {
     port: 3001,
   },

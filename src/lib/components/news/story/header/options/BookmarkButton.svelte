@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import BookmarkIcon from '$lib/components/ui/icons/outline/BookmarkIcon.svelte';
-  import BookmarkSlashIcon from '$lib/components/ui/icons/outline/BookmarkSlashIcon.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import BookmarkIcon from '$lib/components/shared/icons/outline/BookmarkIcon.svelte';
+  import BookmarkSlashIcon from '$lib/components/shared/icons/outline/BookmarkSlashIcon.svelte';
   import { NOTIFICATION_BOOKMARK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';

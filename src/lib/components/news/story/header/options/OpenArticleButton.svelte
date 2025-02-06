@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Link from '$lib/components/ui/controls/Link.svelte';
-  import NewspaperIcon from '$lib/components/ui/icons/outline/NewspaperIcon.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
+  import NewspaperIcon from '$lib/components/shared/icons/outline/NewspaperIcon.svelte';
   import type { Story } from '$lib/models/story';
 
   interface Props {

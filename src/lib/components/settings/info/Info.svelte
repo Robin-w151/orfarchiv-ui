@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import Link from '$lib/components/ui/controls/Link.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
-  import SimpleItem from '$lib/components/ui/content/SimpleItem.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
+  import SimpleItem from '$lib/components/shared/content/SimpleItem.svelte';
 
   const appVersion = import.meta.env.APP_VERSION;
   const sourceCodeUrl = 'https://github.com/Robin-w151/orfarchiv';

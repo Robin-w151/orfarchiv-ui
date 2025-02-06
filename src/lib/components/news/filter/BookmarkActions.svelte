@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Input from '$lib/components/ui/controls/Input.svelte';
+  import Input from '$lib/components/shared/controls/Input.svelte';
   import bookmarks from '$lib/stores/bookmarks';
   import { startSearch } from '$lib/stores/newsEvents';
   import { defaultBackground, defaultPadding } from '$lib/utils/styles';

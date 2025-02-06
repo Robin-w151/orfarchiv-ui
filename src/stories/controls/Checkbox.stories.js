@@ -1,4 +1,4 @@
-import CheckboxCmp from '$lib/components/ui/controls/Checkbox.svelte';
+import CheckboxCmp from '$lib/components/shared/controls/Checkbox.svelte';
 
 const args = {
   id: 'checkbox',

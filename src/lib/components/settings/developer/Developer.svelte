@@ -1,9 +1,9 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import Item from '$lib/components/ui/content/Item.svelte';
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
-  import Button from '$lib/components/ui/controls/Button.svelte';
+  import Item from '$lib/components/shared/content/Item.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
   import { BOOKMARKS_STORE_NAME } from '$lib/configs/client';
   import { humanReadableMemorySize } from '$lib/utils/formatting';
   import { onMount } from 'svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Checkbox from '$lib/components/ui/controls/Checkbox.svelte';
-  import SpinningDotsIndicator from '$lib/components/ui/loading/SpinningDotsIndicator.svelte';
+  import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
+  import SpinningDotsIndicator from '$lib/components/shared/loading/SpinningDotsIndicator.svelte';
   import type { ChangeEventHandler } from 'svelte/elements';
 
   interface Props {

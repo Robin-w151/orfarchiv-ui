@@ -1,7 +1,7 @@
 <script lang="ts">
-  import ChevronLeftIcon from '$lib/components/ui/icons/outline/ChevronLeftIcon.svelte';
-  import ChevronRightIcon from '$lib/components/ui/icons/outline/ChevronRightIcon.svelte';
-  import XIcon from '$lib/components/ui/icons/outline/XIcon.svelte';
+  import ChevronLeftIcon from '$lib/components/shared/icons/outline/ChevronLeftIcon.svelte';
+  import ChevronRightIcon from '$lib/components/shared/icons/outline/ChevronRightIcon.svelte';
+  import XIcon from '$lib/components/shared/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
   import { onDestroy, onMount } from 'svelte';
 

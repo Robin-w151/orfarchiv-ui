@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/controls/Button.svelte';
-  import NewspaperIcon from '$lib/components/ui/icons/outline/NewspaperIcon.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import NewspaperIcon from '$lib/components/shared/icons/outline/NewspaperIcon.svelte';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 
   interface Props {

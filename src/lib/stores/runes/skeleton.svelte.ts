@@ -1,11 +1,15 @@
 import { reducedMotionStore } from './reducedMotion.svelte';
 
-class SkeletonStore {
-  skeletonAnimationClass = $derived(
+function SkeletonStore() {
+  const skeletonAnimationClass = $derived(
     reducedMotionStore.useReducedMotion ? 'skeleton-animation-pulse' : 'skeleton-animation-fly',
   );
 
-  constructor() {}
+  return {
+    get skeletonAnimationClass() {
+      return skeletonAnimationClass;
+    },
+  };
 }
 
-export const skeletonStore = new SkeletonStore();
+export const skeletonStore = SkeletonStore();

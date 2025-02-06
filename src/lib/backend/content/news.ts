@@ -7,7 +7,7 @@ import type { StoryContent, StorySource } from '$lib/models/story';
 import { searchStory } from '$lib/backend/db/news';
 import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
 
-const ALLOWED_CLASSES = ['fact'];
+const ALLOWED_CLASSES = ['fact', 'keyword', 'slideshow'];
 
 export async function fetchStoryContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
   logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
@@ -62,6 +62,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
 
   return {
     content: sanitizeContent(optimizedDocument.body.innerHTML),
+    contentText: extractTextForSpeechSynthesis(optimizedDocument, originalDocument),
     id,
     timestamp: currentStory?.timestamp,
     source: storySource,
@@ -142,6 +143,7 @@ function injectSlideShowImages(optimizedDocument: Document, originalDocument: Do
 
     const slideShowList = slideShowSection.querySelector('.oon-slideshow-list');
     slideShowList?.removeAttribute('class');
+    slideShowList?.setAttribute('class', 'slideshow');
 
     const footers = [...slideShowSection.querySelectorAll('figure > footer')];
     footers.forEach((footer) => {
@@ -223,4 +225,34 @@ function sanitizeContent(html: string): string {
     ADD_ATTR: ['target'],
     FORBID_ATTR: ['tabindex'],
   });
+}
+
+function extractTextForSpeechSynthesis(optimizedDocument: Document, originalDocument: Document): string {
+  const unwantetPatterns = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i, /^online\s+seit/i];
+  const keywordText = originalDocument.querySelector('div.keyword')?.textContent?.trim();
+  if (keywordText) {
+    unwantetPatterns.push(new RegExp(`^${keywordText}$`));
+  }
+
+  const document = optimizedDocument.cloneNode(true) as Document;
+  document.querySelectorAll('p').forEach((element) => {
+    const text = element.textContent?.trim() ?? '';
+    if (unwantetPatterns.some((pattern) => pattern.test(text))) {
+      element.remove();
+    }
+  });
+
+  document.querySelectorAll('.slideshow').forEach((element) => {
+    element.parentElement?.remove();
+  });
+
+  document.querySelectorAll('figcaption').forEach((element) => {
+    element.remove();
+  });
+
+  document.querySelectorAll('.story-footer').forEach((element) => {
+    element.remove();
+  });
+
+  return document.body.textContent?.replace(/\s+/g, ' ')?.trim() ?? '';
 }

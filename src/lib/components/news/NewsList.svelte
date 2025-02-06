@@ -1,7 +1,7 @@
 <script lang="ts">
   import Story from '$lib/components/news/story/Story.svelte';
-  import Section from '$lib/components/ui/content/Section.svelte';
-  import SectionList from '$lib/components/ui/content/SectionList.svelte';
+  import Section from '$lib/components/shared/content/Section.svelte';
+  import SectionList from '$lib/components/shared/content/SectionList.svelte';
   import type { NewsBucket } from '$lib/models/news';
 
   interface Props {

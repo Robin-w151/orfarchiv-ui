@@ -1,8 +1,8 @@
 <script lang="ts">
   import { checkNewsUpdates, searchNews } from '$lib/api/news';
   import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
-  import Content from '$lib/components/ui/content/Content.svelte';
-  import Button from '$lib/components/ui/controls/Button.svelte';
+  import Content from '$lib/components/shared/content/Content.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
   import {
     NEWS_CHECK_UPDATES_INITIAL_INTERVAL_IN_MS,
     NEWS_CHECK_UPDATES_INTERVAL_IN_MS,
@@ -20,8 +20,8 @@
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import InformationCircleIcon from '../ui/icons/outline/InformationCircleIcon.svelte';
-  import SpinningDotsIndicator from '../ui/loading/SpinningDotsIndicator.svelte';
+  import InformationCircleIcon from '../shared/icons/outline/InformationCircleIcon.svelte';
+  import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
 

@@ -1,4 +1,4 @@
-import InputComponent from '$lib/components/ui/controls/Input.svelte';
+import InputComponent from '$lib/components/shared/controls/Input.svelte';
 
 const args = {
   id: 'input',
@@ -26,7 +26,7 @@ export default {
       description: 'Placeholder text of the input control',
       control: 'text',
     },
-    onChange: {
+    onchange: {
       action: 'change',
       description: 'Called when the value of the input control is changed',
     },
@@ -37,6 +37,6 @@ export const Input = (args) => ({
   Component: InputComponent,
   props: args,
   on: {
-    change: args.onChange,
+    onchange: args.onchange,
   },
 });
