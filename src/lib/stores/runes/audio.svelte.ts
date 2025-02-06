@@ -44,9 +44,13 @@ function AudioStore() {
           });
 
           isAvailable = true;
-          console.info(`Text-to-Speech initialized. Voice: ${voice?.name}`);
+          console.groupCollapsed('text-to-speech initialized');
+          console.log('voice', voice);
+          console.groupEnd();
         } catch (error) {
-          console.info(`Text-to-Speech not available: ${(error as Error).message}`);
+          console.group('text-to-speech not available');
+          console.log((error as Error).message);
+          console.groupEnd();
         }
       }
     })();
