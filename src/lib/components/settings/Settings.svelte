@@ -24,10 +24,10 @@
     <div class={column1Class}>
       <General />
       <Appearance />
-      <Info />
       {#if audioStore.isAvailable}
         <Audio />
       {/if}
+      <Info />
       {#if PUBLIC_APP_MODE === 'dev'}
         <Developer />
       {/if}
