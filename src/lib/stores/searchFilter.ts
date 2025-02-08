@@ -13,6 +13,7 @@ export interface SearchFilterStore extends Readable<SearchFilterStoreProps>, Par
   setTo: (toDate: string | undefined) => void;
   applyTempSearchFilter: () => void;
   resetDateFilter: () => void;
+  resetAll: () => void;
   selectDateFilterToday: () => void;
   selectDateFilterLastWeek: () => void;
   selectDateFilterLastMonth: () => void;
@@ -71,6 +72,10 @@ function resetDateFilter(): void {
   }));
 }
 
+function resetAll(): void {
+  update((searchFilter) => ({ ...searchFilter, ...initialState }));
+}
+
 function selectDateFilterToday(): void {
   const [from, to] = dateRangeFromNow({});
   update((searchFilter) => ({
@@ -117,6 +122,7 @@ export default {
   setTo,
   applyTempSearchFilter,
   resetDateFilter,
+  resetAll,
   selectDateFilterToday,
   selectDateFilterLastWeek,
   selectDateFilterLastMonth,

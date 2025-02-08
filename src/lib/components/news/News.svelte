@@ -14,6 +14,7 @@
   import news from '$lib/stores/news';
   import { loadMoreNews, refreshNews, selectStory } from '$lib/stores/newsEvents';
   import notifications from '$lib/stores/notifications';
+  import searchFilter from '$lib/stores/searchFilter';
   import searchRequestParameters from '$lib/stores/searchRequestParameters';
   import settings from '$lib/stores/settings';
   import { defaultAlertTextBox, defaultBackground } from '$lib/utils/styles';
@@ -145,6 +146,10 @@
   function handleTryAgainClick(): void {
     fetchNews(get(searchRequestParameters));
   }
+
+  function handleResetFilterClick(): void {
+    searchFilter.resetAll();
+  }
 </script>
 
 <Content id="news">
@@ -167,7 +172,10 @@
         >Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die
         Filter.</span
       >
-      <Button btnType="secondary" onclick={handleTryAgainClick}>Erneut versuchen</Button>
+      <div class="flex flex-col md:flex-row items-center gap-2">
+        <Button class="w-max" btnType="secondary" onclick={handleTryAgainClick}>Erneut versuchen</Button>
+        <Button class="w-max" btnType="secondary" onclick={handleResetFilterClick}>Filter zurücksetzen</Button>
+      </div>
     </div>
   {/if}
   {#if showNewsList}
