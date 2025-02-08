@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    autoPlacement,
     autoUpdate,
     flip,
     offset,
@@ -24,7 +23,7 @@
     round?: boolean;
     title?: string | undefined;
     disabled?: boolean | undefined;
-    placement?: Placement | Array<Placement>;
+    placement?: Placement;
     openOnFocus?: boolean;
     openOnKeyboardClick?: boolean;
     containerClass?: string | Array<string>;
@@ -62,8 +61,9 @@
       open = v;
       onVisibleChange?.(v);
     },
+    placement,
     get middleware() {
-      return [offset(10), flip(), shift(), autoPlacement({ allowedPlacements: getAllowedPlacements(placement) })];
+      return [offset(10), flip(), shift()];
     },
   });
   const role = useRole(floating.context);
@@ -78,14 +78,6 @@
 
   export function setOpen(newOpen: boolean) {
     open = newOpen;
-  }
-
-  function getAllowedPlacements(placement: Placement | Array<Placement>): Array<Placement> {
-    if (Array.isArray(placement)) {
-      return placement;
-    }
-
-    return [placement];
   }
 </script>
 
