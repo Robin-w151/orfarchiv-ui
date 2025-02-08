@@ -50,8 +50,8 @@ export class NewsPage {
 
   constructor(private readonly page: Page) {}
 
-  getDateFilterInput() {
-    return this.popover.locator("input[type='date']");
+  getDateFilterInput(name: string) {
+    return this.popover.getByPlaceholder(name);
   }
 
   getNewsListSection(index: number) {

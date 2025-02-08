@@ -41,7 +41,7 @@
   <Input
     id="text-filter-input"
     value={$bookmarks.textFilter}
-    onchange={handleTextFilterChange}
+    onValueChange={handleTextFilterChange}
     bind:this={textFilterInputRef}
     placeholder="Suche"
   />

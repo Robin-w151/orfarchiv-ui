@@ -6,11 +6,13 @@
     id: string;
     value?: string;
     placeholder?: string;
-    onchange?: (value?: string) => void;
+    onValueChange?: (value?: string) => void;
+    onchange?: (value: string | undefined, event: Event) => void;
     onclear?: () => void;
+    onblur?: (event: Event) => void;
   }
 
-  let { id, value = $bindable(''), placeholder, onchange, onclear }: Props = $props();
+  let { id, value = $bindable(''), placeholder, onValueChange, onchange, onclear, onblur }: Props = $props();
 
   const wrapperClass = 'flex items-center relative w-full flex-1';
   const inputClass = [
@@ -26,7 +28,7 @@
   let showClearButton = $derived(!!value);
 
   $effect(() => {
-    onchange?.(value);
+    onValueChange?.(value);
   });
 
   export function focus() {
@@ -52,11 +54,13 @@
     class={inputClass}
     type="text"
     {id}
-    onkeydown={handleKeydown}
     bind:value
     bind:this={inputRef}
     {placeholder}
     maxlength="256"
+    onkeydown={handleKeydown}
+    onchange={(event) => onchange?.(value, event)}
+    {onblur}
   />
   {#if showClearButton}
     <Button

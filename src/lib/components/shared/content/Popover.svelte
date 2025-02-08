@@ -1,16 +1,21 @@
 <script lang="ts">
-  import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
-  import type { Snippet } from 'svelte';
   import {
+    autoPlacement,
     autoUpdate,
     flip,
     offset,
+    shift,
     useClick,
     useDismiss,
     useFloating,
+    useFocus,
     useInteractions,
     useRole,
   } from '@skeletonlabs/floating-ui-svelte';
+  import type { Snippet } from 'svelte';
+  import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
+
+  type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
   interface Props {
     btnType?: BtnType;
@@ -19,7 +24,12 @@
     round?: boolean;
     title?: string | undefined;
     disabled?: boolean | undefined;
-    placement?: 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
+    placement?: Placement | Array<Placement>;
+    openOnFocus?: boolean;
+    openOnKeyboardClick?: boolean;
+    containerClass?: string | Array<string>;
+    onVisibleChange?: (visible: boolean) => void;
+    anchorContent?: Snippet<[Record<string, unknown>]>;
     buttonContent?: Snippet;
     popoverContent?: Snippet<[() => void]>;
   }
@@ -32,6 +42,11 @@
     title,
     disabled,
     placement = 'bottom',
+    openOnFocus = false,
+    openOnKeyboardClick = true,
+    containerClass,
+    onVisibleChange,
+    anchorContent,
     buttonContent,
     popoverContent,
   }: Props = $props();
@@ -40,36 +55,56 @@
 
   const floating = useFloating({
     whileElementsMounted: autoUpdate,
-    placement,
     get open() {
       return open;
     },
     onOpenChange: (v) => {
       open = v;
+      onVisibleChange?.(v);
     },
     get middleware() {
-      return [offset(10), flip()];
+      return [offset(10), flip(), shift(), autoPlacement({ allowedPlacements: getAllowedPlacements(placement) })];
     },
   });
   const role = useRole(floating.context);
-  const click = useClick(floating.context);
+  const click = useClick(floating.context, { keyboardHandlers: openOnKeyboardClick });
   const dismiss = useDismiss(floating.context);
-  const interactions = useInteractions([role, click, dismiss]);
+  const interactions = useInteractions(
+    [role, dismiss, click, openOnFocus ? useFocus(floating.context) : null].filter((props) => !!props),
+  );
   const dropdownContentClass = 'z-40';
 
   let dropdownButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+
+  export function setOpen(newOpen: boolean) {
+    open = newOpen;
+  }
+
+  function getAllowedPlacements(placement: Placement | Array<Placement>): Array<Placement> {
+    if (Array.isArray(placement)) {
+      return placement;
+    }
+
+    return [placement];
+  }
 </script>
 
-<div>
-  <button
-    class={dropdownButtonClass}
-    {disabled}
-    {title}
-    {...interactions.getReferenceProps()}
-    bind:this={floating.elements.reference}
-  >
-    {@render buttonContent?.()}
-  </button>
+<div class={containerClass}>
+  {#if anchorContent}
+    <div class="w-full" bind:this={floating.elements.reference}>
+      {@render anchorContent?.(interactions.getReferenceProps())}
+    </div>
+  {:else}
+    <button
+      class={dropdownButtonClass}
+      {disabled}
+      {title}
+      {...interactions.getReferenceProps()}
+      bind:this={floating.elements.reference}
+    >
+      {@render buttonContent?.()}
+    </button>
+  {/if}
   {#if open}
     <div
       class={dropdownContentClass}

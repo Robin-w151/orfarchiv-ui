@@ -90,8 +90,8 @@ test.describe('NewsPage', () => {
 
     test('date filter is changeable', async ({ newsPage }) => {
       await newsPage.newsFilterMenuButton.click();
-      await newsPage.getDateFilterInput().nth(0).isEditable();
-      await newsPage.getDateFilterInput().nth(1).isEditable();
+      await expect(newsPage.getDateFilterInput('Von')).toBeEditable();
+      await expect(newsPage.getDateFilterInput('Bis')).toBeEditable();
     });
   });
 

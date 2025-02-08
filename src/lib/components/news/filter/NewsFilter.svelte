@@ -42,7 +42,7 @@
   <Input
     id="text-filter-input"
     value={$searchFilter.textFilter}
-    onchange={handleTextFilterChange}
+    onValueChange={handleTextFilterChange}
     bind:this={textFilterInputRef}
     placeholder="Suche"
   />

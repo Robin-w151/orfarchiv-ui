@@ -3,7 +3,7 @@
   import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
-  import DateInput from '$lib/components/shared/controls/DateInput.svelte';
+  import DatePicker from '$lib/components/shared/controls/DatePicker.svelte';
   import CalendarIcon from '$lib/components/shared/icons/outline/CalendarIcon.svelte';
   import FunnelIcon from '$lib/components/shared/icons/outline/FunnelIcon.svelte';
   import type { DateTime } from 'luxon';
@@ -45,15 +45,12 @@
   const menuActionsClass = `grid grid-cols-2 gap-x-3 gap-y-2 w-full`;
   const menuButtonClass = `!w-full`;
 
-  let fromDate = $derived(from?.toISODate());
-  let toDate = $derived(to?.toISODate());
-
-  function handleFromChange(from?: string | null) {
-    onFromChange?.(from ?? undefined);
+  function handleFromChange(from?: DateTime) {
+    onFromChange?.(from?.toISODate() ?? undefined);
   }
 
-  function handleToChange(to?: string | null) {
-    onToChange?.(to ?? undefined);
+  function handleToChange(to?: DateTime) {
+    onToChange?.(to?.toISODate() ?? undefined);
   }
 
   function handleApplyClick() {
@@ -108,11 +105,11 @@
         </div>
         <div class={menuSectionItemClass}>
           <label for="from-input">Von</label>
-          <DateInput id="from-input" value={fromDate} onchange={handleFromChange} />
+          <DatePicker id="from-input" value={from} placeholder="Von" onchange={handleFromChange} />
         </div>
         <div class={menuSectionItemClass}>
           <label for="to-input">Bis</label>
-          <DateInput id="to-input" value={toDate} onchange={handleToChange} />
+          <DatePicker id="to-input" value={to} placeholder="Bis" onchange={handleToChange} />
         </div>
       </section>
       <div class={menuActionsClass}>
