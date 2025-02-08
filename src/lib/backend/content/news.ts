@@ -43,7 +43,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
 
   const document = createDom(currentData, currentUrl);
   removePrintWarnings(document);
-
+  removeVideo(document);
   const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
   if (!optimizedContent) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
@@ -102,9 +102,18 @@ function findSourceFromUrl(url: string): string | undefined {
   return /^https:\/\/(?<source>\w+)\.orf\.at/i.exec(url)?.groups?.source;
 }
 
-function removePrintWarnings(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('.print-warning').forEach((element) => {
+function removePrintWarnings(document: Document): void {
+  document.querySelectorAll('.print-warning').forEach((element) => {
     element.remove();
+  });
+}
+
+function removeVideo(document: Document): void {
+  document.querySelectorAll('p.caption.stripe-credits').forEach((stripeCredits) => {
+    stripeCredits.remove();
+  });
+  document.querySelectorAll('section.stripe').forEach((stripe) => {
+    stripe.remove();
   });
 }
 
