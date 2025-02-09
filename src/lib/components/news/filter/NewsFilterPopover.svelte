@@ -46,11 +46,11 @@
   const menuButtonClass = `!w-full`;
 
   function handleFromChange(from?: DateTime) {
-    onFromChange?.(from?.toISODate() ?? undefined);
+    onFromChange?.(from?.startOf('day').toISO() ?? undefined);
   }
 
   function handleToChange(to?: DateTime) {
-    onToChange?.(to?.toISODate() ?? undefined);
+    onToChange?.(to?.endOf('day').toISO() ?? undefined);
   }
 
   function handleApplyClick() {
