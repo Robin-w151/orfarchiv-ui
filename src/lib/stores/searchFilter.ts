@@ -46,7 +46,7 @@ function setFrom(from?: string): void {
   const newFrom = from ? DateTime.fromISO(from).startOf('day') : undefined;
   update((searchFilter) => {
     const to = searchFilter.tempSearchFilter.dateFilter?.to;
-    const newTo = !to || !newFrom || newFrom <= to ? to : newFrom;
+    const newTo = !to || !newFrom || newFrom <= to ? to : newFrom.endOf('day');
     return { ...searchFilter, tempSearchFilter: { dateFilter: { from: newFrom, to: newTo } } };
   });
 }
@@ -55,7 +55,7 @@ function setTo(to?: string): void {
   const newTo = to ? DateTime.fromISO(to).endOf('day') : undefined;
   update((searchFilter) => {
     const from = searchFilter.tempSearchFilter.dateFilter?.from;
-    const newFrom = !from || !newTo || from <= newTo ? from : newTo;
+    const newFrom = !from || !newTo || from <= newTo ? from : newTo.startOf('day');
     return { ...searchFilter, tempSearchFilter: { dateFilter: { from: newFrom, to: newTo } } };
   });
 }
