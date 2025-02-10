@@ -229,6 +229,12 @@
     setValue(inputValue);
   }
 
+  function handleInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+    }
+  }
+
   function handleVisibleChange(visible: boolean): void {
     if (visible) {
       datePickerState = 'datePicker';
@@ -253,6 +259,8 @@
       value = undefined;
       firstDayOfMonth = DateTime.now().startOf('month');
     }
+
+    onchange?.(value);
   }
 
   function selectPreviousMonth(): void {
@@ -317,6 +325,7 @@
         onchange={handleInputSubmit}
         onclear={handleInputClear}
         onblur={handleInputBlur}
+        onkeydown={handleInputKeydown}
       />
     </div>
   {/snippet}

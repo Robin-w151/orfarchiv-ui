@@ -10,9 +10,10 @@
     onchange?: (value: string | undefined, event: Event) => void;
     onclear?: () => void;
     onblur?: (event: Event) => void;
+    onkeydown?: (event: KeyboardEvent) => void;
   }
 
-  let { id, value = $bindable(''), placeholder, onValueChange, onchange, onclear, onblur }: Props = $props();
+  let { id, value = $bindable(''), placeholder, onValueChange, onchange, onclear, onblur, onkeydown }: Props = $props();
 
   const wrapperClass = 'flex items-center relative w-full flex-1';
   const inputClass = [
@@ -46,6 +47,8 @@
       event.preventDefault();
       inputRef?.blur();
     }
+
+    onkeydown?.(event);
   }
 </script>
 
