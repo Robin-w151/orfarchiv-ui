@@ -5,7 +5,7 @@
   import type { StoryImage } from '$lib/models/story';
   import { onDestroy, onMount } from 'svelte';
   import type { PanzoomObject } from '@panzoom/panzoom';
-  import { getPanzoom } from '$lib/utils/panzoomLoader';
+  import { Panzoom } from '$lib/utils/panzoomModule';
   import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
   interface Props {
     image: StoryImage;
@@ -21,13 +21,14 @@
   let oldActiveElement: Element | null;
   let imageRef = $state<HTMLImageElement | undefined>();
   let panzoom: PanzoomObject | undefined;
+  let prevPanzoomPosition: { x: number; y: number } | undefined;
 
   let isNavigationEnabled = $derived(images.length > 1);
   let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
   const containerClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50';
   const imageContainerClass = 'w-full h-full bg-black';
-  const imageClass = 'object-contain w-full h-full bg-transparent';
+  const imageClass = 'object-scale-down w-full h-full bg-transparent';
   const viewerButtonCircleClass =
     'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'w-8 h-8';
@@ -65,8 +66,17 @@
     closeViewer();
   }
 
+  function handleContainerPointerDown(): void {
+    prevPanzoomPosition = panzoom?.getPan();
+  }
+
   function handleContainerClick(): void {
-    toggleControls();
+    const { x: prevX, y: prevY } = prevPanzoomPosition ?? {};
+    const { x: currX, y: currY } = panzoom?.getPan() ?? {};
+
+    if (prevX === currX && prevY === currY) {
+      toggleControls();
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
@@ -126,12 +136,14 @@
   async function setupPanzoom(imageRef: HTMLImageElement): Promise<void> {
     const isTouch = isTouchDevice();
     const isMacOs = isMacOsPlatform();
-    const Panzoom = await getPanzoom();
-    panzoom = Panzoom(imageRef, {
+    panzoom = (await Panzoom.module)(imageRef, {
       minScale: 1,
       maxScale: 10,
       step: isMacOs ? 0.075 : isTouch ? 1 : 0.5,
       contain: 'outside',
+      handleStartEvent: (event: Event) => {
+        event.preventDefault();
+      },
     });
     imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
   }
@@ -147,9 +159,9 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div class={containerClass} role="region" onclick={handleContainerClick}>
+<div class={containerClass} role="region" onclick={handleContainerClick} onpointerdown={handleContainerPointerDown}>
   <button
-    class="viewer-button !top-2 right-2 {viewerButtonClass}"
+    class="viewer-button z-10 !top-2 right-2 {viewerButtonClass}"
     title="Bild schließen"
     bind:this={closeButtonRef}
     onclick={handleCloseButtonClick}
@@ -161,7 +173,7 @@
   {#if isNavigationEnabled}
     {#if prevImage(image)}
       <button
-        class="viewer-button left-2 {viewerButtonClass}"
+        class="viewer-button z-10 left-2 {viewerButtonClass}"
         title="Vorheriges Bild anzeigen"
         onclick={handlePrevImageClick}
       >
@@ -172,7 +184,7 @@
     {/if}
     {#if nextImage(image)}
       <button
-        class="viewer-button right-2 {viewerButtonClass}"
+        class="viewer-button z-10 right-2 {viewerButtonClass}"
         title="Nächstes Bild anzeigen"
         onclick={handleNextImageClick}
       >
