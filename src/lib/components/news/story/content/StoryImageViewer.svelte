@@ -6,6 +6,7 @@
   import { onDestroy, onMount } from 'svelte';
   import type { PanzoomObject } from '@panzoom/panzoom';
   import { getPanzoom } from '$lib/utils/panzoomLoader';
+  import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -123,9 +124,15 @@
   }
 
   async function setupPanzoom(imageRef: HTMLImageElement): Promise<void> {
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    const isTouch = isTouchDevice();
+    const isMacOs = isMacOsPlatform();
     const Panzoom = await getPanzoom();
-    panzoom = Panzoom(imageRef, { minScale: 1, maxScale: 10, step: isTouch ? 1 : 0.5, contain: 'outside' });
+    panzoom = Panzoom(imageRef, {
+      minScale: 1,
+      maxScale: 10,
+      step: isMacOs ? 0.075 : isTouch ? 1 : 0.5,
+      contain: 'outside',
+    });
     imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
   }
 
