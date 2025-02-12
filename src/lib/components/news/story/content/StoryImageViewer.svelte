@@ -22,6 +22,7 @@
   let imageRef = $state<HTMLImageElement | undefined>();
   let panzoom: PanzoomObject | undefined;
   let prevPanzoomPosition: { x: number; y: number } | undefined;
+  let prevPanzoomZoom: number | undefined;
 
   let isNavigationEnabled = $derived(images.length > 1);
   let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
@@ -68,13 +69,15 @@
 
   function handleContainerPointerDown(): void {
     prevPanzoomPosition = panzoom?.getPan();
+    prevPanzoomZoom = panzoom?.getScale();
   }
 
   function handleContainerClick(): void {
     const { x: prevX, y: prevY } = prevPanzoomPosition ?? {};
     const { x: currX, y: currY } = panzoom?.getPan() ?? {};
+    const currZoom = panzoom?.getScale();
 
-    if (prevX === currX && prevY === currY) {
+    if (prevX === currX && prevY === currY && prevPanzoomZoom === currZoom) {
       toggleControls();
     }
   }
@@ -139,7 +142,7 @@
     panzoom = (await Panzoom.module)(imageRef, {
       minScale: 1,
       maxScale: 10,
-      step: isMacOs ? 0.075 : isTouch ? 1 : 0.5,
+      step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
       contain: 'outside',
       handleStartEvent: (event: Event) => {
         event.preventDefault();
