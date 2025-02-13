@@ -4,7 +4,9 @@
   import XIcon from '$lib/components/shared/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
   import { onDestroy, onMount } from 'svelte';
-
+  import type { PanzoomObject } from '@panzoom/panzoom';
+  import { Panzoom } from '$lib/utils/panzoomModule';
+  import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -13,21 +15,24 @@
 
   let { image = $bindable(), images = [], onClose }: Props = $props();
 
-  const backropClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50 bg-black';
-  const containerClass = 'flex justify-center items-center relative w-full h-full';
-  const imageContainerClass = '';
-  const imageClass = 'w-auto h-auto max-w-full max-h-screen bg-gray-100 dark:bg-gray-300 shadow-2xl';
-  const viewerButtonCircleClass =
-    'flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
-  const viewerButtonIconClass = 'w-8 h-8';
-
   let showControls = $state(true);
   let closeButtonRef: HTMLButtonElement | undefined = $state();
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
+  let imageRef = $state<HTMLImageElement | undefined>();
+  let panzoom: PanzoomObject | undefined;
+  let prevPanzoomPosition: { x: number; y: number } | undefined;
+  let prevPanzoomZoom: number | undefined;
 
   let isNavigationEnabled = $derived(images.length > 1);
   let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
+
+  const containerClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50';
+  const imageContainerClass = 'w-full h-full bg-black';
+  const imageClass = 'object-scale-down w-full h-full bg-transparent';
+  const viewerButtonCircleClass =
+    'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
+  const viewerButtonIconClass = 'w-8 h-8';
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -45,13 +50,36 @@
     }
   });
 
+  $effect(() => {
+    if (imageRef) {
+      setupPanzoom(imageRef);
+    }
+  });
+
+  $effect(() => {
+    if (image) {
+      resetPanzoom();
+    }
+  });
+
   function handleCloseButtonClick(event: Event): void {
     event.stopPropagation();
     closeViewer();
   }
 
-  function handleBackdropClick(): void {
-    toggleControls();
+  function handleContainerPointerDown(): void {
+    prevPanzoomPosition = panzoom?.getPan();
+    prevPanzoomZoom = panzoom?.getScale();
+  }
+
+  function handleContainerClick(): void {
+    const { x: prevX, y: prevY } = prevPanzoomPosition ?? {};
+    const { x: currX, y: currY } = panzoom?.getPan() ?? {};
+    const currZoom = panzoom?.getScale();
+
+    if (deltaCompare(prevX, currX) && deltaCompare(prevY, currY) && deltaCompare(prevPanzoomZoom, currZoom)) {
+      toggleControls();
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
@@ -107,51 +135,83 @@
       image = prev;
     }
   }
+
+  async function setupPanzoom(imageRef: HTMLImageElement): Promise<void> {
+    const isTouch = isTouchDevice();
+    const isMacOs = isMacOsPlatform();
+
+    try {
+      panzoom = (await Panzoom.module)(imageRef, {
+        minScale: 1,
+        maxScale: 10,
+        step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
+        contain: 'outside',
+        handleStartEvent: (event: Event) => {
+          event.preventDefault();
+        },
+      });
+      imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
+    } catch (error) {
+      console.error('Failed to setup panzoom!', error);
+    }
+  }
+
+  function resetPanzoom(): void {
+    if (panzoom) {
+      panzoom.reset({ animate: false });
+    }
+  }
+
+  function deltaCompare(a: number | undefined, b: number | undefined, delta = 0.01): boolean {
+    if (a === undefined || b === undefined) {
+      return false;
+    }
+
+    return Math.abs(a - b) < delta;
+  }
 </script>
 
 <svelte:document onkeydown={handleKeyDown} />
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div class={backropClass} role="region" onclick={handleBackdropClick}>
-  <div class={containerClass}>
-    <button
-      class="viewer-button !top-2 right-2 {viewerButtonClass}"
-      title="Bild schließen"
-      bind:this={closeButtonRef}
-      onclick={handleCloseButtonClick}
-    >
-      <span class={viewerButtonCircleClass}>
-        <XIcon class={viewerButtonIconClass} />
-      </span>
-    </button>
-    {#if isNavigationEnabled}
-      {#if prevImage(image)}
-        <button
-          class="viewer-button left-2 {viewerButtonClass}"
-          title="Vorheriges Bild anzeigen"
-          onclick={handlePrevImageClick}
-        >
-          <span class={viewerButtonCircleClass}>
-            <ChevronLeftIcon class={viewerButtonIconClass} />
-          </span>
-        </button>
-      {/if}
-      {#if nextImage(image)}
-        <button
-          class="viewer-button right-2 {viewerButtonClass}"
-          title="Nächstes Bild anzeigen"
-          onclick={handleNextImageClick}
-        >
-          <span class={viewerButtonCircleClass}>
-            <ChevronRightIcon class={viewerButtonIconClass} />
-          </span>
-        </button>
-      {/if}
+<div class={containerClass} role="region" onclick={handleContainerClick} onpointerdown={handleContainerPointerDown}>
+  <button
+    class="viewer-button z-10 !top-2 right-2 {viewerButtonClass}"
+    title="Bild schließen"
+    bind:this={closeButtonRef}
+    onclick={handleCloseButtonClick}
+  >
+    <span class={viewerButtonCircleClass}>
+      <XIcon class={viewerButtonIconClass} />
+    </span>
+  </button>
+  {#if isNavigationEnabled}
+    {#if prevImage(image)}
+      <button
+        class="viewer-button z-10 left-2 {viewerButtonClass}"
+        title="Vorheriges Bild anzeigen"
+        onclick={handlePrevImageClick}
+      >
+        <span class={viewerButtonCircleClass}>
+          <ChevronLeftIcon class={viewerButtonIconClass} />
+        </span>
+      </button>
     {/if}
-    <div class={imageContainerClass}>
-      <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} />
-    </div>
+    {#if nextImage(image)}
+      <button
+        class="viewer-button z-10 right-2 {viewerButtonClass}"
+        title="Nächstes Bild anzeigen"
+        onclick={handleNextImageClick}
+      >
+        <span class={viewerButtonCircleClass}>
+          <ChevronRightIcon class={viewerButtonIconClass} />
+        </span>
+      </button>
+    {/if}
+  {/if}
+  <div class={imageContainerClass}>
+    <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} bind:this={imageRef} />
   </div>
 </div>
 

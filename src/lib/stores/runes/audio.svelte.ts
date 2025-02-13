@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import type { Story } from '$lib/models/story';
-import { isMediaSessionAvailable } from '$lib/utils/web-api-support';
+import { isMediaSessionAvailable } from '$lib/utils/support';
 import EasySpeech from 'easy-speech';
 import settings from '../settings';
 
