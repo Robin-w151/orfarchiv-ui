@@ -5,7 +5,7 @@ export function isMediaSessionAvailable(): boolean {
 }
 
 export function isTouchDevice(): boolean {
-  return browser && window.matchMedia('(pointer: coarse)').matches;
+  return browser && 'matchMedia' in window && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 }
 
 export function isMacOsPlatform(): boolean {
@@ -17,6 +17,6 @@ export function isMacOsPlatform(): boolean {
     'platform' in window.navigator.userAgentData &&
     !!window.navigator.userAgentData.platform &&
     typeof window.navigator.userAgentData.platform === 'string' &&
-    /mac\s*os/i.test(window.navigator.userAgentData.platform)
+    /^mac\s*os(?:x)?$/i.test(window.navigator.userAgentData.platform)
   );
 }

@@ -77,7 +77,7 @@
     const { x: currX, y: currY } = panzoom?.getPan() ?? {};
     const currZoom = panzoom?.getScale();
 
-    if (prevX === currX && prevY === currY && prevPanzoomZoom === currZoom) {
+    if (deltaCompare(prevX, currX) && deltaCompare(prevY, currY) && deltaCompare(prevPanzoomZoom, currZoom)) {
       toggleControls();
     }
   }
@@ -139,22 +139,35 @@
   async function setupPanzoom(imageRef: HTMLImageElement): Promise<void> {
     const isTouch = isTouchDevice();
     const isMacOs = isMacOsPlatform();
-    panzoom = (await Panzoom.module)(imageRef, {
-      minScale: 1,
-      maxScale: 10,
-      step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
-      contain: 'outside',
-      handleStartEvent: (event: Event) => {
-        event.preventDefault();
-      },
-    });
-    imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
+
+    try {
+      panzoom = (await Panzoom.module)(imageRef, {
+        minScale: 1,
+        maxScale: 10,
+        step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
+        contain: 'outside',
+        handleStartEvent: (event: Event) => {
+          event.preventDefault();
+        },
+      });
+      imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
+    } catch (error) {
+      console.error('Failed to setup panzoom!', error);
+    }
   }
 
   function resetPanzoom(): void {
     if (panzoom) {
       panzoom.reset({ animate: false });
     }
+  }
+
+  function deltaCompare(a: number | undefined, b: number | undefined, delta = 0.01): boolean {
+    if (a === undefined || b === undefined) {
+      return false;
+    }
+
+    return Math.abs(a - b) < delta;
   }
 </script>
 
