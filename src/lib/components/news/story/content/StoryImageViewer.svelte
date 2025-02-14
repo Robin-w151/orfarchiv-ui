@@ -1,12 +1,11 @@
 <script lang="ts">
-  import ChevronLeftIcon from '$lib/components/shared/icons/outline/ChevronLeftIcon.svelte';
-  import ChevronRightIcon from '$lib/components/shared/icons/outline/ChevronRightIcon.svelte';
-  import XIcon from '$lib/components/shared/icons/outline/XIcon.svelte';
   import type { StoryImage } from '$lib/models/story';
   import { onDestroy, onMount } from 'svelte';
   import type { PanzoomObject } from '@panzoom/panzoom';
   import { Panzoom } from '$lib/utils/panzoomModule';
   import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { ChevronLeft, ChevronRight, XMark } from '@steeze-ui/heroicons';
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -32,7 +31,7 @@
   const imageClass = 'object-scale-down w-full h-full bg-transparent';
   const viewerButtonCircleClass =
     'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
-  const viewerButtonIconClass = 'w-8 h-8';
+  const viewerButtonIconClass = 'size-8';
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -183,7 +182,7 @@
     onclick={handleCloseButtonClick}
   >
     <span class={viewerButtonCircleClass}>
-      <XIcon class={viewerButtonIconClass} />
+      <Icon src={XMark} theme="outlined" class={viewerButtonIconClass} />
     </span>
   </button>
   {#if isNavigationEnabled}
@@ -194,7 +193,7 @@
         onclick={handlePrevImageClick}
       >
         <span class={viewerButtonCircleClass}>
-          <ChevronLeftIcon class={viewerButtonIconClass} />
+          <Icon src={ChevronLeft} theme="outlined" class={viewerButtonIconClass} />
         </span>
       </button>
     {/if}
@@ -205,7 +204,7 @@
         onclick={handleNextImageClick}
       >
         <span class={viewerButtonCircleClass}>
-          <ChevronRightIcon class={viewerButtonIconClass} />
+          <Icon src={ChevronRight} theme="outlined" class={viewerButtonIconClass} />
         </span>
       </button>
     {/if}

@@ -4,8 +4,8 @@
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import DatePicker from '$lib/components/shared/controls/DatePicker.svelte';
-  import CalendarIcon from '$lib/components/shared/icons/outline/CalendarIcon.svelte';
-  import FunnelIcon from '$lib/components/shared/icons/outline/FunnelIcon.svelte';
+  import { Calendar, Funnel } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import type { DateTime } from 'luxon';
 
   interface Props {
@@ -80,13 +80,13 @@
 
 <Popover btnType="secondary" iconOnly title="Weitere Filter-Optionen" placement="bottom-end">
   {#snippet buttonContent()}
-    <FunnelIcon />
+    <Icon src={Funnel} theme="outlined" class="size-6" />
   {/snippet}
   {#snippet popoverContent(onClose)}
     <PopoverContent class={menuClass}>
       <section class={menuSectionClass}>
         <span class={menuSectionTitleClass}>
-          <CalendarIcon />
+          <Icon src={Calendar} theme="outlined" class="size-6" />
           <TextGradient>Zeitraum</TextGradient>
         </span>
         <div class={menuActionsClass}>

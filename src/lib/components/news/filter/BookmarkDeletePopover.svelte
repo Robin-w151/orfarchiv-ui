@@ -2,8 +2,9 @@
   import Popover from '$lib/components/shared/content/Popover.svelte';
   import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
-  import TrashIcon from '$lib/components/shared/icons/outline/TrashIcon.svelte';
   import { defaultMenuClass } from '$lib/utils/styles';
+  import { Trash } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   interface Props {
     onRemoveAllBookmarks?: () => void;
@@ -33,7 +34,7 @@
 
 <Popover btnType="secondary" iconOnly title="Lesezeichen löschen" placement="bottom-end">
   {#snippet buttonContent()}
-    <TrashIcon />
+    <Icon src={Trash} theme="outlined" class="size-6" />
   {/snippet}
   {#snippet popoverContent(onClose)}
     <PopoverContent class={defaultMenuClass}>
@@ -45,7 +46,7 @@
           onClose();
         }}
       >
-        <TrashIcon />
+        <Icon src={Trash} theme="outlined" class="size-6" />
         <span>Alle Lesezeichen löschen</span>
       </Button>
       <Button
@@ -56,7 +57,7 @@
           onClose();
         }}
       >
-        <TrashIcon />
+        <Icon src={Trash} theme="outlined" class="size-6" />
         <span>Gelesene Lesezeichen löschen</span>
       </Button>
     </PopoverContent>

@@ -1,10 +1,10 @@
 <script lang="ts">
   import Button from '$lib/components/shared/controls/Button.svelte';
-  import ClipboardDocumentIcon from '$lib/components/shared/icons/outline/ClipboardDocumentIcon.svelte';
-  import ShareIcon from '$lib/components/shared/icons/outline/ShareIcon.svelte';
   import { NOTIFICATION_COPY_LINK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
   import notifications from '$lib/stores/notifications';
+  import { ClipboardDocument, Share } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   interface Props {
     story: Story;
@@ -55,13 +55,13 @@
 
 {#if showShareButton}
   <Button class={clazz} customStyle onclick={handleShareArticleClick}>
-    <ShareIcon />
+    <Icon src={Share} theme="outlined" class="size-6" />
     <span>Artikel teilen</span>
   </Button>
 {/if}
 {#if showCopyToClipboardButton}
   <Button class={clazz} customStyle onclick={handleCopyToClipboardClick}>
-    <ClipboardDocumentIcon />
+    <Icon src={ClipboardDocument} theme="outlined" class="size-6" />
     <span>In Zwischenablage kopieren</span>
   </Button>
 {/if}

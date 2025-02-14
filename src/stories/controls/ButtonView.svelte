@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/shared/controls/Button.svelte';
-  import NewspaperIcon from '$lib/components/shared/icons/outline/NewspaperIcon.svelte';
+  import { Newspaper } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 
   interface Props {
@@ -15,7 +16,7 @@
 <span class="inline-block p-4 bg-white dark:bg-gray-900 rounded-md">
   <Button {...props} {onclick} {onkeydown}>
     {#if props['iconOnly']}
-      <NewspaperIcon />
+      <Icon src={Newspaper} theme="outlined" class="size-6" />
     {:else}
       <span>Button</span>
     {/if}

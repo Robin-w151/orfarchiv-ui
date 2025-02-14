@@ -1,11 +1,11 @@
 <script lang="ts">
   import Button from '$lib/components/shared/controls/Button.svelte';
-  import BookmarkIcon from '$lib/components/shared/icons/outline/BookmarkIcon.svelte';
-  import BookmarkSlashIcon from '$lib/components/shared/icons/outline/BookmarkSlashIcon.svelte';
   import { NOTIFICATION_BOOKMARK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import notifications from '$lib/stores/notifications';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { Bookmark, BookmarkSlash } from '@steeze-ui/heroicons';
 
   interface Props {
     story: Story;
@@ -36,12 +36,12 @@
 
 {#if story.isBookmarked}
   <Button class={clazz} customStyle onclick={handleRemoveFromBookmarksClick}>
-    <BookmarkSlashIcon />
+    <Icon src={BookmarkSlash} theme="outlined" class="size-6" />
     <span>Von Lesezeichen entfernen</span>
   </Button>
 {:else}
   <Button class={clazz} customStyle onclick={handleAddToBookmarksClick}>
-    <BookmarkIcon />
+    <Icon src={Bookmark} theme="outlined" class="size-6" />
     <span>Zu Lesezeichen hinzufügen</span>
   </Button>
 {/if}

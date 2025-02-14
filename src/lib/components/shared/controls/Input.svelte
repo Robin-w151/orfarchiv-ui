@@ -1,6 +1,7 @@
 <script lang="ts">
-  import XIcon from '$lib/components/shared/icons/outline/XIcon.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import Button from './Button.svelte';
+  import { XMark } from '@steeze-ui/heroicons';
 
   interface Props {
     id: string;
@@ -76,7 +77,7 @@
       onclick={handleClearButtonClick}
       onkeydown={handleKeydown}
     >
-      <XIcon />
+      <Icon src={XMark} theme="outlined" class="size-6" />
     </Button>
   {/if}
 </div>

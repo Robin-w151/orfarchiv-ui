@@ -3,10 +3,10 @@
   import notifications from '$lib/stores/notifications';
   import { defaultGap, defaultPadding } from '$lib/utils/styles';
   import { onMount } from 'svelte';
-  import CheckIcon from '../icons/outline/CheckIcon.svelte';
-  import XIcon from '../icons/outline/XIcon.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
   import Button from './Button.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { Check, XMark } from '@steeze-ui/heroicons';
 
   interface Props {
     notification: OANotification;
@@ -69,11 +69,11 @@
   <div class={actionsClass}>
     {#if notification.options?.onAccept}
       <Button btnType="monochrome" iconOnly round title="Bestätigen" onclick={handleAcceptClick}>
-        <CheckIcon />
+        <Icon src={Check} theme="outlined" class="size-6" />
       </Button>
     {/if}
     <Button btnType="monochrome" iconOnly round title="Schließen" onclick={handleCloseClick} bind:this={closeButtonRef}>
-      <XIcon />
+      <Icon src={XMark} theme="outlined" class="size-6" />
     </Button>
   </div>
 </AccessibleTransition>

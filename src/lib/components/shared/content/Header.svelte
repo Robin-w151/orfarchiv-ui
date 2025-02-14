@@ -1,18 +1,15 @@
 <script lang="ts">
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
-  import BookmarkSquareIcon from '$lib/components/shared/icons/outline/BookmarkSquareIcon.svelte';
-  import CogIcon from '$lib/components/shared/icons/outline/CogIcon.svelte';
-  import RefreshIcon from '$lib/components/shared/icons/outline/RefreshIcon.svelte';
   import { refreshNews } from '$lib/stores/newsEvents';
   import { defaultPadding } from '$lib/utils/styles';
   import { page } from '$app/stores';
-  import NewspaperIcon from '../icons/outline/NewspaperIcon.svelte';
-  import CloudArrowDown from '../icons/outline/CloudArrowDown.svelte';
   import Button from '../controls/Button.svelte';
   import news from '$lib/stores/news';
   import notifications from '$lib/stores/notifications';
   import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '$lib/configs/client';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { ArrowPath, Newspaper, BookmarkSquare, Cog8Tooth, CloudArrowDown } from '@steeze-ui/heroicons';
 
   const headerClass = `
     flex justify-between items-center gap-6
@@ -53,7 +50,7 @@
   <nav class={headerActionsClass}>
     {#if isNewsPage}
       <ButtonLink href="/" title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
-        <RefreshIcon />
+        <Icon src={ArrowPath} theme="outlined" class="size-6" />
       </ButtonLink>
       <Button
         title="Artikel offline verfügbar machen"
@@ -61,18 +58,18 @@
         btnType="secondary"
         onclick={handleCacheForOfflineUseClick}
       >
-        <CloudArrowDown />
+        <Icon src={CloudArrowDown} theme="outlined" class="size-6" />
       </Button>
     {:else}
       <ButtonLink href="/" title="News" iconOnly prefetch>
-        <NewspaperIcon />
+        <Icon src={Newspaper} theme="outlined" class="size-6" />
       </ButtonLink>
     {/if}
     <ButtonLink href="/bookmarks" title="Lesezeichen" iconOnly prefetch>
-      <BookmarkSquareIcon />
+      <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
     <ButtonLink href="/settings" title="Einstellungen" iconOnly prefetch>
-      <CogIcon />
+      <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>
 </header>

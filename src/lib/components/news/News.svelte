@@ -21,10 +21,11 @@
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import InformationCircleIcon from '../shared/icons/outline/InformationCircleIcon.svelte';
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { InformationCircle } from '@steeze-ui/heroicons';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -182,7 +183,7 @@
     <NewsListSkeleton />
   {:else}
     <div class="flex flex-col items-center gap-8 sm:gap-16 p-8 sm:p-32 w-full {defaultBackground}">
-      <InformationCircleIcon class="w-12 h-12 sm:w-24 sm:h-24" />
+      <Icon src={InformationCircle} theme="outlined" class="w-12 h-12 sm:w-24 sm:h-24" />
       <span class="text-center sm:text-lg"
         >Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die
         Filter.</span

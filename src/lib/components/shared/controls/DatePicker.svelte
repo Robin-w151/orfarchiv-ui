@@ -61,10 +61,10 @@
   import { DateTime } from 'luxon';
   import Popover from '../content/Popover.svelte';
   import Input from './Input.svelte';
-  import ChevronLeftIcon from '../icons/outline/ChevronLeftIcon.svelte';
-  import ChevronRightIcon from '../icons/outline/ChevronRightIcon.svelte';
   import { untrack } from 'svelte';
   import PopoverContent from '../content/PopoverContent.svelte';
+  import { ChevronLeft, ChevronRight } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   interface Props {
     id: string;
@@ -335,13 +335,13 @@
         <div class={containerClass}>
           <div class={headerClass}>
             <button class={roundButtonClass} title="Vorheriger Monat" onclick={handlePreviousMonthClick}>
-              <ChevronLeftIcon />
+              <Icon src={ChevronLeft} theme="outlined" class="size-6" />
             </button>
             <button class={buttonClass} title="Monatsauswahl" onclick={handleMonthPickerClick}
               >{monthName} {year}</button
             >
             <button class={roundButtonClass} title="Nächster Monat" onclick={handleNextMonthClick}>
-              <ChevronRightIcon />
+              <Icon src={ChevronRight} theme="outlined" class="size-6" />
             </button>
           </div>
           <table class={datePickerClass.table}>
@@ -379,11 +379,11 @@
         <div class={containerClass}>
           <div class={headerClass}>
             <button class={roundButtonClass} title="Vorheriges Jahr" onclick={handlePreviousYearClick}>
-              <ChevronLeftIcon />
+              <Icon src={ChevronLeft} theme="outlined" class="size-6" />
             </button>
             <button class={buttonClass} title="Jahresauswahl" onclick={handleYearPickerClick}>{year}</button>
             <button class={roundButtonClass} title="Nächstes Jahr" onclick={handleNextYearClick}>
-              <ChevronRightIcon />
+              <Icon src={ChevronRight} theme="outlined" class="size-6" />
             </button>
           </div>
           <div class={monthPickerClass.grid}>
@@ -399,11 +399,11 @@
         <div class={containerClass}>
           <div class={headerClass}>
             <button class={roundButtonClass} title="Vorherige Jahre" onclick={handlePreviousYearsClick}>
-              <ChevronLeftIcon />
+              <Icon src={ChevronLeft} theme="outlined" class="size-6" />
             </button>
             <span>{years[0]} - {years[years.length - 1]}</span>
             <button class={roundButtonClass} title="Nächste Jahre" onclick={handleNextYearsClick}>
-              <ChevronRightIcon />
+              <Icon src={ChevronRight} theme="outlined" class="size-6" />
             </button>
           </div>
           <div class={yearPickerClass.grid}>

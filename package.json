@@ -26,6 +26,8 @@
     "@playwright/test": "1.50.1",
     "@semantic-release/git": "10.0.1",
     "@skeletonlabs/floating-ui-svelte": "0.3.9",
+    "@steeze-ui/heroicons": "^2.4.2",
+    "@steeze-ui/svelte-icon": "^1.6.2",
     "@storybook/addon-essentials": "8.5.3",
     "@storybook/addon-interactions": "8.5.3",
     "@storybook/addon-links": "8.5.3",

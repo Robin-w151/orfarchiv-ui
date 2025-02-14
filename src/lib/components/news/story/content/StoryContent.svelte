@@ -2,9 +2,6 @@
   import { fetchContent } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
-  import ChevronUpIcon from '$lib/components/shared/icons/outline/ChevronUpIcon.svelte';
-  import PauseCircleIcon from '$lib/components/shared/icons/outline/PauseCircleIcon.svelte';
-  import PlayCircleIcon from '$lib/components/shared/icons/outline/PlayCircleIcon.svelte';
   import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
@@ -17,6 +14,8 @@
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './StoryImageViewer.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
 
   interface Props {
     story: Story;
@@ -172,9 +171,9 @@
           <div class="inline-block float-right ml-2 mb-2">
             <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
               {#if isPlaying}
-                <PauseCircleIcon />
+                <Icon src={PauseCircle} theme="outlined" class="size-6" />
               {:else}
-                <PlayCircleIcon />
+                <Icon src={PlayCircle} theme="outlined" class="size-6" />
               {/if}
               <span>Vorlesen</span>
             </Button>
@@ -199,7 +198,7 @@
     onclick={handleCollapseFieldClick}
     onkeydown={handleCollapseFieldKeydown}
   >
-    <ChevronUpIcon />
+    <Icon src={ChevronUp} theme="outlined" class="size-6" />
   </Button>
 </div>
 

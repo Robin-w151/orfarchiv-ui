@@ -2,15 +2,18 @@
   import { getSourceLabel } from '$lib/models/settings';
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import { formatTimestamp } from '$lib/utils/datetime';
+  import {
+    ArrowsPointingOut,
+    ArrowUturnLeft,
+    Minus,
+    Pause,
+    PauseCircle,
+    Play,
+    PlayCircle,
+    XMark,
+  } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
-  import ArrowsPointingOutIcon from '../icons/outline/ArrowsPointingOutIcon.svelte';
-  import ArrowUturnLeftIcon from '../icons/outline/ArrowUturnLeftIcon.svelte';
-  import MinusIcon from '../icons/outline/MinusIcon.svelte';
-  import PauseCircleIcon from '../icons/outline/PauseCircleIcon.svelte';
-  import PauseIcon from '../icons/solid/PauseIcon.svelte';
-  import PlayCircleIcon from '../icons/outline/PlayCircleIcon.svelte';
-  import PlayIcon from '../icons/solid/PlayIcon.svelte';
-  import XIcon from '../icons/outline/XIcon.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
   let minimized = $state(false);
@@ -49,28 +52,28 @@
       <div class={minimizedPlayerClass}>
         {#if audioStore.isPlaying}
           <Button class="w-fit" btnType="monochrome" iconOnly round title="Pausieren" onclick={audioStore.pause}>
-            <PauseCircleIcon />
+            <Icon src={PauseCircle} theme="outlined" class="size-6" />
           </Button>
         {:else}
           <Button class="w-fit" btnType="monochrome" iconOnly round title="Vorlesen" onclick={audioStore.play}>
-            <PlayCircleIcon />
+            <Icon src={PlayCircle} theme="outlined" class="size-6" />
           </Button>
         {/if}
         <Button btnType="monochrome" iconOnly round title="Maximieren" onclick={handleToggleMinimized}>
-          <ArrowsPointingOutIcon />
+          <Icon src={ArrowsPointingOut} theme="outlined" class="size-6" />
         </Button>
         <Button btnType="monochrome" iconOnly round title="Schließen" onclick={handleClose}>
-          <XIcon />
+          <Icon src={XMark} theme="outlined" class="size-6" />
         </Button>
       </div>
     {:else}
       <section class={playerClass}>
         <div class={windowActionsClass}>
           <Button btnType="monochrome" iconOnly round title="Minimieren" onclick={handleToggleMinimized}>
-            <MinusIcon />
+            <Icon src={Minus} theme="outlined" class="size-6" />
           </Button>
           <Button btnType="monochrome" iconOnly round title="Schließen" onclick={handleClose}>
-            <XIcon />
+            <Icon src={XMark} theme="outlined" class="size-6" />
           </Button>
         </div>
         {#if audioStore.story}
@@ -100,9 +103,9 @@
             onclick={audioStore.isPlaying ? audioStore.pause : audioStore.play}
           >
             {#if audioStore.isPlaying}
-              <PauseIcon class="w-8 h-8" />
+              <Icon src={Pause} theme="solid" class="size-8" />
             {:else}
-              <PlayIcon class="w-8 h-8" />
+              <Icon src={Play} theme="solid" class="size-8" />
             {/if}
           </Button>
           <Button
@@ -113,7 +116,7 @@
             title="Vom Anfang"
             onclick={audioStore.playFromStart}
           >
-            <ArrowUturnLeftIcon class="w-8 h-8" />
+            <Icon src={ArrowUturnLeft} theme="solid" class="size-8" />
           </Button>
         </div>
       </section>

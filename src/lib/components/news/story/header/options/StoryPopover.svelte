@@ -7,7 +7,8 @@
   import OpenSupportButton from './OpenSupportButton.svelte';
   import ShareButton from './ShareButton.svelte';
   import Popover from '$lib/components/shared/content/Popover.svelte';
-  import EllipsisVerticalIcon from '$lib/components/shared/icons/outline/EllipsisVerticalIcon.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { EllipsisVertical } from '@steeze-ui/heroicons';
 
   interface Props {
     story: Story;
@@ -18,7 +19,7 @@
 
 <Popover btnType="secondary" iconOnly title="Weitere Optionen" placement="bottom-end">
   {#snippet buttonContent()}
-    <EllipsisVerticalIcon />
+    <Icon src={EllipsisVertical} theme="outlined" class="size-6" />
   {/snippet}
   {#snippet popoverContent(onClose)}
     <PopoverContent class={defaultMenuClass}>

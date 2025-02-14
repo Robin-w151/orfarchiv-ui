@@ -1,7 +1,8 @@
 <script lang="ts">
   import Link from '$lib/components/shared/controls/Link.svelte';
-  import NewspaperIcon from '$lib/components/shared/icons/outline/NewspaperIcon.svelte';
   import type { Story } from '$lib/models/story';
+  import { Newspaper } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   interface Props {
     story: Story;
@@ -17,6 +18,6 @@
 </script>
 
 <Link class={clazz} customStyle href={story.url} onclick={handleOpenArticleClick}>
-  <NewspaperIcon />
+  <Icon src={Newspaper} theme="outlined" class="size-6" />
   <span>In orf.at öffnen</span>
 </Link>
