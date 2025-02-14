@@ -7,9 +7,11 @@
     showLoadingIndicator?: boolean;
     delay?: number;
     onchange?: ChangeEventHandler<HTMLInputElement>;
+    onclick?: ChangeEventHandler<HTMLDivElement>;
+    onkeydown?: ChangeEventHandler<HTMLDivElement>;
   }
 
-  let { showLoadingIndicator = $bindable(false), delay = 0, onchange }: Props = $props();
+  let { showLoadingIndicator = $bindable(false), delay = 0, onchange, onclick, onkeydown }: Props = $props();
 </script>
 
 <Checkbox
@@ -19,5 +21,5 @@
   {onchange}
 />
 {#if showLoadingIndicator}
-  <SpinningDotsIndicator {delay} />
+  <SpinningDotsIndicator {delay} {onclick} {onkeydown} />
 {/if}

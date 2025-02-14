@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { checkNewsUpdates, searchNews } from '$lib/api/news';
+  import { cancelCheckNewsUpdates, cancelSearchNews, checkNewsUpdates, searchNews } from '$lib/api/news';
   import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
@@ -113,6 +113,11 @@
     }
   }
 
+  function cancelRequests(): void {
+    cancelSearchNews();
+    cancelCheckNewsUpdates();
+  }
+
   function setCheckUpdatesTimeout(initial: boolean) {
     if (!$settings.checkNewsUpdates) {
       return;
@@ -150,6 +155,16 @@
   function handleResetFilterClick(): void {
     searchFilter.resetAll();
   }
+
+  function handleLoadingIndicatorBackdropClick(): void {
+    cancelRequests();
+  }
+
+  function handleLoadingIndicatorBackdropKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      cancelRequests();
+    }
+  }
 </script>
 
 <Content id="news">
@@ -184,5 +199,9 @@
 </Content>
 
 {#if $news.isLoading}
-  <SpinningDotsIndicator delay={2000} />
+  <SpinningDotsIndicator
+    delay={2000}
+    onclick={handleLoadingIndicatorBackdropClick}
+    onkeydown={handleLoadingIndicatorBackdropKeydown}
+  />
 {/if}

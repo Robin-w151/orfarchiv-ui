@@ -3,18 +3,28 @@
   import { transitionDefaults } from '$lib/utils/transitions';
   import clsx from 'clsx';
   import { onDestroy, onMount } from 'svelte';
+  import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
   import { fade } from 'svelte/transition';
 
   interface Props {
     delay?: number;
+    onclick?: MouseEventHandler<HTMLDivElement>;
+    onkeydown?: KeyboardEventHandler<HTMLDivElement>;
   }
 
-  let { delay = 0 }: Props = $props();
-
-  const dotClass = clsx(['absolute', 'w-4 h-4', 'rounded-full']);
+  let { delay = 0, onclick, onkeydown }: Props = $props();
 
   let showIndicator = $state(!delay);
   let timeout: any;
+  let backdropRef = $state<HTMLDivElement | undefined>(undefined);
+
+  const dotClass = clsx(['absolute', 'w-4 h-4', 'rounded-full']);
+
+  $effect(() => {
+    if (showIndicator) {
+      backdropRef?.focus();
+    }
+  });
 
   onMount(() => {
     if (!showIndicator) {
@@ -29,11 +39,30 @@
       clearTimeout(timeout);
     }
   });
+
+  function handleBackdropClick(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
+    if (showIndicator) {
+      onclick?.(event);
+    }
+  }
+
+  function handleBackdropKeydown(event: KeyboardEvent & { currentTarget: HTMLDivElement }): void {
+    if (showIndicator) {
+      onkeydown?.(event);
+    }
+  }
 </script>
 
 {#if showIndicator && !$settings.forceReducedMotion}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     class="backdrop flex justify-center items-center fixed top-0 left-0 right-0 bottom-0 z-50 bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm"
+    role="alert"
+    tabindex="0"
+    bind:this={backdropRef}
+    onclick={handleBackdropClick}
+    onkeydown={handleBackdropKeydown}
     transition:fade|global={transitionDefaults}
   >
     <div class="loading-indicator relative w-48 h-48">

@@ -5,7 +5,13 @@ import { toSearchParams } from '$lib/utils/searchRequest';
 import type { StoryContent } from '$lib/models/story';
 import { API_NEWS_CONTENT_URL, API_NEWS_SEARCH_UPDATES_URL, API_NEWS_SEARCH_URL } from '$lib/configs/client';
 
-let abortController: AbortController | null = null;
+const abortControllers = new Map<symbol, AbortController>();
+const cancels = new Map<symbol, boolean>();
+const searchNewsRequest = Symbol('search-news-controller');
+const checkNewsUpdatesRequest = Symbol('check-news-updates-controller');
+
+export const cancelSearchNews = cancelRequest.bind(null, searchNewsRequest);
+export const cancelCheckNewsUpdates = cancelRequest.bind(null, checkNewsUpdatesRequest);
 
 export async function searchNews(searchRequestParameters: SearchRequestParameters, pageKey?: PageKey): Promise<News> {
   console.group('request-search-news');
@@ -16,19 +22,31 @@ export async function searchNews(searchRequestParameters: SearchRequestParameter
   const searchRequest = { searchRequestParameters, pageKey };
   const searchParams = toSearchParams(searchRequest);
 
+  let abortController = abortControllers.get(searchNewsRequest);
   abortController?.abort();
   abortController = new AbortController();
+  abortControllers.set(searchNewsRequest, abortController);
 
-  const response = await fetch(API_NEWS_SEARCH_URL(searchParams), {
-    signal: abortController.signal,
-  });
-  abortController = null;
+  try {
+    const response = await fetch(API_NEWS_SEARCH_URL(searchParams), {
+      signal: abortController.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to search news!');
+    if (!response.ok) {
+      throw new Error('Failed to search news!');
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (cancels.get(searchNewsRequest)) {
+      cancels.delete(searchNewsRequest);
+      throw new Error('Search news request was cancelled!');
+    } else {
+      throw error;
+    }
+  } finally {
+    abortControllers.delete(searchNewsRequest);
   }
-
-  return await response.json();
 }
 
 export async function checkNewsUpdates(
@@ -43,12 +61,31 @@ export async function checkNewsUpdates(
   const searchRequest = { searchRequestParameters, pageKey };
   const searchParams = toSearchParams(searchRequest);
 
-  const response = await fetch(API_NEWS_SEARCH_UPDATES_URL(searchParams));
-  if (!response.ok) {
-    throw new Error('Failed to check if news updates are available!');
-  }
+  let abortController = abortControllers.get(checkNewsUpdatesRequest);
+  abortController?.abort();
+  abortController = new AbortController();
+  abortControllers.set(checkNewsUpdatesRequest, abortController);
 
-  return await response.json();
+  try {
+    const response = await fetch(API_NEWS_SEARCH_UPDATES_URL(searchParams), {
+      signal: abortController.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to check if news updates are available!');
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (cancels.get(checkNewsUpdatesRequest)) {
+      cancels.delete(checkNewsUpdatesRequest);
+      throw new Error('Check news updates request was cancelled!');
+    } else {
+      throw error;
+    }
+  } finally {
+    abortControllers.delete(checkNewsUpdatesRequest);
+  }
 }
 
 export async function fetchContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
@@ -67,4 +104,14 @@ export async function fetchContent(url: string, fetchReadMoreContent = false): P
     throw new Error('Failed to load story content!');
   }
   return response.json();
+}
+
+function cancelRequest(controller: symbol): void {
+  const abortController = abortControllers.get(controller);
+
+  if (abortController) {
+    abortController.abort();
+    abortControllers.delete(controller);
+    cancels.set(controller, true);
+  }
 }
