@@ -44,6 +44,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   const document = createDom(currentData, currentUrl);
   removePrintWarnings(document);
   removeVideo(document);
+  removeMoreToReadSection(document);
   const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
   if (!optimizedContent) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
@@ -114,6 +115,12 @@ function removeVideo(document: Document): void {
   });
   document.querySelectorAll('section.stripe').forEach((stripe) => {
     stripe.remove();
+  });
+}
+
+function removeMoreToReadSection(document: Document): void {
+  document.querySelectorAll('#more-to-read').forEach((element) => {
+    element.remove();
   });
 }
 
