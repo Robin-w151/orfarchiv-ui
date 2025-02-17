@@ -26,8 +26,14 @@
     return !!navigator.clipboard?.writeText;
   }
 
-  function handleShareArticleClick() {
-    navigator.share(shareData);
+  async function handleShareArticleClick() {
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      if ((error as Error)?.name !== 'AbortError') {
+        console.error(error);
+      }
+    }
     onClose?.();
   }
 
