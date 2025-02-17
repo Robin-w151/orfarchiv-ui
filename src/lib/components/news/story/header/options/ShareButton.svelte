@@ -3,6 +3,7 @@
   import { NOTIFICATION_COPY_LINK_TIMEOUT } from '$lib/configs/client';
   import type { Story } from '$lib/models/story';
   import notifications from '$lib/stores/notifications';
+  import { logger } from '$lib/utils/logger';
   import { ClipboardDocument, Share } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 
@@ -31,7 +32,7 @@
       await navigator.share(shareData);
     } catch (error) {
       if ((error as Error)?.name !== 'AbortError') {
-        console.error(error);
+        logger.error(error);
       }
     }
     onClose?.();

@@ -1,10 +1,11 @@
 import { API_INFO } from '$lib/configs/client';
 import type { Info } from '$lib/models/info';
+import { logger } from '$lib/utils/logger';
 
 let abortController: AbortController | null = null;
 
 export async function fetchInfo(): Promise<Info> {
-  console.log('request-api-info');
+  logger.info('request-api-info');
 
   abortController?.abort();
   abortController = new AbortController();

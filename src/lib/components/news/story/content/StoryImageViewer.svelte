@@ -6,6 +6,7 @@
   import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { ChevronLeft, ChevronRight, XMark } from '@steeze-ui/heroicons';
+  import { logger } from '$lib/utils/logger';
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -151,7 +152,7 @@
       });
       imageRef.addEventListener('wheel', panzoom.zoomWithWheel);
     } catch (error) {
-      console.error('Failed to setup panzoom!', error);
+      logger.error('Failed to setup panzoom!', error);
     }
   }
 

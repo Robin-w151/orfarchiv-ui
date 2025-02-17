@@ -13,6 +13,7 @@
   import { fetchInfo } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
   import '../../../../app.scss';
+  import { logger } from '$lib/utils/logger';
 
   interface Props {
     children?: Snippet;
@@ -41,7 +42,7 @@
       const { apiVersion } = await fetchInfo();
       isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
     } catch (_error) {
-      console.warn('Could not determine current API version!');
+      logger.warn('Could not determine current API version!');
     }
   }
 </script>

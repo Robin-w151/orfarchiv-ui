@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
+import { logger } from '$lib/utils/logger';
 
 export interface NewsStore extends Readable<News>, Partial<News> {
   setNews: (news: News, newNews?: News) => void;
@@ -66,7 +67,7 @@ async function taskWithLoading(handler: () => void | Promise<void>): Promise<voi
       return;
     }
     setIsLoading(false);
-    console.warn(error);
+    logger.warn(error);
   }
 }
 

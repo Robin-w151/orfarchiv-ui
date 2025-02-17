@@ -3,6 +3,7 @@ import type { Story } from '$lib/models/story';
 import { isMediaSessionAvailable } from '$lib/utils/support';
 import EasySpeech from 'easy-speech';
 import settings from '../settings';
+import { logger } from '$lib/utils/logger';
 
 function AudioStore() {
   let isAvailable = $state(false);
@@ -44,13 +45,9 @@ function AudioStore() {
           });
 
           isAvailable = true;
-          console.groupCollapsed('text-to-speech initialized');
-          console.log('voice', voice);
-          console.groupEnd();
+          logger.infoGroup('text-to-speech initialized', [['voice', voice]], true);
         } catch (error) {
-          console.group('text-to-speech not available');
-          console.log((error as Error).message);
-          console.groupEnd();
+          logger.errorGroup('text-to-speech not available', [[(error as Error).message]]);
         }
       }
     })();
@@ -58,15 +55,15 @@ function AudioStore() {
 
   if (isMediaSessionAvailable()) {
     navigator.mediaSession.setActionHandler('play', () => {
-      console.log('media-session action: play');
+      logger.info('media-session action: play');
       play();
     });
     navigator.mediaSession.setActionHandler('pause', () => {
-      console.log('media-session action: pause');
+      logger.info('media-session action: pause');
       pause();
     });
     navigator.mediaSession.setActionHandler('stop', () => {
-      console.log('media-session action: stop');
+      logger.info('media-session action: stop');
       end();
     });
   }

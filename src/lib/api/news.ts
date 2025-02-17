@@ -4,6 +4,7 @@ import type { SearchRequestParameters } from '$lib/models/searchRequest';
 import { toSearchParams } from '$lib/utils/searchRequest';
 import type { StoryContent } from '$lib/models/story';
 import { API_NEWS_CONTENT_URL, API_NEWS_SEARCH_UPDATES_URL, API_NEWS_SEARCH_URL } from '$lib/configs/client';
+import { logger } from '$lib/utils/logger';
 
 const abortControllers = new Map<symbol, AbortController>();
 const cancels = new Map<symbol, boolean>();
@@ -14,10 +15,10 @@ export const cancelSearchNews = cancelRequest.bind(null, searchNewsRequest);
 export const cancelCheckNewsUpdates = cancelRequest.bind(null, checkNewsUpdatesRequest);
 
 export async function searchNews(searchRequestParameters: SearchRequestParameters, pageKey?: PageKey): Promise<News> {
-  console.group('request-search-news');
-  console.log('search-request-parameters', searchRequestParameters);
-  console.log('page-key', pageKey);
-  console.groupEnd();
+  logger.infoGroup('request-search-news', [
+    ['search-request-parameters', searchRequestParameters],
+    ['page-key', pageKey],
+  ]);
 
   const searchRequest = { searchRequestParameters, pageKey };
   const searchParams = toSearchParams(searchRequest);
@@ -53,10 +54,10 @@ export async function checkNewsUpdates(
   searchRequestParameters: SearchRequestParameters,
   pageKey: PageKey,
 ): Promise<NewsUpdates> {
-  console.group('request-check-news-updates');
-  console.log('search-request-parameters', searchRequestParameters);
-  console.log('page-key', pageKey);
-  console.groupEnd();
+  logger.infoGroup('request-check-news-updates', [
+    ['search-request-parameters', searchRequestParameters],
+    ['page-key', pageKey],
+  ]);
 
   const searchRequest = { searchRequestParameters, pageKey };
   const searchParams = toSearchParams(searchRequest);
@@ -89,10 +90,10 @@ export async function checkNewsUpdates(
 }
 
 export async function fetchContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
-  console.group('request-content');
-  console.log('url', url);
-  console.log('fetch-read-more-content', fetchReadMoreContent);
-  console.groupEnd();
+  logger.infoGroup('request-content', [
+    ['url', url],
+    ['fetch-read-more-content', fetchReadMoreContent],
+  ]);
 
   const searchParams = new URLSearchParams();
   searchParams.append('url', url);
@@ -110,6 +111,8 @@ function cancelRequest(controller: symbol): void {
   const abortController = abortControllers.get(controller);
 
   if (abortController) {
+    logger.debug('cancel-request', controller);
+
     abortController.abort();
     abortControllers.delete(controller);
     cancels.set(controller, true);

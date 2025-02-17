@@ -26,6 +26,7 @@
   import NewsListSkeleton from './NewsListSkeleton.svelte';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { InformationCircle } from '@steeze-ui/heroicons';
+  import { logger } from '$lib/utils/logger';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -110,7 +111,7 @@
         setCheckUpdatesTimeout(false);
       }
     } catch (_) {
-      console.log('Checking if new news updates are available failed.');
+      logger.info('Checking if new news updates are available failed.');
     }
   }
 

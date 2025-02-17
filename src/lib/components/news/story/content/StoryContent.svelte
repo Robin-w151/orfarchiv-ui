@@ -16,6 +16,7 @@
   import StoryImageViewer from './StoryImageViewer.svelte';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
+  import { logger } from '$lib/utils/logger';
 
   interface Props {
     story: Story;
@@ -60,9 +61,7 @@
       storyContent = await fetchContentWithRetry(story);
       if (storyContent) {
         contentStore.setContent(story.id, storyContent);
-        console.groupCollapsed('text-content');
-        console.log(storyContent.contentText);
-        console.groupEnd();
+        logger.infoGroup('text-content', [[storyContent.contentText]], true);
 
         if (storyContent.id) {
           const originalContent = { ...storyContent };
@@ -74,7 +73,7 @@
       }
     } catch (error) {
       const { message } = error as Error;
-      console.warn(`Error: ${message}`);
+      logger.warn(`Error: ${message}`);
     } finally {
       isLoading = false;
     }

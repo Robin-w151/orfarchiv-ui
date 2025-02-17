@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
 import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from '$lib/configs/client';
 import type { OANotificationHandlers, OANotificationOptions } from '$lib/models/notifications';
+import { logger } from './logger';
 
 type NotificationOptionsWithActions = NotificationOptions & { actions?: Array<{ action: string; title: string }> };
 
@@ -14,7 +15,7 @@ export async function requestSystemNotificationPermission(): Promise<void> {
   }
 
   if (Notification.permission === 'default') {
-    console.log('request-system-notification-permission');
+    logger.info('request-system-notification-permission');
     await Notification.requestPermission();
   }
 }
