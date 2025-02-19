@@ -83,14 +83,52 @@
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
-    const { key } = event;
-    if (key === 'ArrowLeft') {
-      gotoPrevImage();
-    } else if (key === 'ArrowRight') {
-      gotoNextImage();
-    } else if (key === 'Escape') {
-      event.preventDefault();
-      closeViewer();
+    const { key, ctrlKey } = event;
+
+    if (ctrlKey) {
+      switch (key) {
+        case '+':
+          event.preventDefault();
+          panzoom?.zoomIn();
+          return;
+        case '-':
+          event.preventDefault();
+          panzoom?.zoomOut();
+          return;
+        case '0':
+          event.preventDefault();
+          resetPanzoom();
+          return;
+        case 'ArrowUp':
+          event.preventDefault();
+          panzoom?.pan(0, 50, { relative: true });
+          return;
+        case 'ArrowDown':
+          event.preventDefault();
+          panzoom?.pan(0, -50, { relative: true });
+          return;
+        case 'ArrowLeft':
+          event.preventDefault();
+          panzoom?.pan(50, 0, { relative: true });
+          return;
+        case 'ArrowRight':
+          event.preventDefault();
+          panzoom?.pan(-50, 0, { relative: true });
+          return;
+      }
+    } else {
+      switch (key) {
+        case 'ArrowLeft':
+          gotoPrevImage();
+          return;
+        case 'ArrowRight':
+          gotoNextImage();
+          return;
+        case 'Escape':
+          event.preventDefault();
+          closeViewer();
+          return;
+      }
     }
   }
 
