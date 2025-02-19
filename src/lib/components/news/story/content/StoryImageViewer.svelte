@@ -7,6 +7,8 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import { ChevronLeft, ChevronRight, XMark } from '@steeze-ui/heroicons';
   import { logger } from '$lib/utils/logger';
+  import { PAN_DISTANCE } from '$lib/configs/client';
+
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -101,19 +103,19 @@
           return;
         case 'ArrowUp':
           event.preventDefault();
-          panzoom?.pan(0, 50, { relative: true });
+          panzoom?.pan(0, PAN_DISTANCE, { relative: true });
           return;
         case 'ArrowDown':
           event.preventDefault();
-          panzoom?.pan(0, -50, { relative: true });
+          panzoom?.pan(0, -PAN_DISTANCE, { relative: true });
           return;
         case 'ArrowLeft':
           event.preventDefault();
-          panzoom?.pan(50, 0, { relative: true });
+          panzoom?.pan(PAN_DISTANCE, 0, { relative: true });
           return;
         case 'ArrowRight':
           event.preventDefault();
-          panzoom?.pan(-50, 0, { relative: true });
+          panzoom?.pan(-PAN_DISTANCE, 0, { relative: true });
           return;
       }
     } else {
