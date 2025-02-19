@@ -100,7 +100,7 @@
     }
 
     .fact {
-      @apply my-3 px-4 py-[1px] text-sm bg-gray-100 dark:bg-gray-800 rounded-lg;
+      @apply sm:float-start sm:mr-6 my-3 px-4 py-[1px] sm:max-w-[45%] text-sm bg-gray-100 dark:bg-gray-800 rounded-lg;
 
       h2 {
         @apply mt-2 text-base;
