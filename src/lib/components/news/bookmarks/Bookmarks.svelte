@@ -1,12 +1,12 @@
 <script lang="ts">
-  import bookmarks from '$lib/stores/bookmarks';
-  import Content from '$lib/components/shared/content/Content.svelte';
-  import NewsList from '../NewsList.svelte';
-  import { defaultAlertTextBox } from '$lib/utils/styles';
-  import BookmarkActions from '../filter/BookmarkActions.svelte';
   import NewsListSkeleton from '$lib/components/news/NewsListSkeleton.svelte';
-  import { get } from 'svelte/store';
+  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
+  import Content from '$lib/components/shared/content/Content.svelte';
+  import bookmarks from '$lib/stores/bookmarks';
   import { selectStory } from '$lib/stores/newsEvents';
+  import { get } from 'svelte/store';
+  import BookmarkActions from '../filter/BookmarkActions.svelte';
+  import NewsList from '../NewsList.svelte';
 
   let bookmarksAvailable = $derived($bookmarks.filteredStories?.length > 0);
   let bookmarksBucket = $derived({ name: 'Lesezeichen', stories: $bookmarks.filteredStories });
@@ -24,12 +24,9 @@
   {:else if $bookmarks.isLoading}
     <NewsListSkeleton />
   {:else}
-    <div class={defaultAlertTextBox}>
-      <span>Aktuell sind keine Lesezeichen vorhanden.</span>
-      <span>
-        Du kannst über die Optionen bei einem Artikel in der Übersicht ein Lesezeichen setzen oder oben den Suchtext
-        anpassen.
-      </span>
-    </div>
+    <AlertBox
+      title="Keine Lesezeichen vorhanden"
+      message="Du kannst über die Optionen bei einem Artikel in der Übersicht ein Lesezeichen setzen oder oben den Suchtext anpassen."
+    ></AlertBox>
   {/if}
 </Content>

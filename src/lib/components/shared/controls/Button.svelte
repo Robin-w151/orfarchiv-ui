@@ -11,9 +11,9 @@
     size?: Size;
     iconOnly?: boolean;
     round?: boolean;
-    disabled?: boolean | undefined;
-    title?: string | undefined;
-    class?: string | undefined;
+    disabled?: boolean;
+    title?: string;
+    class?: string;
     customStyle?: boolean;
     children?: Snippet;
     onclick?: MouseEventHandler<HTMLButtonElement>;
