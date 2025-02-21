@@ -3,7 +3,7 @@
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import { refreshNews } from '$lib/stores/newsEvents';
   import { defaultPadding } from '$lib/utils/styles';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import Button from '../controls/Button.svelte';
   import news from '$lib/stores/news';
   import notifications from '$lib/stores/notifications';
@@ -20,7 +20,7 @@
   const headerTitleClass = 'focus:bg-blue-100 dark:focus:bg-blue-900 outline-none rounded-md';
   const headerActionsClass = 'flex gap-2';
 
-  let isNewsPage = $derived($page.url.pathname === '/');
+  let isNewsPage = $derived(page.url.pathname === '/');
 
   function handleRefreshButtonClick(): void {
     refreshNews.notify();
