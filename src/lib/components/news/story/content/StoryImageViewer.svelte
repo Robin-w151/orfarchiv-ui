@@ -1,12 +1,17 @@
 <script lang="ts">
+  import Popover from '$lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
+  import { PAN_DISTANCE } from '$lib/configs/client';
   import type { StoryImage } from '$lib/models/story';
-  import { onDestroy, onMount } from 'svelte';
-  import type { PanzoomObject } from '@panzoom/panzoom';
-  import { Panzoom } from '$lib/utils/panzoomModule';
-  import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
-  import { Icon } from '@steeze-ui/svelte-icon';
-  import { ChevronLeft, ChevronRight, XMark } from '@steeze-ui/heroicons';
   import { logger } from '$lib/utils/logger';
+  import { Panzoom } from '$lib/utils/panzoomModule';
+  import { defaultBackground, defaultGap, defaultPadding, defaultText } from '$lib/utils/styles';
+  import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
+  import type { PanzoomObject } from '@panzoom/panzoom';
+  import { ChevronLeft, ChevronRight, QuestionMarkCircle, XMark } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
+  import { onDestroy, onMount } from 'svelte';
+
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
@@ -26,6 +31,19 @@
 
   let isNavigationEnabled = $derived(images.length > 1);
   let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
+
+  const shortcuts: Array<{ key: string; description: string }> = [
+    { key: 'ESC', description: 'Bildansicht beenden' },
+    { key: '←', description: 'Vorheriges Bild anzeigen' },
+    { key: '→', description: 'Nächstes Bild anzeigen' },
+    { key: 'CTRL +', description: 'Heranzoomen' },
+    { key: 'CTRL -', description: 'Herauszoomen' },
+    { key: 'CTRL 0', description: 'Zoom zurücksetzen' },
+    { key: 'CTRL ←', description: 'Nach links bewegen' },
+    { key: 'CTRL →', description: 'Nach rechts bewegen' },
+    { key: 'CTRL ↑', description: 'Nach oben bewegen' },
+    { key: 'CTRL ↓', description: 'Nach unten bewegen' },
+  ];
 
   const containerClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50';
   const imageContainerClass = 'w-full h-full bg-black';
@@ -58,7 +76,7 @@
 
   $effect(() => {
     if (image) {
-      resetPanzoom();
+      resetPanzoom(false);
     }
   });
 
@@ -101,19 +119,19 @@
           return;
         case 'ArrowUp':
           event.preventDefault();
-          panzoom?.pan(0, 50, { relative: true });
+          panzoom?.pan(0, PAN_DISTANCE, { relative: true });
           return;
         case 'ArrowDown':
           event.preventDefault();
-          panzoom?.pan(0, -50, { relative: true });
+          panzoom?.pan(0, -PAN_DISTANCE, { relative: true });
           return;
         case 'ArrowLeft':
           event.preventDefault();
-          panzoom?.pan(50, 0, { relative: true });
+          panzoom?.pan(PAN_DISTANCE, 0, { relative: true });
           return;
         case 'ArrowRight':
           event.preventDefault();
-          panzoom?.pan(-50, 0, { relative: true });
+          panzoom?.pan(-PAN_DISTANCE, 0, { relative: true });
           return;
       }
     } else {
@@ -140,6 +158,10 @@
   function handlePrevImageClick(event: Event): void {
     event.stopPropagation();
     gotoPrevImage();
+  }
+
+  function handleHelpClick(event: Event): void {
+    event.stopPropagation();
   }
 
   function closeViewer(): void {
@@ -184,6 +206,7 @@
         maxScale: 10,
         step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
         contain: 'outside',
+        animate: true,
         handleStartEvent: (event: Event) => {
           event.preventDefault();
         },
@@ -194,9 +217,9 @@
     }
   }
 
-  function resetPanzoom(): void {
+  function resetPanzoom(animate = true): void {
     if (panzoom) {
-      panzoom.reset({ animate: false });
+      panzoom.reset({ animate });
     }
   }
 
@@ -215,7 +238,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div class={containerClass} role="region" onclick={handleContainerClick} onpointerdown={handleContainerPointerDown}>
   <button
-    class="viewer-button z-10 !top-2 right-2 {viewerButtonClass}"
+    class="viewer-button z-10 top-2 right-2 {viewerButtonClass}"
     title="Bild schließen"
     bind:this={closeButtonRef}
     onclick={handleCloseButtonClick}
@@ -227,7 +250,7 @@
   {#if isNavigationEnabled}
     {#if prevImage(image)}
       <button
-        class="viewer-button z-10 left-2 {viewerButtonClass}"
+        class="viewer-button viewer-button-center z-10 left-2 {viewerButtonClass}"
         title="Vorheriges Bild anzeigen"
         onclick={handlePrevImageClick}
       >
@@ -238,7 +261,7 @@
     {/if}
     {#if nextImage(image)}
       <button
-        class="viewer-button z-10 right-2 {viewerButtonClass}"
+        class="viewer-button viewer-button-center z-10 right-2 {viewerButtonClass}"
         title="Nächstes Bild anzeigen"
         onclick={handleNextImageClick}
       >
@@ -248,29 +271,60 @@
       </button>
     {/if}
   {/if}
+  <Popover
+    containerClass="viewer-button bottom-2 right-2 {viewerButtonClass}"
+    placement="top-end"
+    openOnHover
+    delay={{ open: 250 }}
+  >
+    {#snippet anchorContent(props)}
+      <span class={viewerButtonCircleClass} {...props} onclick={handleHelpClick}>
+        <Icon src={QuestionMarkCircle} theme="outlined" class={viewerButtonIconClass} />
+      </span>
+    {/snippet}
+    {#snippet popoverContent()}
+      <PopoverContent>
+        <div class="flex flex-col {defaultGap} {defaultPadding} w-max {defaultText} {defaultBackground} rounded-lg">
+          <table>
+            <thead>
+              <tr>
+                <th class="p-2">Kombination</th>
+                <th class="p-2">Beschreibung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each shortcuts as { key, description }}
+                <tr>
+                  <td class="px-2 py-1 whitespace-nowrap">{key}</td>
+                  <td class="px-2 py-1 whitespace-nowrap">{description}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </PopoverContent>
+    {/snippet}
+  </Popover>
   <div class={imageContainerClass}>
     <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} bind:this={imageRef} />
   </div>
 </div>
 
 <style lang="postcss">
-  .viewer-button {
+  :global(.viewer-button) {
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
-    top: calc(50% - 1.5rem);
     width: 3rem;
     height: 3rem;
 
     @screen md {
-      top: calc(50% - 2rem);
       width: 4rem;
       height: 4rem;
     }
 
     @media (hover: hover) and (pointer: fine) {
-      top: calc(50% - 3rem);
       width: 6rem;
       height: 6rem;
 
@@ -280,6 +334,18 @@
         background-color: theme('colors.gray.500');
         opacity: 0.9;
       }
+    }
+  }
+
+  .viewer-button-center {
+    top: calc(50% - 1.5rem);
+
+    @screen md {
+      top: calc(50% - 2rem);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      top: calc(50% - 3rem);
     }
   }
 </style>

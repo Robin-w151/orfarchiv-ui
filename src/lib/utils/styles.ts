@@ -6,15 +6,6 @@ export const defaultGap = 'gap-2 lg:gap-3';
 export const defaultText = 'text-gray-800 dark:text-gray-300';
 export const defaultBackground = 'bg-white dark:bg-gray-900';
 
-export const defaultAlertTextBox = `
-  flex flex-col ${defaultGap}
-  ${defaultPadding}
-  w-full
-  sm:text-lg
-  ${defaultText}
-  ${defaultBackground}
-`;
-
 export const defaultMenuClass = `
   flex flex-col gap-2
   p-2

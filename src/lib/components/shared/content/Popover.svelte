@@ -8,6 +8,7 @@
     useDismiss,
     useFloating,
     useFocus,
+    useHover,
     useInteractions,
     useRole,
   } from '@skeletonlabs/floating-ui-svelte';
@@ -25,8 +26,11 @@
     disabled?: boolean | undefined;
     placement?: Placement;
     openOnFocus?: boolean;
+    openOnHover?: boolean;
     openOnKeyboardClick?: boolean;
+    delay?: number | { open?: number; close?: number };
     containerClass?: string | Array<string>;
+    anchorRegionClass?: string | Array<string>;
     onVisibleChange?: (visible: boolean) => void;
     anchorContent?: Snippet<[Record<string, unknown>]>;
     buttonContent?: Snippet;
@@ -42,8 +46,11 @@
     disabled,
     placement = 'bottom',
     openOnFocus = false,
+    openOnHover = false,
     openOnKeyboardClick = true,
+    delay,
     containerClass,
+    anchorRegionClass,
     onVisibleChange,
     anchorContent,
     buttonContent,
@@ -70,11 +77,18 @@
   const click = useClick(floating.context, { keyboardHandlers: openOnKeyboardClick });
   const dismiss = useDismiss(floating.context);
   const interactions = useInteractions(
-    [role, dismiss, click, openOnFocus ? useFocus(floating.context) : null].filter((props) => !!props),
+    [
+      role,
+      dismiss,
+      click,
+      openOnFocus ? useFocus(floating.context) : null,
+      openOnHover ? useHover(floating.context, { delay }) : null,
+    ].filter((props) => !!props),
   );
-  const dropdownContentClass = 'z-40';
 
-  let dropdownButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+  const popoverContentClass = 'z-40';
+
+  let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
 
   export function setOpen(newOpen: boolean) {
     open = newOpen;
@@ -83,12 +97,12 @@
 
 <div class={containerClass}>
   {#if anchorContent}
-    <div class="w-full" bind:this={floating.elements.reference}>
+    <div class={anchorRegionClass} bind:this={floating.elements.reference}>
       {@render anchorContent?.(interactions.getReferenceProps())}
     </div>
   {:else}
     <button
-      class={dropdownButtonClass}
+      class={popoverButtonClass}
       {disabled}
       {title}
       {...interactions.getReferenceProps()}
@@ -99,7 +113,7 @@
   {/if}
   {#if open}
     <div
-      class={dropdownContentClass}
+      class={popoverContentClass}
       data-testid="popover"
       style={floating.floatingStyles}
       {...interactions.getFloatingProps()}

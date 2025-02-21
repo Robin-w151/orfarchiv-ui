@@ -1,6 +1,12 @@
 <script lang="ts">
-  import { defaultAlertTextBox, defaultScreenSize } from '$lib/utils/styles';
+  import { fetchInfo } from '$lib/api/info';
+  import { API_VERSION } from '$lib/configs/shared';
+  import { logger } from '$lib/utils/logger';
+  import { defaultScreenSize } from '$lib/utils/styles';
   import { onMount, type Snippet } from 'svelte';
+  import { pwaInfo } from 'virtual:pwa-info';
+  import '../../../../app.scss';
+  import AlertBox from '../content/AlertBox.svelte';
   import AudioPlayer from '../content/AudioPlayer.svelte';
   import Header from '../content/Header.svelte';
   import Notifications from '../controls/Notifications.svelte';
@@ -9,11 +15,6 @@
   import EnableGlobalKeybindings from './EnableGlobalKeybindings.svelte';
   import EnableNetworkNotifications from './EnableNetworkNotifications.svelte';
   import EnableUpdateListener from './EnableUpdateListener.svelte';
-  import { pwaInfo } from 'virtual:pwa-info';
-  import { fetchInfo } from '$lib/api/info';
-  import { API_VERSION } from '$lib/configs/shared';
-  import '../../../../app.scss';
-  import { logger } from '$lib/utils/logger';
 
   interface Props {
     children?: Snippet;
@@ -68,12 +69,9 @@
       {@render children?.()}
     </main>
   {:else}
-    <div class={defaultAlertTextBox}>
-      <strong>Veraltete Version</strong>
-      <span
-        >Diese Version ist veraltet und nicht mehr kompatibel. Bitte schließen Sie alle Tabs und öffnen dann ORF Archiv
-        erneut.
-      </span>
-    </div>
+    <AlertBox
+      title="Veraltete Version"
+      message="Diese Version ist veraltet und nicht mehr kompatibel. Bitte schließen Sie alle Tabs und öffnen dann ORF Archiv erneut."
+    ></AlertBox>
   {/if}
 </div>

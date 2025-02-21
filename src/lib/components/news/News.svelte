@@ -17,16 +17,15 @@
   import searchFilter from '$lib/stores/searchFilter';
   import searchRequestParameters from '$lib/stores/searchRequestParameters';
   import settings from '$lib/stores/settings';
-  import { defaultAlertTextBox, defaultBackground } from '$lib/utils/styles';
+  import { logger } from '$lib/utils/logger';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import AlertBox from '../shared/content/AlertBox.svelte';
+  import ButtonLink from '../shared/controls/ButtonLink.svelte';
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
-  import { Icon } from '@steeze-ui/svelte-icon';
-  import { InformationCircle } from '@steeze-ui/heroicons';
-  import { logger } from '$lib/utils/logger';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -172,28 +171,28 @@
 <Content id="news">
   <NewsFilter />
   {#if !anySourcesEnabled}
-    <div class={defaultAlertTextBox}>
-      <span
-        >Aktuell sind alle Quellen deaktiviert. Gehen Sie zu den Einstellungen und aktivieren Sie mindestens eine Quelle
-        um Nachrichten zu sehen.</span
-      >
-    </div>
+    <AlertBox
+      title="Keine Quellen aktiviert"
+      message="Gehen Sie zu den Einstellungen und aktivieren Sie mindestens eine Quelle um Nachrichten zu sehen."
+    >
+      {#snippet actionsContent()}
+        <ButtonLink class="w-max" href="/settings">Zu den Einstellungen</ButtonLink>
+      {/snippet}
+    </AlertBox>
   {:else if showNewsList}
     <NewsList storyBuckets={$news.storyBuckets} isLoading={$news.isLoading} onSelectStory={handleStorySelect} />
   {:else if $news.isLoading}
     <NewsListSkeleton />
   {:else}
-    <div class="flex flex-col items-center gap-8 sm:gap-16 p-8 sm:p-32 w-full {defaultBackground}">
-      <Icon src={InformationCircle} theme="outlined" class="w-12 h-12 sm:w-24 sm:h-24" />
-      <span class="text-center sm:text-lg"
-        >Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die
-        Filter.</span
-      >
-      <div class="flex flex-col md:flex-row items-center gap-2">
+    <AlertBox
+      title="Keine Nachrichten gefunden"
+      message="Bitte versuchen Sie es später erneut oder ändern Sie die Filter."
+    >
+      {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleTryAgainClick}>Erneut versuchen</Button>
         <Button class="w-max" btnType="secondary" onclick={handleResetFilterClick}>Filter zurücksetzen</Button>
-      </div>
-    </div>
+      {/snippet}
+    </AlertBox>
   {/if}
   {#if showNewsList}
     <Button disabled={loadMoreButtonDisabled} onclick={handleLoadMoreClick}>Weitere laden</Button>
