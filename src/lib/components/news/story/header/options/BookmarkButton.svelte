@@ -15,7 +15,7 @@
 
   let { story, class: clazz, onClose }: Props = $props();
 
-  function handleAddToBookmarksClick() {
+  function handleAddToBookmarksClick(): void {
     bookmarks.add(story);
     notifications.notify('Lesezeichen hinzugefügt', 'Der Artikel wurde zu deinen Lesezeichen hinzugefügt.', {
       forceAppNotification: true,
@@ -24,7 +24,7 @@
     onClose?.();
   }
 
-  function handleRemoveFromBookmarksClick() {
+  function handleRemoveFromBookmarksClick(): void {
     bookmarks.remove(story);
     notifications.notify('Lesezeichen entfernt', 'Der Artikel wurde von deinen Lesezeichen entfernt.', {
       forceAppNotification: true,

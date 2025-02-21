@@ -21,19 +21,19 @@
     unsubscribeAll(subscriptions);
   });
 
-  function handleStartSearch() {
+  function handleStartSearch(): void {
     textFilterInputRef?.focus();
   }
 
-  function handleTextFilterChange(textFilter?: string) {
+  function handleTextFilterChange(textFilter?: string): void {
     searchFilter.setTextFilter(textFilter);
   }
 
-  function handleDateFilterFromChange(from?: string) {
+  function handleDateFilterFromChange(from?: string): void {
     searchFilter.setFrom(from);
   }
 
-  function handleDateFilterToChange(to?: string) {
+  function handleDateFilterToChange(to?: string): void {
     searchFilter.setTo(to);
   }
 </script>

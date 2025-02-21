@@ -9,7 +9,7 @@
     warnIfOffline($online);
   });
 
-  function warnIfOffline(online: boolean) {
+  function warnIfOffline(online: boolean): void {
     if (!online) {
       notifications.notify(
         'Verbindung unterbrochen',

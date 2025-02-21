@@ -7,7 +7,7 @@
 
   let colorScheme: ColorScheme = $state($styles.colorScheme);
 
-  function handleColorSchemeRadioChange() {
+  function handleColorSchemeRadioChange(): void {
     if (colorScheme) {
       styles.setColorScheme(colorScheme);
     }

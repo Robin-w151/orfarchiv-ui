@@ -68,7 +68,7 @@ export function networkStore(options: ConfigurableWindow = {}): Readable<Network
 
   const connection = isSupported && (navigator as any).connection;
 
-  function updateNetworkInformation() {
+  function updateNetworkInformation(): void {
     if (!navigator) return;
 
     const state = {} as NetworkState;

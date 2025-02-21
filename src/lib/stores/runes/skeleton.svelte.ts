@@ -1,6 +1,10 @@
 import { reducedMotionStore } from './reducedMotion.svelte';
 
-function SkeletonStore() {
+export interface SkeletonStoreInterface {
+  readonly skeletonAnimationClass: string;
+}
+
+function SkeletonStore(): SkeletonStoreInterface {
   const skeletonAnimationClass = $derived(
     reducedMotionStore.useReducedMotion ? 'skeleton-animation-pulse' : 'skeleton-animation-fly',
   );

@@ -25,7 +25,7 @@
     onchange?.(value);
   });
 
-  function handleKeydown(event: KeyboardEvent) {
+  function handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
       selectRef?.blur();

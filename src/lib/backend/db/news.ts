@@ -67,7 +67,7 @@ export async function searchStory(url: string, options?: SearchStoryOptions): Pr
   }
 }
 
-function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters) {
+function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters): any {
   const textFilters = textFilter
     ?.split(/\s+/)
     .filter((text) => !!text)

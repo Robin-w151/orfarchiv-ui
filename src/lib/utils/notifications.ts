@@ -78,7 +78,7 @@ function getAndRemoveHandlers(id: string): OANotificationHandlers | undefined {
   return handlers;
 }
 
-function handleServiceWorkerMessage({ data }: MessageEvent) {
+function handleServiceWorkerMessage({ data }: MessageEvent): void {
   const { type, payload } = data;
   const { id } = payload;
   const handlers = getAndRemoveHandlers(id);

@@ -20,19 +20,19 @@
     unsubscribeAll(subscriptions);
   });
 
-  function handleStartSearch() {
+  function handleStartSearch(): void {
     textFilterInputRef?.focus();
   }
 
-  function handleTextFilterChange(textFilter?: string) {
+  function handleTextFilterChange(textFilter?: string): void {
     bookmarks.setTextFilter(textFilter ?? '');
   }
 
-  function handleDeleteAllBookmarks() {
+  function handleDeleteAllBookmarks(): void {
     bookmarks.removeAll();
   }
 
-  function handleDeleteAllViewedBookmarks() {
+  function handleDeleteAllViewedBookmarks(): void {
     bookmarks.removeAllViewed();
   }
 </script>

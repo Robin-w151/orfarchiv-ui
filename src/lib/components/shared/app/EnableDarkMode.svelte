@@ -21,7 +21,7 @@
     }
   });
 
-  function applyColorScheme(colorScheme: ColorScheme, prefersDarkColorScheme?: boolean) {
+  function applyColorScheme(colorScheme: ColorScheme, prefersDarkColorScheme?: boolean): void {
     if (colorScheme === 'system') {
       if (prefersDarkColorScheme ?? getPrefersDarkColorSchemeQuery()?.matches) {
         setDarkClass();
@@ -37,22 +37,22 @@
     }
   }
 
-  function changeColorScheme({ matches: prefersDarkColorScheme }: { matches: boolean }) {
+  function changeColorScheme({ matches: prefersDarkColorScheme }: { matches: boolean }): void {
     const colorScheme = $styles.colorScheme;
     if (colorScheme === 'system') {
       applyColorScheme(colorScheme, prefersDarkColorScheme);
     }
   }
 
-  function getPrefersDarkColorSchemeQuery() {
+  function getPrefersDarkColorSchemeQuery(): MediaQueryList {
     return window.matchMedia('(prefers-color-scheme: dark)');
   }
 
-  function setLightClass() {
+  function setLightClass(): void {
     document.documentElement.classList.remove('dark');
   }
 
-  function setDarkClass() {
+  function setDarkClass(): void {
     document.documentElement.classList.add('dark');
   }
 </script>

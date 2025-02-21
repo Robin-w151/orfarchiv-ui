@@ -10,7 +10,7 @@
 
   let { class: clazz, onClose }: Props = $props();
 
-  function handleOpenSupportClick() {
+  function handleOpenSupportClick(): void {
     onClose?.();
   }
 </script>

@@ -36,11 +36,11 @@
   const metadataClass = ['flex flex-wrap items-center gap-x-1 text-sm text-gray-600 dark:text-gray-300'];
   const controlsClass = ['flex justify-center gap-2'];
 
-  function handleToggleMinimized() {
+  function handleToggleMinimized(): void {
     minimized = !minimized;
   }
 
-  function handleClose() {
+  function handleClose(): void {
     audioStore.end();
     minimized = false;
   }

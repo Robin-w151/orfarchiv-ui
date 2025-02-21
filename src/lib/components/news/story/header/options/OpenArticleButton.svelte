@@ -12,7 +12,7 @@
 
   let { story, class: clazz, onClose }: Props = $props();
 
-  function handleOpenArticleClick() {
+  function handleOpenArticleClick(): void {
     onClose?.();
   }
 </script>

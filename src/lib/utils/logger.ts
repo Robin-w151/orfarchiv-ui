@@ -8,44 +8,44 @@ class Logger {
     ['error', '#e74c3c'],
   ]);
 
-  debug(...args: Array<any>) {
+  debug(...args: Array<any>): void {
     this.log('debug', ...args);
   }
 
-  info(...args: Array<any>) {
+  info(...args: Array<any>): void {
     this.log('info', ...args);
   }
 
-  warn(...args: Array<any>) {
+  warn(...args: Array<any>): void {
     this.log('warn', ...args);
   }
 
-  error(...args: Array<any>) {
+  error(...args: Array<any>): void {
     this.log('error', ...args);
   }
 
-  debugGroup(title: string, logs: Array<Array<any>>, collapse = false) {
+  debugGroup(title: string, logs: Array<Array<any>>, collapse = false): void {
     this.logGroup('debug', title, logs, collapse);
   }
 
-  infoGroup(title: string, logs: Array<Array<any>>, collapse = false) {
+  infoGroup(title: string, logs: Array<Array<any>>, collapse = false): void {
     this.logGroup('info', title, logs, collapse);
   }
 
-  warnGroup(title: string, logs: Array<Array<any>>, collapse = false) {
+  warnGroup(title: string, logs: Array<Array<any>>, collapse = false): void {
     this.logGroup('warn', title, logs, collapse);
   }
 
-  errorGroup(title: string, logs: Array<Array<any>>, collapse = false) {
+  errorGroup(title: string, logs: Array<Array<any>>, collapse = false): void {
     this.logGroup('error', title, logs, collapse);
   }
 
-  private log(level: LogLevel, ...args: Array<any>) {
+  private log(level: LogLevel, ...args: Array<any>): void {
     const logFn = this.getLogFn(level);
     logFn('%corf-archiv', this.getStyles(level).join(';'), ...args);
   }
 
-  private logGroup(level: LogLevel, title: string, logs: Array<Array<any>>, collapse = false) {
+  private logGroup(level: LogLevel, title: string, logs: Array<Array<any>>, collapse = false): void {
     const logFn = this.getLogFn(level);
     const logGroupFn = collapse ? console.groupCollapsed : console.group;
 
@@ -54,7 +54,7 @@ class Logger {
     console.groupEnd();
   }
 
-  private getLogFn(level: LogLevel) {
+  private getLogFn(level: LogLevel): (...args: Array<any>) => void {
     switch (level) {
       case 'warn':
         return console.warn;
@@ -65,7 +65,7 @@ class Logger {
     }
   }
 
-  private getStyles(level: LogLevel) {
+  private getStyles(level: LogLevel): Array<string> {
     const background = this.levelToBackgroundMap.get(level);
     return [
       `background: ${background}`,

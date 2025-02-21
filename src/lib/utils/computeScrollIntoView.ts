@@ -47,7 +47,7 @@ function isElement(el: any): el is Element {
   return typeof el === 'object' && el != null && el.nodeType === 1;
 }
 
-function canOverflow(overflow: string | null, skipOverflowHiddenElements?: boolean) {
+function canOverflow(overflow: string | null, skipOverflowHiddenElements?: boolean): boolean {
   if (skipOverflowHiddenElements && overflow === 'hidden') {
     return false;
   }
@@ -55,7 +55,7 @@ function canOverflow(overflow: string | null, skipOverflowHiddenElements?: boole
   return overflow !== 'visible' && overflow !== 'clip';
 }
 
-function getFrameElement(el: Element) {
+function getFrameElement(el: Element): Element | null {
   if (!el.ownerDocument || !el.ownerDocument.defaultView) {
     return null;
   }
@@ -76,7 +76,7 @@ function isHiddenByFrame(el: Element): boolean {
   return frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth;
 }
 
-function isScrollable(el: Element, skipOverflowHiddenElements?: boolean) {
+function isScrollable(el: Element, skipOverflowHiddenElements?: boolean): boolean {
   if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
     const style = getComputedStyle(el, null);
     return (
@@ -106,7 +106,7 @@ function alignNearest(
   elementEdgeStart: number,
   elementEdgeEnd: number,
   elementSize: number,
-) {
+): number {
   /**
    * If element edge A and element edge B are both outside scrolling box edge A and scrolling box edge B
    *

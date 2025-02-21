@@ -16,7 +16,7 @@ test.describe('NewsPage', () => {
 
   test.beforeEach(async ({ page }) => {
     log = [];
-    const logCall = (message: string) => log.push(message);
+    const logCall = (message: string): void => log.push(message);
     await page.exposeFunction('logCall', logCall);
     await page.addInitScript(() => {
       const navigator = window.navigator;
@@ -222,7 +222,7 @@ test.describe('NewsPage', () => {
   });
 });
 
-async function expectExternalLink(locator: Locator, expectedHref: string) {
+async function expectExternalLink(locator: Locator, expectedHref: string): Promise<void> {
   await expect(locator).toHaveAttribute('href', expectedHref);
   await expect(locator).toHaveAttribute('target', '_blank');
 }

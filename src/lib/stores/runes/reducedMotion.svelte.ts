@@ -1,7 +1,11 @@
 import { MediaQuery } from 'svelte/reactivity';
 import settings from '../settings';
 
-function ReducedMotionStore() {
+interface ReducedMotionStore {
+  useReducedMotion: boolean;
+}
+
+function ReducedMotionStore(): ReducedMotionStore {
   const prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
   let forceReducedMotion = $state(false);
 

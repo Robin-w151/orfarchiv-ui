@@ -22,11 +22,11 @@
 
   let isNewsPage = $derived($page.url.pathname === '/');
 
-  function handleRefreshButtonClick() {
+  function handleRefreshButtonClick(): void {
     refreshNews.notify();
   }
 
-  async function handleCacheForOfflineUseClick() {
+  async function handleCacheForOfflineUseClick(): Promise<void> {
     notifications.notify('Download gestartet', 'Die neuesten Artikel werden für später geladen.', {
       uniqueCategory: NOTIFICATION_OFFLINE_CACHE_DOWNLOADED,
       replaceInCategory: true,

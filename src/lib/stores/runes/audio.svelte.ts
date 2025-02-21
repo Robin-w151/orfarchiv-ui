@@ -5,7 +5,24 @@ import EasySpeech from 'easy-speech';
 import settings from '../settings';
 import { logger } from '$lib/utils/logger';
 
-function AudioStore() {
+interface AudioStoreInterface {
+  isAvailable: boolean;
+  story: Story | undefined;
+  isActive: boolean;
+  isPlaying: boolean;
+  volume: number;
+  voices: Array<SpeechSynthesisVoice>;
+  voice: SpeechSynthesisVoice | undefined;
+  read: (story: Story, text: string) => void;
+  play: () => void;
+  playFromStart: () => void;
+  pause: () => void;
+  end: () => void;
+  mute: () => void;
+  unmute: () => void;
+}
+
+function AudioStore(): AudioStoreInterface {
   let isAvailable = $state(false);
   let story = $state<Story | undefined>(undefined);
   let isPlaying = $state(false);

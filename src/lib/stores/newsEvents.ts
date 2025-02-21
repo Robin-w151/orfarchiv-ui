@@ -1,11 +1,10 @@
 import type { Story } from '$lib/models/story';
 import type { Subscribable } from '$lib/utils/subscriptions';
-import { type Observable, Subject, filter, map } from 'rxjs';
-import { createRxjsStore } from './utils';
+import { type Observable, Subject, filter, map, type NextObserver } from 'rxjs';
 
 export interface EventsStore extends Subscribable<void> {
   onUpdate: Subscribable<void>['subscribe'];
-  notify: () => void;
+  notify: (value: void) => void;
 }
 
 export interface SelectStoryStore extends Observable<string | undefined> {
@@ -27,8 +26,18 @@ export const startSearch = createEventStore();
 export const selectStory = createStorySelectStore();
 
 function createEventStore(): EventsStore {
-  const { subscribe, set } = createRxjsStore<void>();
-  return { subscribe, onUpdate: subscribe, notify: set };
+  const subject = new Subject<void>();
+  return {
+    subscribe: (run: NextObserver<void> | ((value: void) => void)) => {
+      const subscription = subject.subscribe(run);
+      return () => subscription.unsubscribe();
+    },
+    onUpdate: (run: NextObserver<void> | ((value: void) => void)) => {
+      const subscription = subject.subscribe(run);
+      return () => subscription.unsubscribe();
+    },
+    notify: () => subject.next(),
+  };
 }
 
 function createStorySelectStore(): SelectStoryStore {

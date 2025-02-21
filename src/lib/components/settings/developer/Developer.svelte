@@ -45,12 +45,12 @@
     return estimate.usage;
   }
 
-  function handleResetIndexedDbButtonClick() {
+  function handleResetIndexedDbButtonClick(): void {
     indexedDB.deleteDatabase(BOOKMARKS_STORE_NAME);
     location.reload();
   }
 
-  function handleResetLocalStorageButtonClick() {
+  function handleResetLocalStorageButtonClick(): void {
     localStorage.clear();
     location.reload();
   }
