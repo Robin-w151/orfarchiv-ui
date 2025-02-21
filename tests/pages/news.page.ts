@@ -40,7 +40,7 @@ export class NewsPage {
 
   get newsNoContentInfo(): Locator {
     return this.page.locator(
-      'text=Aktuell können keine Nachrichten geladen werden. Bitte versuchen Sie es später erneut oder ändern Sie die Filter.',
+      'text=Keine Nachrichten gefunden Bitte versuchen Sie es später erneut oder ändern Sie die Filter.',
     );
   }
 
