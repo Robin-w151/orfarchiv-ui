@@ -13,7 +13,6 @@
     "format": "prettier --write --plugin-search-dir=. .",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "fix:jsdom": "node scripts/fix-jsdom.js",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "sme": "source-map-explorer .svelte-kit/output/client/**/*.js",
