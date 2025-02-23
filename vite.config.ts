@@ -41,6 +41,10 @@ const config = {
 
 export default config;
 
-function getCommitHash(): string {
-  return execSync('git rev-parse --short HEAD').toString().trim();
+function getCommitHash(): string | undefined {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch (error) {
+    console.error('Failed to get git commit hash:', error);
+  }
 }

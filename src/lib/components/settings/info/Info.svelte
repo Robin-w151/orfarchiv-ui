@@ -18,7 +18,7 @@
       <span>Version</span>
       <span
         ><Link href="{sourceCodeUrl}-ui/tree/v{appVersion}">{appVersion}</Link>
-        {#if PUBLIC_APP_MODE === 'dev'}
+        {#if PUBLIC_APP_MODE === 'dev' && appCommitHash}
           <Link href="{sourceCodeUrl}-ui/tree/{appCommitHash}">({appCommitHash})</Link>
         {/if}</span
       >
