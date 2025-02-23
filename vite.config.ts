@@ -3,6 +3,7 @@ import dotenv from 'dotenv-flow';
 import type { UserConfig } from 'vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import manifest from './src/assets/manifest';
+import { execSync } from 'child_process';
 
 dotenv.config({ silent: true });
 
@@ -10,6 +11,7 @@ const config = {
   define: {
     'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID),
     'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version),
+    'import.meta.env.APP_COMMIT_HASH': JSON.stringify(getCommitHash()),
     'process.env.NODE_ENV': '"production"',
   },
   plugins: [
@@ -38,3 +40,11 @@ const config = {
 } satisfies UserConfig;
 
 export default config;
+
+function getCommitHash(): string | undefined {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch (error) {
+    console.error('Failed to get git commit hash:', error);
+  }
+}

@@ -25,7 +25,7 @@ setupCacheAndRoutes();
 setupNotifications();
 setupMessageListener();
 
-function setupCacheAndRoutes() {
+function setupCacheAndRoutes(): void {
   if (wbManifest) {
     precacheAndRoute(wbManifest);
   }
@@ -34,12 +34,12 @@ function setupCacheAndRoutes() {
   routeConfig.forEach(({ capture, handler }) => registerRoute(capture, handler));
 }
 
-function setupNotifications() {
+function setupNotifications(): void {
   self.onnotificationclick = handleNotificationClick;
   self.onnotificationclose = handleNotificationClose;
 }
 
-function setupMessageListener() {
+function setupMessageListener(): void {
   self.addEventListener('message', (event) => {
     if (event.data === 'SKIP_WAITING') {
       self.skipWaiting();
@@ -98,7 +98,7 @@ async function focusClient(clients: readonly Client[], path?: string): Promise<v
   }
 }
 
-async function notifyClientsAndFocus(id: string, type: string, path?: string) {
+async function notifyClientsAndFocus(id: string, type: string, path?: string): Promise<void> {
   const clients = await getClients();
 
   if (type !== NOTIFICATION_CLOSE) {
@@ -108,7 +108,7 @@ async function notifyClientsAndFocus(id: string, type: string, path?: string) {
   clients?.forEach((client) => client.postMessage({ type, payload: { id } }));
 }
 
-async function handleNotificationClick(event: NotificationEvent) {
+async function handleNotificationClick(event: NotificationEvent): Promise<void> {
   const { id, path } = event.notification.data;
   const type = event.action || NOTIFICATION_ACCEPT;
   notificationsClicked.add(id);
@@ -117,7 +117,7 @@ async function handleNotificationClick(event: NotificationEvent) {
   event.waitUntil(notifyClientsAndFocus(id, type, path));
 }
 
-async function handleNotificationClose(event: NotificationEvent) {
+async function handleNotificationClose(event: NotificationEvent): Promise<void> {
   const id = event.notification.data.id;
   const type = NOTIFICATION_CLOSE;
   if (notificationsClicked.has(id)) {

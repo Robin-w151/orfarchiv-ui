@@ -47,18 +47,18 @@ export function eventListenerStore<
   handler: (event: WindowEventMap[KW] | HTMLElementEventMap[KH] | MediaQueryListEventMap[KM] | Event) => void,
   element?: T,
   options?: boolean | AddEventListenerOptions,
-) {
+): UseEventListenerReturnType {
   // Create event listener that calls handler function stored in ref
   const listener: typeof handler = (event) => handler(event);
 
-  function start() {
+  function start(): void {
     const targetElement: T | Window = element ?? window;
     if (targetElement && targetElement.addEventListener) {
       targetElement.addEventListener(eventName, listener, options);
     }
   }
 
-  function stop() {
+  function stop(): void {
     const targetElement: T | Window = element ?? window;
     if (!(targetElement && targetElement.addEventListener)) return;
     targetElement.removeEventListener(eventName, listener, options);

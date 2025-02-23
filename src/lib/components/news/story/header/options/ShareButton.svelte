@@ -27,7 +27,7 @@
     return !!navigator.clipboard?.writeText;
   }
 
-  async function handleShareArticleClick() {
+  async function handleShareArticleClick(): Promise<void> {
     try {
       await navigator.share(shareData);
     } catch (error) {
@@ -38,7 +38,7 @@
     onClose?.();
   }
 
-  async function handleCopyToClipboardClick() {
+  async function handleCopyToClipboardClick(): Promise<void> {
     const text = new Blob([story.url], { type: 'text/plain' });
     const html = new Blob(
       [`<a id="${story.id}" data-timestamp="${story.timestamp}" href="${story.url}">${story.title}</a>`],

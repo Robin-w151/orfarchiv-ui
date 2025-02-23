@@ -1,25 +1,25 @@
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
 export class SettingsPage {
   constructor(private readonly page: Page) {}
 
-  getListSection(sectionTitle: string) {
+  getListSection(sectionTitle: string): Locator {
     return this.page
       .locator('main section', { has: this.page.locator(`header > h2:text-is("${sectionTitle}")`) })
       .locator('ul');
   }
 
-  getListSectionItem(sectionTitle: string, index: number) {
+  getListSectionItem(sectionTitle: string, index: number): Locator {
     return this.getListSection(sectionTitle).locator('li').nth(index);
   }
 
-  getListSectionInput(sectionTitle: string, label: string) {
+  getListSectionInput(sectionTitle: string, label: string): Locator {
     return this.getListSection(sectionTitle).locator('li label', {
       has: this.page.locator(`text="${label}"`),
     });
   }
 
-  async visitSite() {
+  async visitSite(): Promise<void> {
     const url = `/settings`;
     const response = await this.page.goto(url);
     if (!response || response.status() > 399) {

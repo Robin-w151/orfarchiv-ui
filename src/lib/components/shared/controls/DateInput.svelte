@@ -22,11 +22,11 @@
     onchange?.(value);
   });
 
-  export function focus() {
+  export function focus(): void {
     inputRef?.focus();
   }
 
-  function handleKeydown(event: KeyboardEvent) {
+  function handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
       inputRef?.blur();

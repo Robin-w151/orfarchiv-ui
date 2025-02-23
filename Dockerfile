@@ -19,7 +19,6 @@ ARG ORFARCHIV_DB_URL="mongodb://localhost"
 ENV ORFARCHIV_DB_URL="$ORFARCHIV_DB_URL"
 
 RUN npx svelte-kit sync \
-  && npm run fix:jsdom \
   && npm run build
 
 

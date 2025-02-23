@@ -4,7 +4,7 @@ export interface UpdateActions {
 
 let isRefreshing = false;
 
-export async function listenForUpdates(callback: (actions: UpdateActions) => void) {
+export async function listenForUpdates(callback: (actions: UpdateActions) => void): Promise<void> {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (isRefreshing) {
       return;
@@ -17,11 +17,11 @@ export async function listenForUpdates(callback: (actions: UpdateActions) => voi
   const registration = await navigator.serviceWorker.ready;
   const actions: UpdateActions = { restart };
 
-  function restart() {
+  function restart(): void {
     registration.waiting?.postMessage('SKIP_WAITING');
   }
 
-  function awaitStateChange() {
+  function awaitStateChange(): void {
     registration.installing?.addEventListener('statechange', function () {
       if (this.state === 'installed') {
         callback(actions);

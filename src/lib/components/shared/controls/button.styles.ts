@@ -30,7 +30,7 @@ const monochrome = {
   outline: 'focus:outline-none focus:ring-2 ring-blue-700 dark:ring-blue-500',
 } satisfies Variant;
 
-const sizeClass = (size: Size, iconOnly: boolean) =>
+const sizeClass = (size: Size, iconOnly: boolean): string =>
   clsx([
     size === 'small' && 'text-sm',
     size === 'small' && (iconOnly ? 'p-1' : 'px-3 py-1'),
@@ -42,11 +42,11 @@ const sizeClass = (size: Size, iconOnly: boolean) =>
     size === 'large' && !iconOnly && 'w-32',
     'min-w-fit',
   ]);
-const roundedClass = (round: boolean) => (round ? 'rounded-full' : 'rounded-md');
-const primaryClass = (focusEnabled: boolean) => clsx([primary.color, focusEnabled && primary.outline]);
-const secondaryClass = (focusEnabled: boolean) =>
+const roundedClass = (round: boolean): string => (round ? 'rounded-full' : 'rounded-md');
+const primaryClass = (focusEnabled: boolean): string => clsx([primary.color, focusEnabled && primary.outline]);
+const secondaryClass = (focusEnabled: boolean): string =>
   clsx([secondary.color, secondary.colorDark, focusEnabled && secondary.outline]);
-const monochromeClass = (focusEnabled: boolean) =>
+const monochromeClass = (focusEnabled: boolean): string =>
   clsx([monochrome.color, monochrome.colorDark, focusEnabled && monochrome.outline]);
 
 export const buttonClassFn = ({
@@ -65,7 +65,7 @@ export const buttonClassFn = ({
   focusDisabled?: boolean;
   clazz?: string;
   customStyle?: boolean;
-}) => {
+}): string | undefined => {
   const focusEnabled = focusDisabled === undefined ? true : !focusDisabled;
   return customStyle
     ? clazz

@@ -23,11 +23,11 @@
     transition
   `;
 
-  function handleRemoveAllBookmarksButtonClick() {
+  function handleRemoveAllBookmarksButtonClick(): void {
     onRemoveAllBookmarks?.();
   }
 
-  function handleRemoveAllViewedBookmarksButtonClick() {
+  function handleRemoveAllViewedBookmarksButtonClick(): void {
     onRemoveAllViewedBookmarks?.();
   }
 </script>

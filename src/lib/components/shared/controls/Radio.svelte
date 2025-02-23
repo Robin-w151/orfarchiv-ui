@@ -12,7 +12,7 @@
 
   let { id, name, label, value, group = $bindable(), onchange }: Props = $props();
 
-  function handleChange() {
+  function handleChange(): void {
     onchange?.(value);
   }
 </script>

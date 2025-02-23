@@ -45,35 +45,35 @@
   const menuActionsClass = `grid grid-cols-2 gap-x-3 gap-y-2 w-full`;
   const menuButtonClass = `!w-full`;
 
-  function handleFromChange(from?: DateTime) {
+  function handleFromChange(from?: DateTime): void {
     onFromChange?.(from?.startOf('day').toISO() ?? undefined);
   }
 
-  function handleToChange(to?: DateTime) {
+  function handleToChange(to?: DateTime): void {
     onToChange?.(to?.endOf('day').toISO() ?? undefined);
   }
 
-  function handleApplyClick() {
+  function handleApplyClick(): void {
     onApply?.();
   }
 
-  function handleResetClick() {
+  function handleResetClick(): void {
     onReset?.();
   }
 
-  function handleSelectTodayClick() {
+  function handleSelectTodayClick(): void {
     onSelectToday?.();
   }
 
-  function handleSelectLastWeekClick() {
+  function handleSelectLastWeekClick(): void {
     onSelectLastWeek?.();
   }
 
-  function handleSelectLastMonthClick() {
+  function handleSelectLastMonthClick(): void {
     onSelectLastMonth?.();
   }
 
-  function handleSelectLastYearClick() {
+  function handleSelectLastYearClick(): void {
     onSelectLastYear?.();
   }
 </script>

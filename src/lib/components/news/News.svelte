@@ -45,7 +45,7 @@
     clearTimeout(checkUpdatesTimeout);
   });
 
-  async function fetchNews(searchRequestParameters: SearchRequestParameters) {
+  async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<void> {
     await news.taskWithLoading(async () => {
       const foundNews = await searchNews(searchRequestParameters);
       if (!foundNews?.prevKey) {
@@ -60,7 +60,7 @@
     setCheckUpdatesTimeout(true);
   }
 
-  async function fetchNewNews() {
+  async function fetchNewNews(): Promise<void> {
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = get(searchRequestParameters);
       const prevKey = get(news).prevKey;
@@ -74,7 +74,7 @@
     setCheckUpdatesTimeout(true);
   }
 
-  async function fetchMoreNews() {
+  async function fetchMoreNews(): Promise<void> {
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = get(searchRequestParameters);
       const nextKey = get(news).nextKey;
@@ -86,7 +86,7 @@
     });
   }
 
-  async function fetchNewsUpdates() {
+  async function fetchNewsUpdates(): Promise<void> {
     const currSearchRequestParameters = get(searchRequestParameters);
     const prevKey = get(news).prevKey;
     if (!prevKey) {
@@ -119,7 +119,7 @@
     cancelCheckNewsUpdates();
   }
 
-  function setCheckUpdatesTimeout(initial: boolean) {
+  function setCheckUpdatesTimeout(initial: boolean): void {
     if (!$settings.checkNewsUpdates) {
       return;
     }

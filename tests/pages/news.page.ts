@@ -50,23 +50,26 @@ export class NewsPage {
 
   constructor(private readonly page: Page) {}
 
-  getDateFilterInput(name: string) {
+  getDateFilterInput(name: string): Locator {
     return this.popover.getByPlaceholder(name);
   }
 
-  getNewsListSection(index: number) {
+  getNewsListSection(index: number): Locator {
     return this.newsListSections.nth(index);
   }
 
-  getNewsListItem(index: number) {
+  getNewsListItem(index: number): Locator {
     return this.newsListItems.nth(index);
   }
 
-  getStoryContent(index: number) {
+  getStoryContent(index: number): Locator {
     return this.getNewsListItem(index).locator('article');
   }
 
-  async mockSearchNewsApi(data: unknown, { filter, update }: { filter?: string; update?: boolean } = {}) {
+  async mockSearchNewsApi(
+    data: unknown,
+    { filter, update }: { filter?: string; update?: boolean } = {},
+  ): Promise<void> {
     await this.page.route('**/api/news/search**', (route) => {
       const url = new URL(route.request().url());
       const prevId = url.searchParams.get('prevId');
@@ -90,7 +93,7 @@ export class NewsPage {
     });
   }
 
-  async mockFetchContentApi(data: unknown) {
+  async mockFetchContentApi(data: unknown): Promise<void> {
     await this.page.route('**/api/news/content**', (route) =>
       route.fulfill({
         status: 200,
@@ -102,7 +105,7 @@ export class NewsPage {
     );
   }
 
-  async visitSite() {
+  async visitSite(): Promise<void> {
     const url = `/`;
     const response = await this.page.goto(url);
     if (!response || response.status() > 399) {
@@ -110,49 +113,49 @@ export class NewsPage {
     }
   }
 
-  async waitForContent() {
+  async waitForContent(): Promise<void> {
     return this.loadMoreButton.waitFor();
   }
 
-  async waitForSearch() {
+  async waitForSearch(): Promise<void> {
     await this.page.waitForResponse(/\/api\/news\/search/i);
   }
 
-  async waitForStoryContent() {
+  async waitForStoryContent(): Promise<void> {
     await this.page.waitForResponse(/\/api\/news\/content/i);
   }
 
-  async searchNews(textFilter: string) {
+  async searchNews(textFilter: string): Promise<void> {
     const search = this.waitForSearch();
     await this.textFilterInput.fill(textFilter);
     await search;
   }
 
-  async searchNewsUpdates() {
+  async searchNewsUpdates(): Promise<void> {
     const search = this.waitForSearch();
     await this.loadUpdateLink.click();
     await search;
   }
 
-  async searchMoreNews() {
+  async searchMoreNews(): Promise<void> {
     const search = this.waitForSearch();
     await this.loadMoreButton.click();
     await search;
   }
 
-  async clearTextFilter() {
+  async clearTextFilter(): Promise<void> {
     const search = this.waitForSearch();
     await this.textFilterClearButton.click();
     await search;
   }
 
-  async openStoryContent(index: number) {
+  async openStoryContent(index: number): Promise<void> {
     const request = this.waitForStoryContent();
     await this.toggleStoryContent(index);
     await request;
   }
 
-  async toggleStoryContent(index: number) {
+  async toggleStoryContent(index: number): Promise<void> {
     const storyHeader = this.getNewsListItem(index).locator('header');
     await storyHeader.click();
   }

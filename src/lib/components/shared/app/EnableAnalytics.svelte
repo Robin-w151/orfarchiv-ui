@@ -4,7 +4,7 @@
   import { browser } from '$app/environment';
   import { PUBLIC_ENABLE_ANALYTICS } from '$env/static/public';
 
-  function isAnalyticsEnabled() {
+  function isAnalyticsEnabled(): boolean {
     return PUBLIC_ENABLE_ANALYTICS === 'true';
   }
 

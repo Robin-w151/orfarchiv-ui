@@ -90,7 +90,7 @@
 
   let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
 
-  export function setOpen(newOpen: boolean) {
+  export function setOpen(newOpen: boolean): void {
     open = newOpen;
   }
 </script>
