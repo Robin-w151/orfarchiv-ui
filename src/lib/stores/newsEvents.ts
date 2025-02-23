@@ -4,7 +4,7 @@ import { type Observable, Subject, filter, map, type NextObserver } from 'rxjs';
 
 export interface EventsStore extends Subscribable<void> {
   onUpdate: Subscribable<void>['subscribe'];
-  notify: (value: void) => void;
+  notify: () => void;
 }
 
 export interface SelectStoryStore extends Observable<string | undefined> {
