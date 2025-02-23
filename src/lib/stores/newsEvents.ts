@@ -27,15 +27,13 @@ export const selectStory = createStorySelectStore();
 
 function createEventStore(): EventsStore {
   const subject = new Subject<void>();
+  const createSubscription = (run: NextObserver<void> | ((value: void) => void)) => {
+    const subscription = subject.subscribe(run);
+    return () => subscription.unsubscribe();
+  };
   return {
-    subscribe: (run: NextObserver<void> | ((value: void) => void)) => {
-      const subscription = subject.subscribe(run);
-      return () => subscription.unsubscribe();
-    },
-    onUpdate: (run: NextObserver<void> | ((value: void) => void)) => {
-      const subscription = subject.subscribe(run);
-      return () => subscription.unsubscribe();
-    },
+    subscribe: createSubscription,
+    onUpdate: createSubscription,
     notify: () => subject.next(),
   };
 }
