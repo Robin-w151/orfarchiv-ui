@@ -46,11 +46,17 @@
   }
 
   function handleResetIndexedDbButtonClick(): void {
+    if (!confirm('Soll der IndexedDB zurückgesetzt werden? Dies löscht alle Lesezeichen.')) {
+      return;
+    }
     indexedDB.deleteDatabase(BOOKMARKS_STORE_NAME);
     location.reload();
   }
 
   function handleResetLocalStorageButtonClick(): void {
+    if (!confirm('Soll LocalStorage zurückgesetzt werden? Dies löscht alle Einstellungen.')) {
+      return;
+    }
     localStorage.clear();
     location.reload();
   }
