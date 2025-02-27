@@ -21,6 +21,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.7.1",
     "@commitlint/config-conventional": "19.7.1",
+    "@eslint/js": "^9.21.0",
     "@mozilla/readability": "0.5.0",
     "@panzoom/panzoom": "^4.6.0",
     "@playwright/test": "1.50.1",
