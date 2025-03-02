@@ -293,7 +293,7 @@
               </tr>
             </thead>
             <tbody>
-              {#each shortcuts as { key, description }}
+              {#each shortcuts as { key, description } (key)}
                 <tr>
                   <td class="px-2 py-1 whitespace-nowrap">{key}</td>
                   <td class="px-2 py-1 whitespace-nowrap">{description}</td>
