@@ -51,6 +51,14 @@
   const viewerButtonCircleClass =
     'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'size-8';
+  const infoContainerClass = [
+    `flex flex-col ${defaultGap}`,
+    `${defaultPadding} w-max max-h-[70dvh]`,
+    `${defaultText} ${defaultBackground}`,
+    'rounded-lg overflow-auto',
+  ];
+  const infoTableHeaderClass = 'p-2';
+  const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -284,19 +292,19 @@
     {/snippet}
     {#snippet popoverContent()}
       <PopoverContent>
-        <div class="flex flex-col {defaultGap} {defaultPadding} w-max {defaultText} {defaultBackground} rounded-lg">
+        <div class={infoContainerClass}>
           <table>
             <thead>
               <tr>
-                <th class="p-2">Kombination</th>
-                <th class="p-2">Beschreibung</th>
+                <th class={infoTableHeaderClass}>Kombination</th>
+                <th class={infoTableHeaderClass}>Beschreibung</th>
               </tr>
             </thead>
             <tbody>
-              {#each shortcuts as { key, description }}
+              {#each shortcuts as { key, description } (key)}
                 <tr>
-                  <td class="px-2 py-1 whitespace-nowrap">{key}</td>
-                  <td class="px-2 py-1 whitespace-nowrap">{description}</td>
+                  <td class={infoTableCellClass}>{key}</td>
+                  <td class={infoTableCellClass}>{description}</td>
                 </tr>
               {/each}
             </tbody>

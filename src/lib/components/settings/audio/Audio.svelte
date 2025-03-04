@@ -16,7 +16,7 @@
     <Item noColumn>
       <span>Stimme für Sprachausgabe</span>
       <Select id="audio-voice-select" value={audioStore.voice?.voiceURI} onchange={handleVoiceChange}>
-        {#each audioStore.voices as voice}
+        {#each audioStore.voices as voice (voice.voiceURI)}
           <option value={voice.voiceURI}>{voice.name}</option>
         {/each}
       </Select>

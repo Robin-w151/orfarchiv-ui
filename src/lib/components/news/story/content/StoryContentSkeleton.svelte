@@ -7,7 +7,7 @@
 </script>
 
 <div class={contentSkeletonClass} data-testid="story-content-skeleton">
-  {#each { length: 8 } as _}
+  {#each { length: 8 }}
     <span class="{contentSkeletonBarClass} {skeletonAnimationClass}"></span>
   {/each}
 </div>

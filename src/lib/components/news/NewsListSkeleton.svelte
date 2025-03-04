@@ -6,7 +6,7 @@
 
 <Section title="Aktuell" isLoading>
   <SectionList>
-    {#each { length: 5 } as _}
+    {#each { length: 5 }}
       <StorySkeleton />
     {/each}
   </SectionList>

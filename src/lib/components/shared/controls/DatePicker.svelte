@@ -358,10 +358,10 @@
               </tr>
             </thead>
             <tbody class={datePickerClass.tableBody}>
-              {#each daysOfMonth as [week, days]}
+              {#each daysOfMonth as [week, days] (week)}
                 <tr class={datePickerClass.tableRow}>
                   <td class={datePickerClass.tableWeek}>{week}</td>
-                  {#each days as day}
+                  {#each days as day (day.day)}
                     <td>
                       <button
                         class={datePickerClass.tableDayButton(day)}
@@ -387,7 +387,7 @@
             </button>
           </div>
           <div class={monthPickerClass.grid}>
-            {#each months as month}
+            {#each months as month (month.month)}
               <button class={buttonClass} title="Monat auswählen" onclick={() => handleMonthClick(month)}
                 >{month.monthLong}</button
               >
@@ -407,7 +407,7 @@
             </button>
           </div>
           <div class={yearPickerClass.grid}>
-            {#each years as y}
+            {#each years as y (y)}
               <button class={buttonClass} title="Jahr auswählen" onclick={() => handleYearClick(y)}>{y}</button>
             {/each}
           </div>

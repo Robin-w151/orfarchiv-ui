@@ -12,7 +12,7 @@
 </script>
 
 <section class={notificationsClass} id="notifications">
-  {#each appNotifications as notification}
+  {#each appNotifications as notification (notification.id)}
     <Notification {notification} />
   {/each}
 </section>
