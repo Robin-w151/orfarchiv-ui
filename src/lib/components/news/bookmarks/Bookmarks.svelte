@@ -2,6 +2,7 @@
   import NewsListSkeleton from '$lib/components/news/NewsListSkeleton.svelte';
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
   import bookmarks from '$lib/stores/bookmarks';
   import { selectStory } from '$lib/stores/newsEvents';
   import { get } from 'svelte/store';
@@ -15,6 +16,10 @@
     const stories = get(bookmarks).stories;
     selectStory.select({ stories, id, next });
   }
+
+  function handleResetFilterClick(): void {
+    bookmarks.resetAllFilters();
+  }
 </script>
 
 <Content id="bookmarks">
@@ -27,6 +32,12 @@
     <AlertBox
       title="Keine Lesezeichen vorhanden"
       message="Du kannst über die Optionen bei einem Artikel in der Übersicht ein Lesezeichen setzen oder oben den Suchtext anpassen."
-    ></AlertBox>
+    >
+      {#snippet actionsContent()}
+        {#if $bookmarks.textFilter}
+          <Button class="w-max" btnType="secondary" onclick={handleResetFilterClick}>Filter zurücksetzen</Button>
+        {/if}
+      {/snippet}
+    </AlertBox>
   {/if}
 </Content>

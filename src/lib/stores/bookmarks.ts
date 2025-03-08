@@ -12,6 +12,7 @@ export interface BookmarksStore extends Readable<Bookmarks>, Partial<Bookmarks> 
   removeAllViewed: () => void;
   setIsViewed: (story: Story) => void;
   setTextFilter: (textFilter: string) => void;
+  resetAllFilters: () => void;
 }
 
 let db: BookmarksDb | null = null;
@@ -84,6 +85,10 @@ function filterStory(textFilters: Array<RegExp>, story: Story): boolean {
   });
 }
 
+function resetAllFilters(): void {
+  update((bookmarks) => ({ ...bookmarks, textFilter: '', filteredStories: bookmarks.stories }));
+}
+
 export default {
   subscribe,
   add,
@@ -92,4 +97,5 @@ export default {
   removeAllViewed,
   setIsViewed,
   setTextFilter,
+  resetAllFilters,
 } as BookmarksStore;
