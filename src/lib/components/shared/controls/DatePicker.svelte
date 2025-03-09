@@ -275,16 +275,13 @@
     const firstDay = DateTime.fromObject({ month, year });
     const firstDayNextMonth = firstDay.plus({ month: 1 });
     const firstWeekday = firstDay.weekday - 1;
-    const lastDay = firstDay.endOf('month');
-    const lastDayPreviousMonth = lastDay.minus({ month: 1 });
+    const lastDayPreviousMonth = firstDay.minus({ month: 1 }).endOf('month');
     const days = firstDayNextMonth.diff(firstDay, 'days').days;
 
     const daysOfMonthPadded: Array<Day> = [];
 
-    if (firstWeekday > 0) {
-      for (let day = lastDayPreviousMonth.day - firstWeekday + 1; day <= lastDayPreviousMonth.day; day++) {
-        daysOfMonthPadded.push({ day, monthRelation: 'previous' });
-      }
+    for (let day = lastDayPreviousMonth.day - (firstWeekday || 7) + 1; day <= lastDayPreviousMonth.day; day++) {
+      daysOfMonthPadded.push({ day, monthRelation: 'previous' });
     }
 
     for (let day = 1; day <= days; day++) {
