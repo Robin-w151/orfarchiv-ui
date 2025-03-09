@@ -163,6 +163,7 @@
 
   function handleLoadingIndicatorBackdropKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
+      event.preventDefault();
       cancelRequests();
     }
   }
