@@ -1,3 +1,10 @@
+<script lang="ts" module>
+  interface ImageMeta {
+    image: HTMLImageElement;
+    source?: HTMLSourceElement;
+  }
+</script>
+
 <script lang="ts">
   import { fetchContent } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
@@ -116,11 +123,24 @@
   }
 
   function handleContentChange(ref?: HTMLElement): void {
-    const images = [...(ref?.querySelectorAll('img') ?? [])];
-    storyImages = images.map((image) => {
+    const images = new Map<HTMLImageElement, ImageMeta>();
+    for (const picture of querySelectorAll(ref, 'picture')) {
+      const image = picture.querySelector('img');
+      if (image) {
+        images.set(image, { image, source: findLargestSource(querySelectorAll(picture, 'source')) });
+      }
+    }
+
+    for (const image of querySelectorAll<HTMLImageElement>(ref, 'img')) {
+      if (!images.has(image)) {
+        images.set(image, { image });
+      }
+    }
+
+    storyImages = Array.from(images.entries()).map(([image, meta]) => {
       const storyImage = {
         src: image.src,
-        srcset: image.srcset,
+        srcset: meta?.source?.srcset ?? image.srcset,
         alt: image.alt,
       };
 
@@ -154,6 +174,18 @@
     }
 
     audioStore.read(story, storyContent.contentText);
+  }
+
+  function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
+    if (!element) {
+      return [];
+    }
+
+    return Array.from<T>(element.querySelectorAll(selector));
+  }
+
+  function findLargestSource(sources: Array<HTMLSourceElement>): HTMLSourceElement {
+    return sources.toSorted((a, b) => b.width - a.width)[0];
   }
 </script>
 
