@@ -51,7 +51,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
     throw new OptimizedContentIsEmptyError(`Optimized content from url='${currentUrl}' is empty`);
   }
 
-  const optimizedDocument = createDom(optimizedContent.content, currentUrl);
+  const optimizedDocument = createDom(optimizedContent.content ?? '', currentUrl);
   removeSiteNavigation(optimizedDocument);
   removeSiteAnchors(optimizedDocument);
   injectSlideShowImages(optimizedDocument, originalDocument);
