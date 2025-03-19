@@ -15,16 +15,31 @@
 }
 
 @layer components {
-  body {
-    @apply font-sans flex justify-center bg-gray-200 dark:bg-gray-700 outline-none;
-  }
-
   :root {
     overflow-x: hidden;
 
+    &,
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6b7280 #e5e7eb;
+
+      @media screen and (width >= 1024px) {
+        scrollbar-width: auto;
+      }
+    }
+
     &.dark {
       color-scheme: dark;
+
+      &,
+      * {
+        scrollbar-color: #111827 #374151;
+      }
     }
+  }
+
+  body {
+    @apply font-sans flex justify-center bg-gray-200 dark:bg-gray-700 outline-none;
   }
 
   .story-content {

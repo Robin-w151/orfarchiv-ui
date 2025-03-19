@@ -358,7 +358,7 @@
               {#each daysOfMonth as [week, days] (week)}
                 <tr class={datePickerClass.tableRow}>
                   <td class={datePickerClass.tableWeek}>{week}</td>
-                  {#each days as day (day.day)}
+                  {#each days as day (`${day.day}-${day.monthRelation}`)}
                     <td>
                       <button
                         class={datePickerClass.tableDayButton(day)}
