@@ -34,7 +34,6 @@ export interface StorySource {
 
 export interface StoryImage {
   src: string;
-  srcset: string;
   alt: string;
 }
 

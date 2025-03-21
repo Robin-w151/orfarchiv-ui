@@ -314,7 +314,7 @@
     {/snippet}
   </Popover>
   <div class={imageContainerClass}>
-    <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} bind:this={imageRef} />
+    <img class={imageClass} src={image.src} alt={image.alt} bind:this={imageRef} />
   </div>
 </div>
 
