@@ -123,24 +123,11 @@
   }
 
   function handleContentChange(ref?: HTMLElement): void {
-    const images = new Map<HTMLImageElement, ImageMeta>();
-    for (const picture of querySelectorAll(ref, 'picture')) {
-      const image = picture.querySelector('img');
-      if (image) {
-        images.set(image, { image, source: findLargestSource(querySelectorAll(picture, 'source')) });
-      }
-    }
-
-    for (const image of querySelectorAll<HTMLImageElement>(ref, 'img')) {
-      if (!images.has(image)) {
-        images.set(image, { image });
-      }
-    }
+    const images = findAllImages(ref);
 
     storyImages = Array.from(images.entries()).map(([image, meta]) => {
       const storyImage = {
-        src: image.src,
-        srcset: meta?.source?.srcset ?? image.srcset,
+        src: meta?.source?.srcset ?? image.src,
         alt: image.alt,
       };
 
@@ -176,16 +163,34 @@
     audioStore.read(story, storyContent.contentText);
   }
 
+  function findAllImages(ref?: HTMLElement): Map<HTMLImageElement, ImageMeta> {
+    const images = new Map<HTMLImageElement, ImageMeta>();
+    for (const picture of querySelectorAll(ref, 'picture')) {
+      const image = picture.querySelector('img');
+      if (image) {
+        images.set(image, { image, source: findLargestSource(querySelectorAll(picture, 'source')) });
+      }
+    }
+
+    for (const image of querySelectorAll<HTMLImageElement>(ref, 'img')) {
+      if (!images.has(image)) {
+        images.set(image, { image });
+      }
+    }
+
+    return images;
+  }
+
+  function findLargestSource(sources: Array<HTMLSourceElement>): HTMLSourceElement {
+    return sources.toSorted((a, b) => b.width - a.width)[0];
+  }
+
   function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
     if (!element) {
       return [];
     }
 
     return Array.from<T>(element.querySelectorAll(selector));
-  }
-
-  function findLargestSource(sources: Array<HTMLSourceElement>): HTMLSourceElement {
-    return sources.toSorted((a, b) => b.width - a.width)[0];
   }
 </script>
 

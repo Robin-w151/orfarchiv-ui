@@ -280,7 +280,7 @@
     {/if}
   {/if}
   <Popover
-    containerClass="viewer-button bottom-2 right-2 {viewerButtonClass}"
+    containerClass="viewer-button viewer-button-touch bottom-2 right-2 {viewerButtonClass}"
     placement="top-end"
     openOnHover
     delay={{ open: 250 }}
@@ -314,7 +314,7 @@
     {/snippet}
   </Popover>
   <div class={imageContainerClass}>
-    <img class={imageClass} src={image.src} srcset={image.srcset} alt={image.alt} bind:this={imageRef} />
+    <img class={imageClass} src={image.src} alt={image.alt} bind:this={imageRef} />
   </div>
 </div>
 
@@ -342,6 +342,12 @@
         background-color: theme('colors.gray.500');
         opacity: 0.9;
       }
+    }
+  }
+
+  :global(.viewer-button-touch) {
+    @media screen and (pointer: coarse) {
+      display: none;
     }
   }
 
