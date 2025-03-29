@@ -34,7 +34,7 @@
   let headerRef: StoryHeader | undefined = $state();
   let showContentInitial = false;
   let showContent = $state(false);
-  let headerClassSticky = $derived(
+  let headerClassOpen = $derived(
     clsx([showContent && 'sticky z-10 mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900']),
   );
 
@@ -109,7 +109,7 @@
 <Item bind:this={itemRef} noGap noPadding>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="header {headerClass} {headerClassSticky}" onclick={handleHeaderWrapperClick}>
+  <div class="header {headerClass} {headerClassOpen}" onclick={handleHeaderWrapperClick}>
     <StoryHeader {story} onclick={handleHeaderClick} onkeydown={handleHeaderKeydown} bind:this={headerRef} />
   </div>
   {#if showContent}

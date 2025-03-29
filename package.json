@@ -1,6 +1,6 @@
 {
   "name": "ui",
-  "version": "4.10.2",
+  "version": "4.10.3-next.3",
   "license": "MIT",
   "scripts": {
     "dev": "vite dev --host",
@@ -22,7 +22,7 @@
     "@commitlint/cli": "19.8.0",
     "@commitlint/config-conventional": "19.8.0",
     "@eslint/js": "^9.23.0",
-    "@mozilla/readability": "0.6.0",
+    "@mozilla/readability": "0.5.0",
     "@panzoom/panzoom": "^4.6.0",
     "@playwright/test": "1.51.1",
     "@semantic-release/git": "10.0.1",
