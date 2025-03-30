@@ -13,6 +13,7 @@
     useRole,
   } from '@skeletonlabs/floating-ui-svelte';
   import type { Snippet } from 'svelte';
+  import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
@@ -112,14 +113,16 @@
     </button>
   {/if}
   {#if open}
-    <div
-      class={popoverContentClass}
-      data-testid="popover"
-      style={floating.floatingStyles}
-      {...interactions.getFloatingProps()}
-      bind:this={floating.elements.floating}
-    >
-      {@render popoverContent?.(() => (open = false))}
-    </div>
+    <Portal>
+      <div
+        class={popoverContentClass}
+        data-testid="popover"
+        style={floating.floatingStyles}
+        {...interactions.getFloatingProps()}
+        bind:this={floating.elements.floating}
+      >
+        {@render popoverContent?.(() => (open = false))}
+      </div>
+    </Portal>
   {/if}
 </div>
