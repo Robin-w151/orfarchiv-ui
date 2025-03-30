@@ -17,7 +17,7 @@
   let { story }: Props = $props();
 </script>
 
-<Popover btnType="secondary" iconOnly title="Weitere Optionen" placement="bottom-end">
+<Popover btnType="secondary" iconOnly title="Weitere Optionen" placement="bottom-end" appendTo="body">
   {#snippet buttonContent()}
     <Icon src={EllipsisVertical} theme="outlined" class="size-6" />
   {/snippet}
