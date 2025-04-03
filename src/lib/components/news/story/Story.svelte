@@ -21,7 +21,7 @@
   const subscriptions: Array<Subscription> = [];
 
   const headerClass = `
-    flex flex-row items-center gap-3 top-[47px] sm:top-[53px]
+    flex flex-row items-center gap-3 top-[47px] sm:top-[53px] sticky z-10
     ${defaultPadding}
     text-gray-800 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500
     border-gray-200 dark:border-gray-700
@@ -34,9 +34,7 @@
   let headerRef: StoryHeader | undefined = $state();
   let showContentInitial = false;
   let showContent = $state(false);
-  let headerClassOpen = $derived(
-    clsx([showContent && 'sticky z-10 mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900']),
-  );
+  let headerClassOpen = $derived(clsx([showContent && 'mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900']));
 
   $effect(() => {
     handleContentViewCollapse(showContent);

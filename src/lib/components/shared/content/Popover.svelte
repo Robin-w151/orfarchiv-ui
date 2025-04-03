@@ -13,6 +13,7 @@
     useRole,
   } from '@skeletonlabs/floating-ui-svelte';
   import type { Snippet } from 'svelte';
+  import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
@@ -25,6 +26,7 @@
     title?: string | undefined;
     disabled?: boolean | undefined;
     placement?: Placement;
+    appendTo?: string | HTMLElement;
     openOnFocus?: boolean;
     openOnHover?: boolean;
     openOnKeyboardClick?: boolean;
@@ -45,6 +47,7 @@
     title,
     disabled,
     placement = 'bottom',
+    appendTo,
     openOnFocus = false,
     openOnHover = false,
     openOnKeyboardClick = true,
@@ -95,6 +98,18 @@
   }
 </script>
 
+{#snippet popoverContentWrapper()}
+  <div
+    class={popoverContentClass}
+    data-testid="popover"
+    style={floating.floatingStyles}
+    {...interactions.getFloatingProps()}
+    bind:this={floating.elements.floating}
+  >
+    {@render popoverContent?.(() => (open = false))}
+  </div>
+{/snippet}
+
 <div class={containerClass}>
   {#if anchorContent}
     <div class={anchorRegionClass} bind:this={floating.elements.reference}>
@@ -112,14 +127,12 @@
     </button>
   {/if}
   {#if open}
-    <div
-      class={popoverContentClass}
-      data-testid="popover"
-      style={floating.floatingStyles}
-      {...interactions.getFloatingProps()}
-      bind:this={floating.elements.floating}
-    >
-      {@render popoverContent?.(() => (open = false))}
-    </div>
+    {#if appendTo}
+      <Portal target={appendTo}>
+        {@render popoverContentWrapper()}
+      </Portal>
+    {:else}
+      {@render popoverContentWrapper()}
+    {/if}
   {/if}
 </div>

@@ -78,7 +78,7 @@
   }
 </script>
 
-<Popover btnType="secondary" iconOnly title="Weitere Filter-Optionen" placement="bottom-end">
+<Popover btnType="secondary" iconOnly title="Weitere Filter-Optionen" placement="bottom-end" appendTo="body">
   {#snippet buttonContent()}
     <Icon src={Funnel} theme="outlined" class="size-6" />
   {/snippet}
