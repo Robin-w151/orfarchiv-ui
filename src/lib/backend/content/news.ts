@@ -270,5 +270,12 @@ function extractTextForSpeechSynthesis(optimizedDocument: Document, originalDocu
     element.remove();
   });
 
+  document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header) => {
+    const text = header.textContent?.trim() ?? '';
+    if (text && !text.endsWith('.')) {
+      header.textContent = `${text}.`;
+    }
+  });
+
   return document.body.textContent?.replace(/\s+/g, ' ')?.trim() ?? '';
 }
