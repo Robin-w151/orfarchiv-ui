@@ -25,7 +25,7 @@ export interface StoryEntity {
 
 export const StorySource = z.object({
   name: z.string(),
-  url: z.string(),
+  url: z.string().url(),
 });
 export type StorySource = z.infer<typeof StorySource>;
 
