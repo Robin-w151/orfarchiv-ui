@@ -98,7 +98,6 @@ export class NewsPage {
 
   async mockFetchContentApi(data: unknown): Promise<void> {
     await this.page.route('**/api/trpc/news.content**', (route) => {
-      console.log('mockFetchContentApi', data);
       route.fulfill({
         status: 200,
         headers: {
