@@ -203,5 +203,10 @@ function parseDate(date: string | null | undefined): Date | undefined {
     return undefined;
   }
 
-  return new Date(date);
+  const dateObject = new Date(date);
+  if (isNaN(dateObject.getTime())) {
+    return undefined;
+  }
+
+  return dateObject;
 }
