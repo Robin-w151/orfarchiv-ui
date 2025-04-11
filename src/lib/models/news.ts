@@ -1,21 +1,25 @@
-import type { PageKey } from './pageKey';
-import type { Story } from './story';
+import { PageKey } from './pageKey';
+import { Story } from './story';
+import { z } from 'zod';
 
-export interface News {
-  stories: Array<Story>;
-  isLoading?: boolean;
-  storyBuckets?: Array<NewsBucket>;
-  search?: string;
-  prevKey?: PageKey | null;
-  nextKey?: PageKey | null;
-}
+export const NewsBucket = z.object({
+  name: z.string(),
+  date: z.string().optional(),
+  stories: z.array(Story),
+});
+export type NewsBucket = z.infer<typeof NewsBucket>;
 
-export interface NewsBucket {
-  name: string;
-  date?: string;
-  stories: Array<Story>;
-}
+export const News = z.object({
+  stories: z.array(Story),
+  isLoading: z.boolean().optional(),
+  storyBuckets: z.array(NewsBucket).optional(),
+  search: z.string().optional(),
+  prevKey: PageKey.optional().nullable(),
+  nextKey: PageKey.optional().nullable(),
+});
+export type News = z.infer<typeof News>;
 
-export interface NewsUpdates {
-  updateAvailable: boolean;
-}
+export const NewsUpdates = z.object({
+  updateAvailable: z.boolean(),
+});
+export type NewsUpdates = z.infer<typeof NewsUpdates>;

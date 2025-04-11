@@ -1,120 +1,123 @@
-import type { News, NewsUpdates } from '$lib/models/news';
+import { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
-import { toSearchParams } from '$lib/utils/searchRequest';
-import type { StoryContent } from '$lib/models/story';
-import { API_NEWS_CONTENT_URL, API_NEWS_SEARCH_UPDATES_URL, API_NEWS_SEARCH_URL } from '$lib/configs/client';
+import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
+import { createTRPC } from './trpc';
 
-const abortControllers = new Map<symbol, AbortController>();
-const cancels = new Map<symbol, boolean>();
 const searchNewsRequest = Symbol('search-news-controller');
 const checkNewsUpdatesRequest = Symbol('check-news-updates-controller');
 
-export const cancelSearchNews = cancelRequest.bind(null, searchNewsRequest);
-export const cancelCheckNewsUpdates = cancelRequest.bind(null, checkNewsUpdatesRequest);
+export class NewsApi {
+  private trpc = createTRPC();
+  private abortControllers = new Map<symbol, AbortController>();
+  private cancels = new Map<symbol, boolean>();
 
-export async function searchNews(searchRequestParameters: SearchRequestParameters, pageKey?: PageKey): Promise<News> {
-  logger.infoGroup('request-search-news', [
-    ['search-request-parameters', searchRequestParameters],
-    ['page-key', pageKey],
-  ]);
+  async searchNews(searchRequestParameters: SearchRequestParameters, pageKey?: PageKey): Promise<News> {
+    logger.infoGroup('request-search-news', [
+      ['search-request-parameters', searchRequestParameters],
+      ['page-key', pageKey],
+    ]);
 
-  const searchRequest = { searchRequestParameters, pageKey };
-  const searchParams = toSearchParams(searchRequest);
+    const searchRequest = { searchRequestParameters, pageKey };
 
-  let abortController = abortControllers.get(searchNewsRequest);
-  abortController?.abort();
-  abortController = new AbortController();
-  abortControllers.set(searchNewsRequest, abortController);
+    let abortController = this.abortControllers.get(searchNewsRequest);
+    abortController?.abort();
+    abortController = new AbortController();
+    this.abortControllers.set(searchNewsRequest, abortController);
 
-  try {
-    const response = await fetch(API_NEWS_SEARCH_URL(searchParams), {
-      signal: abortController.signal,
-    });
+    try {
+      const response = await this.trpc.news.search.query(searchRequest, {
+        signal: abortController.signal,
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to search news!');
+      const validationResult = await News.safeParseAsync(response);
+      if (validationResult.error) {
+        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (this.cancels.get(searchNewsRequest)) {
+        this.cancels.delete(searchNewsRequest);
+        throw new Error('Search news request was cancelled!');
+      } else {
+        throw error;
+      }
+    } finally {
+      this.abortControllers.delete(searchNewsRequest);
+    }
+  }
+
+  async checkNewsUpdates(searchRequestParameters: SearchRequestParameters, pageKey: PageKey): Promise<NewsUpdates> {
+    logger.infoGroup('request-check-news-updates', [
+      ['search-request-parameters', searchRequestParameters],
+      ['page-key', pageKey],
+    ]);
+
+    const searchRequest = { searchRequestParameters, pageKey };
+
+    let abortController = this.abortControllers.get(checkNewsUpdatesRequest);
+    abortController?.abort();
+    abortController = new AbortController();
+    this.abortControllers.set(checkNewsUpdatesRequest, abortController);
+
+    try {
+      const response = await this.trpc.news.checkUpdates.query(searchRequest, {
+        signal: abortController.signal,
+      });
+
+      const validationResult = await NewsUpdates.safeParseAsync(response);
+      if (validationResult.error) {
+        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (this.cancels.get(checkNewsUpdatesRequest)) {
+        this.cancels.delete(checkNewsUpdatesRequest);
+        throw new Error('Check news updates request was cancelled!');
+      } else {
+        throw error;
+      }
+    } finally {
+      this.abortControllers.delete(checkNewsUpdatesRequest);
+    }
+  }
+
+  async fetchContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
+    logger.infoGroup('request-content', [
+      ['url', url],
+      ['fetch-read-more-content', fetchReadMoreContent],
+    ]);
+
+    const response = await this.trpc.news.content.query({ url, fetchReadMoreContent });
+
+    const validationResult = await StoryContent.safeParseAsync(response);
+    if (validationResult.error) {
+      throw new Error(`Invalid response from server: ${validationResult.error.message}`);
     }
 
-    return await response.json();
-  } catch (error) {
-    if (cancels.get(searchNewsRequest)) {
-      cancels.delete(searchNewsRequest);
-      throw new Error('Search news request was cancelled!');
-    } else {
-      throw error;
+    return response;
+  }
+
+  cancelSearchNews(): void {
+    this.cancelRequest(searchNewsRequest);
+  }
+
+  cancelCheckNewsUpdates(): void {
+    this.cancelRequest(checkNewsUpdatesRequest);
+  }
+
+  private cancelRequest(controllerSymbol: symbol): void {
+    const abortController = this.abortControllers.get(controllerSymbol);
+
+    if (abortController) {
+      logger.debug('cancel-request', controllerSymbol);
+
+      abortController.abort();
+      this.abortControllers.delete(controllerSymbol);
+      this.cancels.set(controllerSymbol, true);
     }
-  } finally {
-    abortControllers.delete(searchNewsRequest);
-  }
-}
-
-export async function checkNewsUpdates(
-  searchRequestParameters: SearchRequestParameters,
-  pageKey: PageKey,
-): Promise<NewsUpdates> {
-  logger.infoGroup('request-check-news-updates', [
-    ['search-request-parameters', searchRequestParameters],
-    ['page-key', pageKey],
-  ]);
-
-  const searchRequest = { searchRequestParameters, pageKey };
-  const searchParams = toSearchParams(searchRequest);
-
-  let abortController = abortControllers.get(checkNewsUpdatesRequest);
-  abortController?.abort();
-  abortController = new AbortController();
-  abortControllers.set(checkNewsUpdatesRequest, abortController);
-
-  try {
-    const response = await fetch(API_NEWS_SEARCH_UPDATES_URL(searchParams), {
-      signal: abortController.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to check if news updates are available!');
-    }
-
-    return await response.json();
-  } catch (error) {
-    if (cancels.get(checkNewsUpdatesRequest)) {
-      cancels.delete(checkNewsUpdatesRequest);
-      throw new Error('Check news updates request was cancelled!');
-    } else {
-      throw error;
-    }
-  } finally {
-    abortControllers.delete(checkNewsUpdatesRequest);
-  }
-}
-
-export async function fetchContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
-  logger.infoGroup('request-content', [
-    ['url', url],
-    ['fetch-read-more-content', fetchReadMoreContent],
-  ]);
-
-  const searchParams = new URLSearchParams();
-  searchParams.append('url', url);
-  if (fetchReadMoreContent) {
-    searchParams.append('fetchReadMoreContent', 'true');
-  }
-  const response = await fetch(API_NEWS_CONTENT_URL(searchParams.toString()));
-  if (!response.ok) {
-    throw new Error('Failed to load story content!');
-  }
-  return response.json();
-}
-
-function cancelRequest(controller: symbol): void {
-  const abortController = abortControllers.get(controller);
-
-  if (abortController) {
-    logger.debug('cancel-request', controller);
-
-    abortController.abort();
-    abortControllers.delete(controller);
-    cancels.set(controller, true);
   }
 }

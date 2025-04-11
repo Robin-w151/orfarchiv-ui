@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cancelCheckNewsUpdates, cancelSearchNews, checkNewsUpdates, searchNews } from '$lib/api/news';
+  import { NewsApi } from '$lib/api/news';
   import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
@@ -27,6 +27,7 @@
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
 
+  const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
 
   let checkUpdatesTimeout: any;
@@ -47,13 +48,13 @@
 
   async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<void> {
     await news.taskWithLoading(async () => {
-      const foundNews = await searchNews(searchRequestParameters);
+      const foundNews = await newsApi.searchNews(searchRequestParameters);
       if (!foundNews?.prevKey) {
         news.setNews(foundNews);
         return;
       }
 
-      const newNews = await searchNews(searchRequestParameters, foundNews?.prevKey);
+      const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
       news.setNews(foundNews, newNews);
     });
 
@@ -67,7 +68,7 @@
       if (!prevKey) {
         return;
       }
-      const newNews = await searchNews(currSearchRequestParameters, prevKey);
+      const newNews = await newsApi.searchNews(currSearchRequestParameters, prevKey);
       news.addNews(newNews, false);
     });
 
@@ -81,7 +82,7 @@
       if (nextKey === null) {
         return;
       }
-      const newNews = await searchNews(currSearchRequestParameters, nextKey);
+      const newNews = await newsApi.searchNews(currSearchRequestParameters, nextKey);
       news.addNews(newNews);
     });
   }
@@ -94,7 +95,7 @@
     }
 
     try {
-      const newsUpdates = await checkNewsUpdates(currSearchRequestParameters, prevKey);
+      const newsUpdates = await newsApi.checkNewsUpdates(currSearchRequestParameters, prevKey);
       if (newsUpdates.updateAvailable) {
         notifications.notify('Neue Nachrichten verfügbar', 'Wollen Sie jetzt neu laden?', {
           uniqueCategory: NOTIFICATION_NEWS_UPDATES_AVAILABLE,
@@ -115,8 +116,8 @@
   }
 
   function cancelRequests(): void {
-    cancelSearchNews();
-    cancelCheckNewsUpdates();
+    newsApi.cancelSearchNews();
+    newsApi.cancelCheckNewsUpdates();
   }
 
   function setCheckUpdatesTimeout(initial: boolean): void {

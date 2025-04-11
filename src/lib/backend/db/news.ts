@@ -83,10 +83,10 @@ function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters
         }
       : {};
 
-  const fromDate = dateFilter?.from?.toJSDate();
+  const fromDate = parseDate(dateFilter?.from);
   const fromQuery = fromDate ? { timestamp: { $gte: fromDate } } : {};
 
-  const toDate = dateFilter?.to?.toJSDate();
+  const toDate = parseDate(dateFilter?.to);
   const toQuery = toDate ? { timestamp: { $lte: toDate } } : {};
 
   const sourceQuery = sources?.length && sources.length > 0 ? { source: { $in: sources } } : {};
@@ -196,4 +196,17 @@ function isStoryEntity(story: unknown): story is StoryEntity {
     'source' in story &&
     !!story.source
   );
+}
+
+function parseDate(date: string | null | undefined): Date | undefined {
+  if (!date) {
+    return undefined;
+  }
+
+  const dateObject = new Date(date);
+  if (isNaN(dateObject.getTime())) {
+    return undefined;
+  }
+
+  return dateObject;
 }

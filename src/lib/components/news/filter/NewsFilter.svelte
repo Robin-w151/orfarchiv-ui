@@ -47,8 +47,8 @@
     placeholder="Suche"
   />
   <NewsFilterPopover
-    from={$searchFilter.tempSearchFilter.dateFilter?.from}
-    to={$searchFilter.tempSearchFilter.dateFilter?.to}
+    from={$searchFilter.tempDateFilter?.from}
+    to={$searchFilter.tempDateFilter?.to}
     onFromChange={handleDateFilterFromChange}
     onToChange={handleDateFilterToChange}
     onApply={searchFilter.applyTempSearchFilter}
