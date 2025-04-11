@@ -97,7 +97,10 @@
       try {
         const fetchReadMoreContent = get(settings).fetchReadMoreContent && story.source === 'news';
         return await newsApi.fetchContent(story.url, fetchReadMoreContent);
-      } catch (_error) {
+      } catch (error) {
+        const { message } = error as Error;
+        logger.warn(`Error: ${message}`);
+
         if (retry < STORY_CONTENT_FETCH_MAX_RETRIES - 1) {
           await wait(1000 * 2 ** retry);
         }
