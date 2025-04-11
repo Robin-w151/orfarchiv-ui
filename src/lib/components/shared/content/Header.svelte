@@ -1,15 +1,18 @@
 <script lang="ts">
+  import { page } from '$app/state';
+  import { NewsApi } from '$lib/api/news';
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
-  import { refreshNews } from '$lib/stores/newsEvents';
-  import { defaultPadding } from '$lib/utils/styles';
-  import { page } from '$app/state';
-  import Button from '../controls/Button.svelte';
-  import news from '$lib/stores/news';
-  import notifications from '$lib/stores/notifications';
   import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '$lib/configs/client';
+  import news from '$lib/stores/news';
+  import { refreshNews } from '$lib/stores/newsEvents';
+  import notifications from '$lib/stores/notifications';
+  import { defaultPadding } from '$lib/utils/styles';
+  import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Newspaper } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
-  import { ArrowPath, Newspaper, BookmarkSquare, Cog8Tooth, CloudArrowDown } from '@steeze-ui/heroicons';
+  import Button from '../controls/Button.svelte';
+
+  const newsApi = new NewsApi();
 
   const headerClass = `
     flex justify-between items-center gap-6
@@ -32,7 +35,7 @@
       replaceInCategory: true,
       forceAppNotification: true,
     });
-    await news.cacheForOfflineUse();
+    await news.cacheForOfflineUse(newsApi.fetchContent.bind(newsApi));
     notifications.notify('Download abgeschlossen', 'Die neuesten Artikel wurden für später gespeichert.', {
       uniqueCategory: NOTIFICATION_OFFLINE_CACHE_DOWNLOADED,
       replaceInCategory: true,

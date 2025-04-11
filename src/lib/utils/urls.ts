@@ -1,4 +1,4 @@
-import { URL_ORF_REGEXP, URL_ORF_STORY_REGEXP } from '$lib/configs/server';
+import { URL_ORF_REGEXP, URL_ORF_STORY_REGEXP } from '$lib/configs/shared';
 
 export function isOrfUrl(url: string | null | undefined): boolean {
   if (!url) {

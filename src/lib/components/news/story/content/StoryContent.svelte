@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import { fetchContent } from '$lib/api/news';
+  import { NewsApi } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
   import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
@@ -31,6 +31,8 @@
   }
 
   let { story, onCollapse }: Props = $props();
+
+  const newsApi = new NewsApi();
 
   const wrapperClass = 'flex flex-col items-center gap-3';
   const contentClass = 'cursor-auto w-full';
@@ -94,7 +96,7 @@
     for (let retry = 0; retry < STORY_CONTENT_FETCH_MAX_RETRIES && !isClosed; retry++) {
       try {
         const fetchReadMoreContent = get(settings).fetchReadMoreContent && story.source === 'news';
-        return await fetchContent(story.url, fetchReadMoreContent);
+        return await newsApi.fetchContent(story.url, fetchReadMoreContent);
       } catch (_error) {
         if (retry < STORY_CONTENT_FETCH_MAX_RETRIES - 1) {
           await wait(1000 * 2 ** retry);

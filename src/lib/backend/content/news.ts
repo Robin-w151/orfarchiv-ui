@@ -2,7 +2,7 @@ import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 import createDOMPurify, { type WindowLike } from 'dompurify';
 import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
-import { isOrfStoryUrl } from '$lib/backend/utils/urls';
+import { isOrfStoryUrl } from '$lib/utils/urls';
 import type { StoryContent, StorySource } from '$lib/models/story';
 import { searchStory } from '$lib/backend/db/news';
 import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';

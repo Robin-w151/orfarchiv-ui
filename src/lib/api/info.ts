@@ -1,18 +1,25 @@
 import { createTRPC } from '$lib/api/trpc';
-import type { Info } from '$lib/models/info';
+import { Info } from '$lib/models/info';
 import { logger } from '$lib/utils/logger';
 
-let abortController: AbortController | null = null;
+export class InfoApi {
+  private trpc = createTRPC();
+  private abortController: AbortController | null = null;
 
-export async function fetchInfo(): Promise<Info> {
-  logger.info('request-api-info');
+  async fetchInfo(): Promise<Info> {
+    logger.info('request-api-info');
 
-  abortController?.abort();
-  abortController = new AbortController();
+    this.abortController?.abort();
+    this.abortController = new AbortController();
 
-  const trpc = createTRPC();
-  const response = await trpc.info.query(undefined, { signal: abortController.signal });
-  abortController = null;
+    const response = await this.trpc.info.query(undefined, { signal: this.abortController.signal });
+    this.abortController = null;
 
-  return response;
+    const validationResult = await Info.safeParseAsync(response);
+    if (validationResult.error) {
+      throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+    }
+
+    return response;
+  }
 }
