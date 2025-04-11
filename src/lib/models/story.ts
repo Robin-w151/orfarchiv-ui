@@ -7,6 +7,7 @@ export const Story = z.object({
   url: z.string().url(),
   timestamp: z.string().datetime({ offset: true }),
   source: z.string(),
+  // Flags MUST be of type number to allow querying with IndexedDB
   isBookmarked: z.number().optional(),
   isViewed: z.number().optional(),
 });
