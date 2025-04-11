@@ -47,7 +47,6 @@
   });
 
   async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<void> {
-    logger.debug('fetchNews', searchRequestParameters);
     await news.taskWithLoading(async () => {
       const foundNews = await newsApi.searchNews(searchRequestParameters);
       if (!foundNews?.prevKey) {
