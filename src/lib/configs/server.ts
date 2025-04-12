@@ -20,7 +20,3 @@ export const STORY_CONTENT_READ_MORE_REGEXPS = [/mehr\s+(\w+\s+)*in/i, /lesen\s+
 export const STORY_CONTENT_DEFAULT_MAXAGE = 21600;
 export const STORY_CONTENT_NEW_STORY_MAXAGE = 3600;
 export const STORY_CONTENT_NEW_STORY_THRESHOLD = 4;
-
-// URLs
-export const URL_ORF_REGEXP = /^https:\/\/.*orf\.at.*/i;
-export const URL_ORF_STORY_REGEXP = /^https:\/\/.*orf\.at\/(.+\/)?stories\/\d+/i;

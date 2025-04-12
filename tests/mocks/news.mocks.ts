@@ -136,4 +136,5 @@ export const contentMockText =
 
 export const contentMock = {
   content: `<div><p>${contentMockText}</p></div>`,
+  contentText: contentMockText,
 };
