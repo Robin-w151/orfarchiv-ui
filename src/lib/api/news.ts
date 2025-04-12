@@ -79,7 +79,7 @@ export class NewsApi {
     }
   }
 
-  async makeRequest<T>(
+  private async makeRequest<T>(
     request: (abortController: AbortController | undefined) => Promise<T>,
     requestSymbol: symbol | undefined,
     schema: ZodSchema<T>,
