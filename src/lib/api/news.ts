@@ -6,6 +6,7 @@ import { logger } from '$lib/utils/logger';
 import type { TRPCClient } from '@trpc/client';
 import { createTRPC } from './trpc';
 import type { AppRouter } from '$lib/backend/trpc/router';
+import type { ZodSchema } from 'zod';
 
 const searchNewsRequest = Symbol('search-news-controller');
 const checkNewsUpdatesRequest = Symbol('check-news-updates-controller');
@@ -27,32 +28,11 @@ export class NewsApi {
 
     const searchRequest = { searchRequestParameters, pageKey };
 
-    let abortController = this.abortControllers.get(searchNewsRequest);
-    abortController?.abort();
-    abortController = new AbortController();
-    this.abortControllers.set(searchNewsRequest, abortController);
-
-    try {
-      const response = await this.trpc.news.search.query(searchRequest, {
-        signal: abortController.signal,
-      });
-
-      const validationResult = await News.safeParseAsync(response);
-      if (validationResult.error) {
-        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
-      }
-
-      return response;
-    } catch (error) {
-      if (this.cancels.get(searchNewsRequest)) {
-        this.cancels.delete(searchNewsRequest);
-        throw new Error('Search news request was cancelled!');
-      } else {
-        throw error;
-      }
-    } finally {
-      this.abortControllers.delete(searchNewsRequest);
-    }
+    return this.makeRequest(
+      (abortController) => this.trpc.news.search.query(searchRequest, { signal: abortController?.signal }),
+      searchNewsRequest,
+      News,
+    );
   }
 
   async checkNewsUpdates(searchRequestParameters: SearchRequestParameters, pageKey: PageKey): Promise<NewsUpdates> {
@@ -63,32 +43,11 @@ export class NewsApi {
 
     const searchRequest = { searchRequestParameters, pageKey };
 
-    let abortController = this.abortControllers.get(checkNewsUpdatesRequest);
-    abortController?.abort();
-    abortController = new AbortController();
-    this.abortControllers.set(checkNewsUpdatesRequest, abortController);
-
-    try {
-      const response = await this.trpc.news.checkUpdates.query(searchRequest, {
-        signal: abortController.signal,
-      });
-
-      const validationResult = await NewsUpdates.safeParseAsync(response);
-      if (validationResult.error) {
-        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
-      }
-
-      return response;
-    } catch (error) {
-      if (this.cancels.get(checkNewsUpdatesRequest)) {
-        this.cancels.delete(checkNewsUpdatesRequest);
-        throw new Error('Check news updates request was cancelled!');
-      } else {
-        throw error;
-      }
-    } finally {
-      this.abortControllers.delete(checkNewsUpdatesRequest);
-    }
+    return this.makeRequest(
+      (abortController) => this.trpc.news.checkUpdates.query(searchRequest, { signal: abortController?.signal }),
+      checkNewsUpdatesRequest,
+      NewsUpdates,
+    );
   }
 
   async fetchContent(url: string, fetchReadMoreContent = false): Promise<StoryContent> {
@@ -97,14 +56,7 @@ export class NewsApi {
       ['fetch-read-more-content', fetchReadMoreContent],
     ]);
 
-    const response = await this.trpc.news.content.query({ url, fetchReadMoreContent });
-
-    const validationResult = await StoryContent.safeParseAsync(response);
-    if (validationResult.error) {
-      throw new Error(`Invalid response from server: ${validationResult.error.message}`);
-    }
-
-    return response;
+    return this.makeRequest(() => this.trpc.news.content.query({ url, fetchReadMoreContent }), undefined, StoryContent);
   }
 
   cancelSearchNews(): void {
@@ -124,6 +76,43 @@ export class NewsApi {
       abortController.abort();
       this.abortControllers.delete(controllerSymbol);
       this.cancels.set(controllerSymbol, true);
+    }
+  }
+
+  async makeRequest<T>(
+    request: (abortController: AbortController | undefined) => Promise<T>,
+    requestSymbol: symbol | undefined,
+    schema: ZodSchema<T>,
+  ): Promise<T> {
+    let abortController: AbortController | undefined;
+
+    if (requestSymbol) {
+      abortController = this.abortControllers.get(requestSymbol);
+      abortController?.abort();
+      abortController = new AbortController();
+      this.abortControllers.set(requestSymbol, abortController);
+    }
+
+    try {
+      const response = await request(abortController);
+
+      const validationResult = await schema.safeParseAsync(response);
+      if (validationResult.error) {
+        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (requestSymbol && this.cancels.get(requestSymbol)) {
+        this.cancels.delete(requestSymbol);
+        throw new Error('Request was cancelled!');
+      } else {
+        throw error;
+      }
+    } finally {
+      if (requestSymbol) {
+        this.abortControllers.delete(requestSymbol);
+      }
     }
   }
 }
