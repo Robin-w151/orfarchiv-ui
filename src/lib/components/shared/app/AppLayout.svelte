@@ -44,8 +44,9 @@
     try {
       const { apiVersion } = await infoApi.fetchInfo();
       isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
-    } catch (_error) {
-      logger.warn('Could not determine current API version!');
+    } catch (error) {
+      logger.warn(`Could not determine current API version! ${error}`);
+      isApiCompatible = false;
     }
   }
 </script>
