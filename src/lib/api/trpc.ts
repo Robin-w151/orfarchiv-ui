@@ -1,13 +1,17 @@
-import { browser } from '$app/environment';
-import { page } from '$app/state';
 import type { AppRouter } from '$lib/backend/trpc/router';
 import { createTRPCClient, httpLink, type TRPCClient } from '@trpc/client';
 
-export function createTRPC(): TRPCClient<AppRouter> {
+const trpc: TRPCClient<AppRouter> | null = null;
+
+export function createTRPC(origin?: string): TRPCClient<AppRouter> {
+  if (trpc) {
+    return trpc;
+  }
+
   return createTRPCClient<AppRouter>({
     links: [
       httpLink({
-        url: browser ? '/api/trpc' : `${page.url.origin}/api/trpc`,
+        url: `${origin ?? ''}/api/trpc`,
       }),
     ],
   });

@@ -1,10 +1,16 @@
 import { createTRPC } from '$lib/api/trpc';
+import type { AppRouter } from '$lib/backend/trpc/router';
+import type { TRPCClient } from '@trpc/client';
 import { Info } from '$lib/models/info';
 import { logger } from '$lib/utils/logger';
 
 export class InfoApi {
-  private trpc = createTRPC();
+  private trpc: TRPCClient<AppRouter>;
   private abortController: AbortController | null = null;
+
+  constructor(origin?: string) {
+    this.trpc = createTRPC(origin);
+  }
 
   async fetchInfo(): Promise<Info> {
     logger.info('request-api-info');

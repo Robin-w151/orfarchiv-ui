@@ -3,15 +3,21 @@ import type { PageKey } from '$lib/models/pageKey';
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
+import type { TRPCClient } from '@trpc/client';
 import { createTRPC } from './trpc';
+import type { AppRouter } from '$lib/backend/trpc/router';
 
 const searchNewsRequest = Symbol('search-news-controller');
 const checkNewsUpdatesRequest = Symbol('check-news-updates-controller');
 
 export class NewsApi {
-  private trpc = createTRPC();
+  private trpc: TRPCClient<AppRouter>;
   private abortControllers = new Map<symbol, AbortController>();
   private cancels = new Map<symbol, boolean>();
+
+  constructor(origin?: string) {
+    this.trpc = createTRPC(origin);
+  }
 
   async searchNews(searchRequestParameters: SearchRequestParameters, pageKey?: PageKey): Promise<News> {
     logger.infoGroup('request-search-news', [
