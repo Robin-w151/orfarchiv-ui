@@ -4,9 +4,7 @@ import searchFilter, { type SearchFilterStoreProps } from './searchFilter';
 import settings from './settings';
 import { distinctUntilChanged } from './utils';
 
-export interface SearchRequestParametersStore
-  extends Readable<SearchRequestParameters>,
-    Partial<SearchRequestParameters> {}
+export type SearchRequestParametersStore = Readable<SearchRequestParameters>;
 
 function searchFilterStorePropsNotEqual(p1?: SearchFilterStoreProps, p2?: SearchFilterStoreProps): boolean {
   return (
@@ -18,9 +16,17 @@ function searchFilterStorePropsNotEqual(p1?: SearchFilterStoreProps, p2?: Search
 
 const searchFilterChanged = distinctUntilChanged(searchFilter, searchFilterStorePropsNotEqual);
 
-const searchRequestParameters = derived([searchFilterChanged, settings], ([$searchFilterStoreProps, $settings]) => ({
-  ...$searchFilterStoreProps,
-  sources: $settings.sources,
-})) as SearchRequestParametersStore;
+const searchRequestParameters = derived([searchFilterChanged, settings], ([$searchFilterStoreProps, $settings]) => {
+  const { textFilter, dateFilter } = $searchFilterStoreProps;
+  const { sources } = $settings;
+  return {
+    textFilter,
+    dateFilter: {
+      from: dateFilter?.from?.toISO() ?? undefined,
+      to: dateFilter?.to?.toISO() ?? undefined,
+    },
+    sources,
+  } satisfies SearchRequestParameters;
+}) as SearchRequestParametersStore;
 
 export default searchRequestParameters;
