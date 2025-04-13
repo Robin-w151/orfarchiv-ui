@@ -42,9 +42,8 @@
     try {
       const { apiVersion } = await fetchInfo();
       isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
-    } catch (error) {
-      logger.warn(`Could not determine current API version! ${error}`);
-      isApiCompatible = false;
+    } catch (_error) {
+      logger.warn('Could not determine current API version!');
     }
   }
 </script>
