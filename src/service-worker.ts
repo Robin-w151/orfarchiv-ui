@@ -77,7 +77,12 @@ function generateRouteConfig(): Array<RouteConfig> {
 
 function fallbackResponsePlugin<T>(data: T): WorkboxPlugin {
   return {
-    handlerDidError: async () => json(data),
+    handlerDidError: async () =>
+      json({
+        result: {
+          data,
+        },
+      }),
   };
 }
 
