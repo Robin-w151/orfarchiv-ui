@@ -1,15 +1,18 @@
+import type { AppRouter } from '$lib/backend/trpc/router';
 import { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import type { TRPCClient } from '@trpc/client';
-import { createTRPC } from './trpc';
-import type { AppRouter } from '$lib/backend/trpc/router';
 import type { ZodSchema } from 'zod';
+import { createTRPC } from './trpc';
 
 const searchNewsRequest = Symbol('search-news-controller');
 const checkNewsUpdatesRequest = Symbol('check-news-updates-controller');
+
+type RequestSymbol = symbol | undefined;
+type RequestController<S extends RequestSymbol> = S extends symbol ? AbortController : undefined;
 
 export class NewsApi {
   private trpc: TRPCClient<AppRouter>;
@@ -29,7 +32,7 @@ export class NewsApi {
     const searchRequest = { searchRequestParameters, pageKey };
 
     return this.makeRequest(
-      (abortController) => this.trpc.news.search.query(searchRequest, { signal: abortController?.signal }),
+      (abortController) => this.trpc.news.search.query(searchRequest, { signal: abortController.signal }),
       searchNewsRequest,
       News,
     );
@@ -44,7 +47,7 @@ export class NewsApi {
     const searchRequest = { searchRequestParameters, pageKey };
 
     return this.makeRequest(
-      (abortController) => this.trpc.news.checkUpdates.query(searchRequest, { signal: abortController?.signal }),
+      (abortController) => this.trpc.news.checkUpdates.query(searchRequest, { signal: abortController.signal }),
       checkNewsUpdatesRequest,
       NewsUpdates,
     );
@@ -79,14 +82,14 @@ export class NewsApi {
     }
   }
 
-  private async makeRequest<T>(
-    request: (abortController: AbortController | undefined) => Promise<T>,
-    requestSymbol: symbol | undefined,
+  private async makeRequest<T, S extends RequestSymbol>(
+    request: (abortController: RequestController<S>) => Promise<T>,
+    requestSymbol: S,
     schema: ZodSchema<T>,
   ): Promise<T> {
     let abortController: AbortController | undefined;
 
-    if (requestSymbol) {
+    if (typeof requestSymbol === 'symbol') {
       abortController = this.abortControllers.get(requestSymbol);
       abortController?.abort();
       abortController = new AbortController();
@@ -94,7 +97,7 @@ export class NewsApi {
     }
 
     try {
-      const response = await request(abortController);
+      const response = await request(abortController as RequestController<S>);
 
       const validationResult = await schema.safeParseAsync(response);
       if (validationResult.error) {
