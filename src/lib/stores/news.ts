@@ -6,6 +6,7 @@ import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
 import { logger } from '$lib/utils/logger';
+import type { Request } from '$lib/models/request';
 
 export interface NewsStore extends Readable<News>, Partial<News> {
   setNews: (news: News, newNews?: News) => void;
@@ -13,7 +14,7 @@ export interface NewsStore extends Readable<News>, Partial<News> {
   setIsLoading: (isLoading: boolean) => void;
   taskWithLoading: (handler: () => void | Promise<void>) => Promise<void>;
   cacheForOfflineUse: (
-    fetchContent: (url: string, fetchReadMoreContent: boolean) => Promise<StoryContent>,
+    fetchContent: (url: string, fetchReadMoreContent: boolean) => Request<StoryContent>,
   ) => Promise<void>;
 }
 
@@ -73,14 +74,14 @@ async function taskWithLoading(handler: () => void | Promise<void>): Promise<voi
 }
 
 async function cacheForOfflineUse(
-  fetchContent: (url: string, fetchReadMoreContent: boolean) => Promise<StoryContent>,
+  fetchContent: (url: string, fetchReadMoreContent: boolean) => Request<StoryContent>,
 ): Promise<void> {
   const fetchReadMoreContentPreference = get(settings).fetchReadMoreContent;
   const stories = get(news).stories.slice(0, 100);
   await Promise.allSettled(
     stories.map((story) => {
       const fetchReadMoreContent = fetchReadMoreContentPreference && story.source === 'news';
-      return fetchContent(story.url, fetchReadMoreContent);
+      return fetchContent(story.url, fetchReadMoreContent).request;
     }),
   );
 }

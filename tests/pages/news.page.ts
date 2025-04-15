@@ -96,15 +96,24 @@ export class NewsPage {
     });
   }
 
-  async mockFetchContentApi(data: unknown): Promise<void> {
+  async mockFetchContentApi(data: unknown, failOnFirstTry = false): Promise<void> {
+    let firstTry = true;
+
     await this.page.route('**/api/trpc/news.content**', (route) => {
-      route.fulfill({
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: this.toTrpcResponseData(data),
-      });
+      if (firstTry && failOnFirstTry) {
+        route.fulfill({
+          status: 500,
+        });
+        firstTry = false;
+      } else {
+        route.fulfill({
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: this.toTrpcResponseData(data),
+        });
+      }
     });
   }
 

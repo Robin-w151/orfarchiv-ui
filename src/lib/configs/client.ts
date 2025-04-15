@@ -1,12 +1,6 @@
 // Context keys
 export const CTX_STORE = Symbol('store');
 
-// Endpoints
-export const API_INFO = '/api/info';
-export const API_NEWS_SEARCH_URL = (searchParams: string): string => `/api/news/search?${searchParams}`;
-export const API_NEWS_SEARCH_UPDATES_URL = (searchParams: string): string => `/api/news/search/updates?${searchParams}`;
-export const API_NEWS_CONTENT_URL = (searchParams: string): string => `/api/news/content?${searchParams}`;
-
 // IndexedDB
 export const BOOKMARKS_STORE_NAME = 'bookmarks';
 
@@ -35,8 +29,9 @@ export const NOTIFICATION_COPY_LINK_TIMEOUT = 5_000;
 export const NEWS_CHECK_UPDATES_INITIAL_INTERVAL_IN_MS = 7_200_000;
 export const NEWS_CHECK_UPDATES_INTERVAL_IN_MS = 1_800_000;
 
-// Story
-export const STORY_CONTENT_FETCH_MAX_RETRIES = 5;
+// Request
+export const DEFAULT_REQUEST_RETRIES = 3;
+export const STORY_CONTENT_FETCH_RETRIES = 5;
 
 // StoryImageViewer
 export const PAN_DISTANCE = 50;

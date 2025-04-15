@@ -12,7 +12,7 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     extraHTTPHeaders: {
       'x-vercel-skip-toolbar': '1',
     },

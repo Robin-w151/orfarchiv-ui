@@ -219,6 +219,16 @@ test.describe('NewsPage', () => {
       await newsPage.toggleStoryContent(storyIndex);
       await expect(storyContent).not.toBeVisible();
     });
+
+    test('retry on error', async ({ newsPage }) => {
+      await newsPage.mockFetchContentApi(contentMock, true);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const storyContent = newsPage.getStoryContent(storyIndex);
+      await expect(storyContent).toContainText(contentMockText);
+    });
   });
 });
 

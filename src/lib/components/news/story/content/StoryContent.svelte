@@ -9,21 +9,20 @@
   import { NewsApi } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
-  import { STORY_CONTENT_FETCH_MAX_RETRIES } from '$lib/configs/client';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
-  import { wait } from '$lib/utils/wait';
+  import { logger } from '$lib/utils/logger';
+  import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './StoryImageViewer.svelte';
-  import { Icon } from '@steeze-ui/svelte-icon';
-  import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
-  import { logger } from '$lib/utils/logger';
+  import type { Request } from '$lib/models/request';
 
   interface Props {
     story: Story;
@@ -45,7 +44,7 @@
   let storyImages: Array<StoryImage> = $state([]);
   let activeStoryImage: StoryImage | undefined = $state();
   let isLoading = $state(true);
-  let isClosed = false;
+  let cancelActiveRequest: (() => void) | undefined = undefined;
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
@@ -67,7 +66,9 @@
         return;
       }
 
-      storyContent = await fetchContentWithRetry(story);
+      const { request, cancel } = fetchContent(story);
+      cancelActiveRequest = cancel;
+      storyContent = await request;
       if (storyContent) {
         contentStore.setContent(story.id, storyContent);
         logger.infoGroup('text-content', [[storyContent.contentText]], true);
@@ -89,24 +90,12 @@
   });
 
   onDestroy(() => {
-    isClosed = true;
+    cancelActiveRequest?.();
   });
 
-  async function fetchContentWithRetry(story: Story): Promise<StoryContent> {
-    for (let retry = 0; retry < STORY_CONTENT_FETCH_MAX_RETRIES && !isClosed; retry++) {
-      try {
-        const fetchReadMoreContent = get(settings).fetchReadMoreContent && story.source === 'news';
-        return await newsApi.fetchContent(story.url, fetchReadMoreContent);
-      } catch (error) {
-        const { message } = error as Error;
-        logger.warn(`Error: ${message}`);
-
-        if (retry < STORY_CONTENT_FETCH_MAX_RETRIES - 1) {
-          await wait(1000 * 2 ** retry);
-        }
-      }
-    }
-    throw new Error(`Failed to load story content after ${STORY_CONTENT_FETCH_MAX_RETRIES} retries!`);
+  function fetchContent(story: Story): Request<StoryContent> {
+    const fetchReadMoreContent = get(settings).fetchReadMoreContent && story.source === 'news';
+    return newsApi.fetchContent(story.url, fetchReadMoreContent);
   }
 
   function setIsViewed(story: Story): void {
