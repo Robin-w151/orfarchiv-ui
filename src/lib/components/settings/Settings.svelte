@@ -15,27 +15,27 @@
     grid grid-cols-auto sm:grid-cols-[1fr_1fr] ${defaultGap}
     w-full
   `;
-  const column1Class = `
+  const columnClass = `
     flex flex-col items-center ${defaultGap}
   `;
 </script>
 
 <Content>
   <div class={gridClass}>
-    <div class={column1Class}>
+    <div class={columnClass}>
       <General />
       <Appearance />
       {#if audioStore.isAvailable}
         <Audio />
       {/if}
-      <Info />
       <AI />
+      <Info />
+    </div>
+    <div class={columnClass}>
+      <Sources />
       {#if PUBLIC_APP_MODE === 'dev'}
         <Developer />
       {/if}
-    </div>
-    <div>
-      <Sources />
     </div>
   </div>
 </Content>
