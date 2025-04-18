@@ -7,22 +7,27 @@
 
 <script lang="ts">
   import { NewsApi } from '$lib/api/news';
+  import Modal from '$lib/components/shared/content/Modal.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
+  import type { Request } from '$lib/models/request';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
+  import notifications from '$lib/stores/notifications';
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
-  import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
+  import { GenerateContentResponse, GoogleGenAI } from '@google/genai';
+  import SvelteMarkdown from '@humanspeak/svelte-markdown';
+  import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './StoryImageViewer.svelte';
-  import type { Request } from '$lib/models/request';
 
   interface Props {
     story: Story;
@@ -45,6 +50,10 @@
   let activeStoryImage: StoryImage | undefined = $state();
   let isLoading = $state(true);
   let cancelActiveRequest: (() => void) | undefined = undefined;
+
+  let aiSummary = $state<string>('');
+  let aiSummaryStream: AsyncGenerator<GenerateContentResponse> | undefined;
+  let aiSummaryLoading = $state(false);
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
@@ -144,6 +153,71 @@
     activeStoryImage = undefined;
   }
 
+  async function handleGenerateAiSummary(): Promise<void> {
+    if (!storyContent?.contentText) {
+      return;
+    }
+
+    const model = get(settings).aiModel;
+    const apiKey = get(settings).geminiApiKey;
+    if (!apiKey) {
+      logger.warn('No Gemini API Key found');
+      notifications.notify('Kein API-Key hinterlegt', 'Es ist kein API-Key für die AI Zusammenfassung hinterlegt.', {
+        forceAppNotification: true,
+      });
+      return;
+    }
+
+    aiSummaryLoading = true;
+
+    const contents = `
+      Erstelle eine Zusammenfassung.
+      Aufbau: Titel, 3 wichtige Punkte, Zusammenfassung in ungefähr 5 Sätzen.
+      Format: markdown only content.
+      Text: """${storyContent.contentText}"""
+    `;
+
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      aiSummaryStream = await ai.models.generateContentStream({
+        model,
+        contents,
+      });
+
+      if (aiSummaryLoading) {
+        for await (const chunk of aiSummaryStream) {
+          aiSummary = (aiSummary ?? '') + chunk.text?.replaceAll(/(```|markdown)/g, '');
+        }
+      } else {
+        await aiSummaryStream.return(undefined);
+      }
+    } catch (error) {
+      logger.warn(`Error: ${error}`);
+      notifications.notify(
+        'Fehler beim Generieren der KI-Zusammenfassung',
+        'Es ist ein Fehler beim Generieren der KI-Zusammenfassung aufgetreten.',
+        {
+          forceAppNotification: true,
+        },
+      );
+    }
+
+    logger.debugGroup('ai-summary', [['ai-summary', aiSummary]], true);
+
+    aiSummaryStream = undefined;
+    aiSummaryLoading = false;
+  }
+
+  async function handleAiSummaryClose(): Promise<void> {
+    if (aiSummaryStream) {
+      await aiSummaryStream.return(undefined);
+      aiSummaryStream = undefined;
+    }
+
+    aiSummary = '';
+    aiSummaryLoading = false;
+  }
+
   function handlePlayArticle(): void {
     if (isPlaying) {
       audioStore.pause();
@@ -197,16 +271,24 @@
         <div class={contentInfoClass}>Inhalt geladen von {sourceLabel}</div>
       {/if}
       <div bind:this={storyContentRef}>
-        {#if audioStore.isAvailable}
-          <div class="inline-block float-right ml-2 mb-2">
-            <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
-              {#if isPlaying}
-                <Icon src={PauseCircle} theme="outlined" class="size-6" />
-              {:else}
-                <Icon src={PlayCircle} theme="outlined" class="size-6" />
-              {/if}
-              <span>Vorlesen</span>
-            </Button>
+        {#if $settings.aiSummaryEnabled || audioStore.isAvailable}
+          <div class="inline-flex flex-col sm:flex-row items-end gap-2 float-right ml-2 mb-2">
+            {#if $settings.aiSummaryEnabled}
+              <Button class="w-fit" btnType="secondary" onclick={handleGenerateAiSummary}>
+                <Icon src={Sparkles} theme="outlined" class="size-6" />
+                <span>KI-Zusammenfassung</span>
+              </Button>
+            {/if}
+            {#if audioStore.isAvailable}
+              <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
+                {#if isPlaying}
+                  <Icon src={PauseCircle} theme="outlined" class="size-6" />
+                {:else}
+                  <Icon src={PlayCircle} theme="outlined" class="size-6" />
+                {/if}
+                <span>Vorlesen</span>
+              </Button>
+            {/if}
           </div>
         {/if}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -234,4 +316,18 @@
 
 {#if activeStoryImage}
   <StoryImageViewer images={storyImages} bind:image={activeStoryImage} onClose={handleImageClose} />
+{/if}
+
+{#if aiSummary || aiSummaryLoading}
+  <Modal modalClass="w-full h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
+    <article class="story-content {contentClass}" data-testid="ai-summary">
+      <div class="byline">
+        <p>Generiert mit KI ({$settings.aiModel})</p>
+      </div>
+      <SvelteMarkdown source={aiSummary}></SvelteMarkdown>
+    </article>
+    {#if aiSummaryLoading}
+      <StoryAiSummarySkeleton />
+    {/if}
+  </Modal>
 {/if}

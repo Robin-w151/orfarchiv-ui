@@ -4,6 +4,9 @@ export interface Settings {
   forceReducedMotion: boolean;
   sources: Array<string>;
   audioVoice?: string;
+  aiSummaryEnabled: boolean;
+  aiModel: string;
+  geminiApiKey?: string;
 }
 
 export interface Source {

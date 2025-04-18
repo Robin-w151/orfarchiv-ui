@@ -8,8 +8,9 @@
     transition?: (node: Element, props: any) => TransitionConfig;
     transitionProps?: TransitionConfig;
     onlyIn?: boolean;
-    class?: string | string[];
+    class?: string | (string | undefined)[];
     children?: Snippet;
+    [key: string]: any;
   }
 
   let {
@@ -18,6 +19,7 @@
     onlyIn = false,
     class: clazz,
     children,
+    ...restProps
   }: Props = $props();
 
   let usedTransition = $derived(reducedMotionStore.useReducedMotion ? fade : transition);
@@ -25,11 +27,11 @@
 </script>
 
 {#if onlyIn}
-  <div class={clazz} in:usedTransition|global={usedTransitionProps}>
+  <div class={clazz} in:usedTransition|global={usedTransitionProps} {...restProps}>
     {@render children?.()}
   </div>
 {:else}
-  <div class={clazz} transition:usedTransition|global={usedTransitionProps}>
+  <div class={clazz} transition:usedTransition|global={usedTransitionProps} {...restProps}>
     {@render children?.()}
   </div>
 {/if}

@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { SETTINGS_STORE_NAME } from '$lib/configs/client';
+import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
 import { persisted } from 'svelte-local-storage-store';
@@ -11,6 +12,9 @@ export interface SettingsStore extends Readable<Settings> {
   setForceReducedMotion: (forceReducedMotion: boolean) => void;
   setSource: (source: string, included: boolean) => void;
   setAudioVoice: (audioVoice: string | undefined) => void;
+  setAiSummaryEnabled: (aiSummaryEnabled: boolean) => void;
+  setAiModel: (aiModel: string) => void;
+  setGeminiApiKey: (geminiApiKey: string | undefined) => void;
 }
 
 const initialState: Settings = {
@@ -19,6 +23,9 @@ const initialState: Settings = {
   forceReducedMotion: false,
   sources: sources.map((source) => source.key),
   audioVoice: undefined,
+  aiSummaryEnabled: false,
+  aiModel: 'gemini-2.0-flash',
+  geminiApiKey: undefined,
 };
 
 sanitizeLocalStorage();
@@ -52,6 +59,14 @@ function sanitizeLocalStorage(): void {
 
     if (!('forceReducedMotion' in settings)) {
       settings.forceReducedMotion = initialState.forceReducedMotion;
+    }
+
+    if (!('aiSummaryEnabled' in settings)) {
+      settings.aiSummaryEnabled = initialState.aiSummaryEnabled;
+    }
+
+    if (!('aiModel' in settings) || !AiModel.safeParse(settings.aiModel).success) {
+      settings.aiModel = initialState.aiModel;
     }
 
     if (!('sources' in settings) || !Array.isArray(settings.sources)) {
@@ -97,6 +112,18 @@ function createSettingsStore(): SettingsStore {
     update((settings) => ({ ...settings, audioVoice }));
   }
 
+  function setAiSummaryEnabled(aiSummaryEnabled: boolean): void {
+    update((settings) => ({ ...settings, aiSummaryEnabled }));
+  }
+
+  function setAiModel(aiModel: string): void {
+    update((settings) => ({ ...settings, aiModel }));
+  }
+
+  function setGeminiApiKey(geminiApiKey: string | undefined): void {
+    update((settings) => ({ ...settings, geminiApiKey }));
+  }
+
   return {
     subscribe,
     setFetchReadMoreContent,
@@ -104,6 +131,9 @@ function createSettingsStore(): SettingsStore {
     setForceReducedMotion,
     setSource,
     setAudioVoice,
+    setAiSummaryEnabled,
+    setAiModel,
+    setGeminiApiKey,
   };
 }
 
