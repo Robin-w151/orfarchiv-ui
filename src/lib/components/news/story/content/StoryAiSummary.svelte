@@ -3,6 +3,7 @@
   import Modal from '$lib/components/shared/content/Modal.svelte';
   import { StoryContent } from '$lib/models/story';
   import settings from '$lib/stores/settings';
+  import { aiModelRefMap } from '$lib/utils/ai';
   import { logger } from '$lib/utils/logger';
   import { GoogleGenAI, type GenerateContentResponse } from '@google/genai';
   import SvelteMarkdown from '@humanspeak/svelte-markdown';
@@ -100,8 +101,7 @@
     <article class="story-content" data-testid="ai-summary">
       <div class="byline">
         <p>
-          Erstellt mit KI (Modell: <a href="https://duckduckgo.com/?q=ai+model+{$settings.aiModel}" target="_blank"
-            >{$settings.aiModel}</a
+          Erstellt mit KI (Modell: <a href={aiModelRefMap.get($settings.aiModel)} target="_blank">{$settings.aiModel}</a
           >)
         </p>
       </div>

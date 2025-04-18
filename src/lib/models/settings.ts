@@ -1,3 +1,5 @@
+import type { AiModel } from './ai';
+
 export interface Settings {
   fetchReadMoreContent: boolean;
   checkNewsUpdates: boolean;
@@ -6,7 +8,7 @@ export interface Settings {
   audioEnabled: boolean;
   audioVoice?: string;
   aiSummaryEnabled: boolean;
-  aiModel: string;
+  aiModel: AiModel;
   geminiApiKey?: string;
 }
 

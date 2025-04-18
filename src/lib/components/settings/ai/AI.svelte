@@ -7,7 +7,7 @@
   import Input from '$lib/components/shared/controls/Input.svelte';
   import Label from '$lib/components/shared/controls/Label.svelte';
   import Select from '$lib/components/shared/controls/Select.svelte';
-  import { AiModels } from '$lib/models/ai';
+  import { AiModel, AiModels } from '$lib/models/ai';
   import settings from '$lib/stores/settings';
 
   function handleAiSummaryEnabledChange(event: Event & { currentTarget: HTMLInputElement }): void {
@@ -15,7 +15,7 @@
   }
 
   function handleAiModelChange(value?: string): void {
-    settings.setAiModel(value ?? 'gemini-2.0-flash');
+    settings.setAiModel(AiModel.safeParse(value).success ? (value as AiModel) : 'gemini-2.0-flash');
   }
 
   function handleGeminiApiKeyChange(value?: string): void {

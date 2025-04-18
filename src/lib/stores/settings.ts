@@ -14,7 +14,7 @@ export interface SettingsStore extends Readable<Settings> {
   setAudioEnabled: (audioEnabled: boolean) => void;
   setAudioVoice: (audioVoice: string | undefined) => void;
   setAiSummaryEnabled: (aiSummaryEnabled: boolean) => void;
-  setAiModel: (aiModel: string) => void;
+  setAiModel: (aiModel: AiModel) => void;
   setGeminiApiKey: (geminiApiKey: string | undefined) => void;
 }
 
@@ -126,7 +126,7 @@ function createSettingsStore(): SettingsStore {
     update((settings) => ({ ...settings, aiSummaryEnabled }));
   }
 
-  function setAiModel(aiModel: string): void {
+  function setAiModel(aiModel: AiModel): void {
     update((settings) => ({ ...settings, aiModel }));
   }
 
