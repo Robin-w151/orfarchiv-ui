@@ -279,7 +279,7 @@
                 <span>KI-Zusammenfassung</span>
               </Button>
             {/if}
-            {#if audioStore.isAvailable}
+            {#if $settings.audioEnabled && audioStore.isAvailable}
               <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
                 {#if isPlaying}
                   <Icon src={PauseCircle} theme="outlined" class="size-6" />

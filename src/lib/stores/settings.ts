@@ -11,6 +11,7 @@ export interface SettingsStore extends Readable<Settings> {
   setCheckNewsUpdates: (checkNewsUpdates: boolean) => void;
   setForceReducedMotion: (forceReducedMotion: boolean) => void;
   setSource: (source: string, included: boolean) => void;
+  setAudioEnabled: (audioEnabled: boolean) => void;
   setAudioVoice: (audioVoice: string | undefined) => void;
   setAiSummaryEnabled: (aiSummaryEnabled: boolean) => void;
   setAiModel: (aiModel: string) => void;
@@ -22,6 +23,7 @@ const initialState: Settings = {
   checkNewsUpdates: false,
   forceReducedMotion: false,
   sources: sources.map((source) => source.key),
+  audioEnabled: true,
   audioVoice: undefined,
   aiSummaryEnabled: false,
   aiModel: 'gemini-2.0-flash',
@@ -59,6 +61,10 @@ function sanitizeLocalStorage(): void {
 
     if (!('forceReducedMotion' in settings)) {
       settings.forceReducedMotion = initialState.forceReducedMotion;
+    }
+
+    if (!('audioEnabled' in settings)) {
+      settings.audioEnabled = initialState.audioEnabled;
     }
 
     if (!('aiSummaryEnabled' in settings)) {
@@ -108,6 +114,10 @@ function createSettingsStore(): SettingsStore {
     });
   }
 
+  function setAudioEnabled(audioEnabled: boolean): void {
+    update((settings) => ({ ...settings, audioEnabled }));
+  }
+
   function setAudioVoice(audioVoice: string | undefined): void {
     update((settings) => ({ ...settings, audioVoice }));
   }
@@ -130,6 +140,7 @@ function createSettingsStore(): SettingsStore {
     setCheckNewsUpdates,
     setForceReducedMotion,
     setSource,
+    setAudioEnabled,
     setAudioVoice,
     setAiSummaryEnabled,
     setAiModel,
