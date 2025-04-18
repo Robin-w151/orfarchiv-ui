@@ -32,7 +32,7 @@
   const baseModalClass = ['modal', 'max-w-screen-lg', 'bg-white dark:bg-gray-900', 'rounded-xl overflow-auto'];
   const headerClass = [
     'flex justify-end gap-2 sticky top-0',
-    'px-4 lg:px-12 pt-4 lg:pt-12 pb-2',
+    'px-4 lg:px-12 pt-4 lg:pt-12 pb-4',
     'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm',
   ];
   const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
@@ -102,7 +102,7 @@
             bind:this={closeButtonRef}
             onclick={handleCloseClick}
           >
-            <Icon src={XMark} theme="outlined" class="size-8" />
+            <Icon src={XMark} theme="outlined" class="size-6 lg:size-8" />
           </Button>
         </div>
         <div class={contentClass}>
