@@ -1,12 +1,12 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/utils/focusTrap';
+  import { rollFade } from '$lib/utils/transitions';
+  import { XMark } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount, type Snippet } from 'svelte';
   import Portal from 'svelte-portal';
   import Button from '../controls/Button.svelte';
-  import { Icon } from '@steeze-ui/svelte-icon';
-  import { XMark } from '@steeze-ui/heroicons';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
-  import { rollFade } from '$lib/utils/transitions';
-  import { focusTrap } from '$lib/utils/focusTrap';
 
   interface Props {
     label: string;
@@ -30,9 +30,10 @@
     'bg-black bg-opacity-50 backdrop-blur-sm',
   ];
   const baseModalClass = [
+    'modal',
     'flex flex-col gap-2',
     'pt-4 lg:pt-12',
-    'max-w-screen-lg max-h-full',
+    'max-w-screen-lg',
     'bg-white dark:bg-gray-900',
     'rounded-xl',
   ];
@@ -86,6 +87,7 @@
     <div class={[...baseBackdropClass, backdropClass]} onclick={handleBackdropClick} use:focusTrap={{}}>
       <AccessibleTransition
         class={[...baseModalClass, modalClass]}
+        style="max-height: min(100%, 64rem);"
         transition={rollFade}
         role="dialog"
         aria-modal="true"

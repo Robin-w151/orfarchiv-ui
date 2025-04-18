@@ -7,7 +7,6 @@
 
 <script lang="ts">
   import { NewsApi } from '$lib/api/news';
-  import Modal from '$lib/components/shared/content/Modal.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
   import type { Request } from '$lib/models/request';
@@ -15,17 +14,14 @@
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
-  import notifications from '$lib/stores/notifications';
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
-  import { GenerateContentResponse, GoogleGenAI } from '@google/genai';
-  import SvelteMarkdown from '@humanspeak/svelte-markdown';
   import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
+  import StoryAiSummary from './StoryAiSummary.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './StoryImageViewer.svelte';
 
@@ -51,9 +47,7 @@
   let isLoading = $state(true);
   let cancelActiveRequest: (() => void) | undefined = undefined;
 
-  let aiSummary = $state<string>('');
-  let aiSummaryStream: AsyncGenerator<GenerateContentResponse> | undefined;
-  let aiSummaryLoading = $state(false);
+  let showAiSummary = $state(false);
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
@@ -158,64 +152,11 @@
       return;
     }
 
-    const model = get(settings).aiModel;
-    const apiKey = get(settings).geminiApiKey;
-    if (!apiKey) {
-      logger.warn('No Gemini API Key found');
-      notifications.notify('Kein API-Key hinterlegt', 'Es ist kein API-Key für die AI Zusammenfassung hinterlegt.', {
-        forceAppNotification: true,
-      });
-      return;
-    }
-
-    aiSummaryLoading = true;
-
-    const contents = `
-      Erstelle eine Zusammenfassung.
-      Aufbau: Titel, 3 wichtige Punkte, Zusammenfassung in ungefähr 5 Sätzen.
-      Format: markdown only content.
-      Text: """${storyContent.contentText}"""
-    `;
-
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      aiSummaryStream = await ai.models.generateContentStream({
-        model,
-        contents,
-      });
-
-      if (aiSummaryLoading) {
-        for await (const chunk of aiSummaryStream) {
-          aiSummary = (aiSummary ?? '') + chunk.text?.replaceAll(/(```|markdown)/g, '');
-        }
-      } else {
-        await aiSummaryStream.return(undefined);
-      }
-    } catch (error) {
-      logger.warn(`Error: ${error}`);
-      notifications.notify(
-        'Fehler beim Generieren der KI-Zusammenfassung',
-        'Es ist ein Fehler beim Generieren der KI-Zusammenfassung aufgetreten.',
-        {
-          forceAppNotification: true,
-        },
-      );
-    }
-
-    logger.debugGroup('ai-summary', [['ai-summary', aiSummary]], true);
-
-    aiSummaryStream = undefined;
-    aiSummaryLoading = false;
+    showAiSummary = true;
   }
 
   async function handleAiSummaryClose(): Promise<void> {
-    if (aiSummaryStream) {
-      await aiSummaryStream.return(undefined);
-      aiSummaryStream = undefined;
-    }
-
-    aiSummary = '';
-    aiSummaryLoading = false;
+    showAiSummary = false;
   }
 
   function handlePlayArticle(): void {
@@ -318,16 +259,6 @@
   <StoryImageViewer images={storyImages} bind:image={activeStoryImage} onClose={handleImageClose} />
 {/if}
 
-{#if aiSummary || aiSummaryLoading}
-  <Modal modalClass="w-full h-full sm:h-4/5 lg:h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
-    <article class="story-content {contentClass}" data-testid="ai-summary">
-      <div class="byline">
-        <p>Generiert mit KI ({$settings.aiModel})</p>
-      </div>
-      <SvelteMarkdown source={aiSummary}></SvelteMarkdown>
-    </article>
-    {#if aiSummaryLoading}
-      <StoryAiSummarySkeleton />
-    {/if}
-  </Modal>
+{#if showAiSummary && storyContent}
+  <StoryAiSummary {storyContent} onClose={handleAiSummaryClose} />
 {/if}
