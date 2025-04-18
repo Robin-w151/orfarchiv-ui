@@ -29,16 +29,13 @@
     'p-4 sm:p-8',
     'bg-black bg-opacity-50 backdrop-blur-sm',
   ];
-  const baseModalClass = [
-    'modal',
-    'flex flex-col gap-2',
-    'pt-4 lg:pt-12',
-    'max-w-screen-lg',
-    'bg-white dark:bg-gray-900',
-    'rounded-xl',
+  const baseModalClass = ['modal', 'max-w-screen-lg', 'bg-white dark:bg-gray-900', 'rounded-xl overflow-auto'];
+  const headerClass = [
+    'flex justify-end gap-2 sticky top-0',
+    'px-4 lg:px-12 pt-4 lg:pt-12 pb-2',
+    'bg-white bg-opacity-50 dark:bg-gray-900/50 backdrop-blur-sm',
   ];
-  const headerClass = ['flex justify-end gap-2 px-4 lg:px-12'];
-  const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full overflow-auto'];
+  const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
