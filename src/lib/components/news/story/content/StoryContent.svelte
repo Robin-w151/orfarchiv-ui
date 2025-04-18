@@ -272,7 +272,7 @@
       {/if}
       <div bind:this={storyContentRef}>
         {#if $settings.aiSummaryEnabled || audioStore.isAvailable}
-          <div class="inline-flex flex-col sm:flex-row items-end gap-2 float-right ml-2 mb-2">
+          <div class="inline-flex flex-col sm:flex-row items-end gap-1 sm:gap-2 float-right ml-2 mb-2">
             {#if $settings.aiSummaryEnabled}
               <Button class="w-fit" btnType="secondary" onclick={handleGenerateAiSummary}>
                 <Icon src={Sparkles} theme="outlined" class="size-6" />
@@ -319,7 +319,7 @@
 {/if}
 
 {#if aiSummary || aiSummaryLoading}
-  <Modal modalClass="w-full h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
+  <Modal modalClass="w-full h-full sm:h-4/5 lg:h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
     <article class="story-content {contentClass}" data-testid="ai-summary">
       <div class="byline">
         <p>Generiert mit KI ({$settings.aiModel})</p>
