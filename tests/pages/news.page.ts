@@ -44,8 +44,20 @@ export class NewsPage {
     );
   }
 
+  get aiSummaryButton(): Locator {
+    return this.page.getByRole('button', { name: 'KI-Zusammenfassung' });
+  }
+
   get popover(): Locator {
     return this.page.locator('div[data-testid="popover"]');
+  }
+
+  get modal(): Locator {
+    return this.page.locator('div[data-testid="modal"]');
+  }
+
+  get modalCloseButton(): Locator {
+    return this.modal.getByRole('button', { name: 'Schließen' });
   }
 
   constructor(private readonly page: Page) {}
