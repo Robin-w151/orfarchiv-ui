@@ -33,7 +33,7 @@
   const headerClass = [
     'flex justify-end gap-2 sticky top-0',
     'px-4 lg:px-12 pt-4 lg:pt-12 pb-2',
-    'bg-white bg-opacity-50 dark:bg-gray-900/50 backdrop-blur-sm',
+    'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm',
   ];
   const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
 
