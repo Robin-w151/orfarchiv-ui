@@ -47,6 +47,8 @@
   let isLoading = $state(true);
   let cancelActiveRequest: (() => void) | undefined = undefined;
 
+  let showActions = $derived($settings.aiSummaryEnabled || ($settings.audioEnabled && audioStore.isAvailable));
+
   let showAiSummary = $state(false);
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
@@ -212,7 +214,7 @@
         <div class={contentInfoClass}>Inhalt geladen von {sourceLabel}</div>
       {/if}
       <div bind:this={storyContentRef}>
-        {#if $settings.aiSummaryEnabled || audioStore.isAvailable}
+        {#if showActions}
           <div class="inline-flex flex-col sm:flex-row items-end gap-1 sm:gap-2 float-right ml-2 mb-2">
             {#if $settings.aiSummaryEnabled}
               <Button class="w-fit" btnType="secondary" onclick={handleGenerateAiSummary}>
