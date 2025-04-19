@@ -71,6 +71,46 @@ test.describe('SettingsPage', () => {
     });
   });
 
+  test.describe('AI', () => {
+    const sectionTitle = 'Künstliche Intelligenz';
+
+    test('enable ai summary', async ({ settingsPage }) => {
+      const checkbox = settingsPage.getListSectionInput(sectionTitle, 'KI-Zusammenfassung aktivieren');
+      await expect(checkbox).not.toBeChecked();
+
+      await checkbox.click();
+      await settingsPage.visitSite();
+
+      await expect(checkbox).toBeChecked();
+    });
+
+    test('select lite model', async ({ settingsPage }) => {
+      const checkbox = settingsPage.getListSectionInput(sectionTitle, 'KI-Zusammenfassung aktivieren');
+      await checkbox.click();
+
+      const model = settingsPage.getListSectionInput(sectionTitle, 'KI-Modell');
+      await expect(model).toHaveValue('gemini-2.0-flash');
+
+      await model.selectOption('gemini-2.0-flash-lite');
+      await settingsPage.visitSite();
+
+      await expect(model).toHaveValue('gemini-2.0-flash-lite');
+    });
+
+    test('enter api key', async ({ settingsPage }) => {
+      const checkbox = settingsPage.getListSectionInput(sectionTitle, 'KI-Zusammenfassung aktivieren');
+      await checkbox.click();
+
+      const apiKey = settingsPage.getListSectionInput(sectionTitle, 'Gemini API-Key');
+      await expect(apiKey).toHaveValue('');
+
+      await apiKey.fill('test');
+      await settingsPage.visitSite();
+
+      await expect(apiKey).toHaveValue('test');
+    });
+  });
+
   test.describe('Source', () => {
     const sectionTitle = 'Quellen';
     const sources = [

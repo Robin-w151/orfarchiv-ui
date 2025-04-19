@@ -9,6 +9,7 @@
   import { NewsApi } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
+  import type { Request } from '$lib/models/request';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
@@ -16,13 +17,13 @@
   import { audioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
-  import { ChevronUp, PauseCircle, PlayCircle } from '@steeze-ui/heroicons';
+  import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import StoryAiSummary from './StoryAiSummary.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './StoryImageViewer.svelte';
-  import type { Request } from '$lib/models/request';
 
   interface Props {
     story: Story;
@@ -45,6 +46,10 @@
   let activeStoryImage: StoryImage | undefined = $state();
   let isLoading = $state(true);
   let cancelActiveRequest: (() => void) | undefined = undefined;
+
+  let showActions = $derived($settings.aiSummaryEnabled || ($settings.audioEnabled && audioStore.isAvailable));
+
+  let showAiSummary = $state(false);
 
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
@@ -144,6 +149,18 @@
     activeStoryImage = undefined;
   }
 
+  async function handleGenerateAiSummary(): Promise<void> {
+    if (!storyContent?.contentText) {
+      return;
+    }
+
+    showAiSummary = true;
+  }
+
+  async function handleAiSummaryClose(): Promise<void> {
+    showAiSummary = false;
+  }
+
   function handlePlayArticle(): void {
     if (isPlaying) {
       audioStore.pause();
@@ -197,16 +214,24 @@
         <div class={contentInfoClass}>Inhalt geladen von {sourceLabel}</div>
       {/if}
       <div bind:this={storyContentRef}>
-        {#if audioStore.isAvailable}
-          <div class="inline-block float-right ml-2 mb-2">
-            <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
-              {#if isPlaying}
-                <Icon src={PauseCircle} theme="outlined" class="size-6" />
-              {:else}
-                <Icon src={PlayCircle} theme="outlined" class="size-6" />
-              {/if}
-              <span>Vorlesen</span>
-            </Button>
+        {#if showActions}
+          <div class="inline-flex flex-col sm:flex-row items-end gap-1 sm:gap-2 float-right ml-2 mb-2">
+            {#if $settings.aiSummaryEnabled}
+              <Button class="w-fit" btnType="secondary" onclick={handleGenerateAiSummary}>
+                <Icon src={Sparkles} theme="outlined" class="size-6" />
+                <span>KI-Zusammenfassung</span>
+              </Button>
+            {/if}
+            {#if $settings.audioEnabled && audioStore.isAvailable}
+              <Button class="w-fit" btnType="secondary" onclick={handlePlayArticle}>
+                {#if isPlaying}
+                  <Icon src={PauseCircle} theme="outlined" class="size-6" />
+                {:else}
+                  <Icon src={PlayCircle} theme="outlined" class="size-6" />
+                {/if}
+                <span>Vorlesen</span>
+              </Button>
+            {/if}
           </div>
         {/if}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -234,4 +259,8 @@
 
 {#if activeStoryImage}
   <StoryImageViewer images={storyImages} bind:image={activeStoryImage} onClose={handleImageClose} />
+{/if}
+
+{#if showAiSummary && storyContent}
+  <StoryAiSummary {storyContent} onClose={handleAiSummaryClose} />
 {/if}
