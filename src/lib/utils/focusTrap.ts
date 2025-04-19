@@ -35,7 +35,10 @@ export const focusTrap: Action<HTMLElement, FocusTrapOptions> = (node, { initial
 
     return Array.from(node.querySelectorAll<HTMLElement>(selector)).filter((el) => {
       const style = getComputedStyle(el);
-      return el.offsetWidth > 0 || el.offsetHeight > 0 || style.visibility !== 'hidden';
+      return (
+        (el.offsetWidth > 0 || el.offsetHeight > 0 || style.visibility !== 'hidden') &&
+        el.getAttribute('aria-hidden') !== 'true'
+      );
     });
   };
 
@@ -43,9 +46,11 @@ export const focusTrap: Action<HTMLElement, FocusTrapOptions> = (node, { initial
     if (!element) {
       return fallbackElement;
     }
+
     if (typeof element === 'string') {
-      return (node.querySelector<HTMLElement>(element) as HTMLElement) ?? fallbackElement;
+      return node.querySelector<HTMLElement>(element) ?? fallbackElement;
     }
+
     return element;
   };
 
