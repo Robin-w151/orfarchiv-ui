@@ -8,13 +8,15 @@
     title: string;
     message?: string;
     icon?: IconSource;
+    boxPadding?: string;
     actionsContent?: Snippet;
   }
 
-  let { title, message, icon = InformationCircle, actionsContent }: Props = $props();
+  let { title, message, icon = InformationCircle, boxPadding, actionsContent }: Props = $props();
 
   const alertBoxClass = [
-    'flex flex-col items-center gap-8 sm:gap-16 p-8 sm:p-32',
+    'flex flex-col items-center gap-8 sm:gap-16',
+    boxPadding ?? 'p-8 sm:p-32',
     'w-full',
     defaultText,
     defaultBackground,
