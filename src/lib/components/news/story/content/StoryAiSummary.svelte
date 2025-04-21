@@ -94,7 +94,7 @@
   }
 </script>
 
-<Modal modalClass="w-full h-full sm:h-3/5 lg:h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
+<Modal modalClass="w-full h-full sm:h-[max(60%,36rem)]" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
   {#if aiSummaryError}
     <AlertBox
       title={aiSummaryError.title}
