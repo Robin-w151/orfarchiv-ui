@@ -96,7 +96,12 @@
 
 <Modal modalClass="w-full h-full sm:h-3/5 lg:h-3/5" label="KI-Zusammenfassung" onClose={handleAiSummaryClose}>
   {#if aiSummaryError}
-    <AlertBox title={aiSummaryError.title} message={aiSummaryError.message} icon={ExclamationCircle} />
+    <AlertBox
+      title={aiSummaryError.title}
+      message={aiSummaryError.message}
+      icon={ExclamationCircle}
+      boxPadding="p-4 sm:p-8"
+    />
   {:else}
     <article class="story-content" data-testid="ai-summary">
       <div class="byline">
