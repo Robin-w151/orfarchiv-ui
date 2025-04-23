@@ -1,12 +1,19 @@
+<script lang="ts" module>
+  const messageTemplate = (storyContent: StoryContent, extended = false): string => `
+      Erstelle eine Zusammenfassung.
+      Aufbau: Titel, ${extended ? 5 : 3} wichtige Punkte, Zusammenfassung in ungefähr ${extended ? 15 : 5} Sätzen.
+      Text: """${storyContent.contentText}"""
+    `;
+</script>
+
 <script lang="ts">
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Modal from '$lib/components/shared/content/Modal.svelte';
-  import { StoryContent } from '$lib/models/story';
+  import { StoryContent, StorySummary } from '$lib/models/story';
+  import { AiService } from '$lib/services/ai/ai';
   import settings from '$lib/stores/settings';
   import { aiModelRefMap } from '$lib/utils/ai';
   import { logger } from '$lib/utils/logger';
-  import { GoogleGenAI, type GenerateContentResponse } from '@google/genai';
-  import SvelteMarkdown from '@humanspeak/svelte-markdown';
   import { ExclamationCircle } from '@steeze-ui/heroicons';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -19,13 +26,14 @@
 
   let { storyContent, onClose }: Props = $props();
 
-  let aiSummary = $state<string>('');
-  let aiSummaryStream: AsyncGenerator<GenerateContentResponse> | undefined;
+  let aiService: AiService | undefined;
+  let aiSummary = $state<StorySummary | undefined>(undefined);
   let aiSummaryLoading = $state(false);
   let aiSummaryError = $state<{ title: string; message: string } | undefined>(undefined);
 
   onMount(async () => {
-    if (!storyContent?.contentText) {
+    const contentText = storyContent?.contentText;
+    if (!contentText) {
       onClose?.();
       return;
     }
@@ -43,27 +51,22 @@
 
     aiSummaryLoading = true;
 
-    const contents = `
-      Erstelle eine Zusammenfassung.
-      Aufbau: Titel, 3 wichtige Punkte, Zusammenfassung in ungefähr 5 Sätzen.
-      Format: markdown only content.
-      Text: """${storyContent.contentText}"""
-    `;
+    aiService = new AiService(apiKey);
+    await aiService.newChat(model);
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      aiSummaryStream = await ai.models.generateContentStream({
-        model,
-        contents,
-      });
+      const messageTokens = await aiService.countTokens(contentText, model);
+      const message = messageTemplate(storyContent, (messageTokens ?? 0) > 500);
 
-      if (aiSummaryLoading) {
-        for await (const chunk of aiSummaryStream) {
-          aiSummary = (aiSummary ?? '') + chunk.text?.replaceAll(/(```|markdown)/g, '');
-        }
-      } else {
-        await aiSummaryStream.return(undefined);
-      }
+      aiSummary = await aiService.sendMessage(message, StorySummary);
+      logger.debugGroup(
+        'ai-summary',
+        [
+          ['ai-summary', $state.snapshot(aiSummary)],
+          ['message-tokens', messageTokens],
+        ],
+        true,
+      );
     } catch (error) {
       logger.warn(`Error: ${error}`);
       aiSummaryError = {
@@ -71,21 +74,13 @@
         message:
           'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
       };
+    } finally {
+      aiSummaryLoading = false;
     }
-
-    logger.debugGroup('ai-summary', [['ai-summary', aiSummary]], true);
-
-    aiSummaryStream = undefined;
-    aiSummaryLoading = false;
   });
 
   onDestroy(async () => {
-    if (aiSummaryStream) {
-      await aiSummaryStream.return(undefined);
-      aiSummaryStream = undefined;
-    }
-
-    aiSummary = '';
+    aiSummary = undefined;
     aiSummaryLoading = false;
   });
 
@@ -106,18 +101,29 @@
       icon={ExclamationCircle}
       boxPadding="p-4 sm:p-8"
     />
-  {:else}
-    <article class="story-content" data-testid="ai-summary">
-      <div class="byline">
-        <p>
-          Erstellt mit KI (Modell: <a href={aiModelRefMap.get($settings.aiModel)} target="_blank">{$settings.aiModel}</a
-          >)
-        </p>
-      </div>
-      <SvelteMarkdown source={aiSummary}></SvelteMarkdown>
-    </article>
-    {#if aiSummaryLoading}
-      <StoryAiSummarySkeleton />
-    {/if}
+  {:else if aiSummaryLoading}
+    <StoryAiSummarySkeleton />
+  {:else if aiSummary}
+    <div class="flex flex-col items-center gap-4 pb-4">
+      <article class="story-content" data-testid="ai-summary">
+        <div class="byline">
+          <p>
+            Erstellt mit KI (Modell: <a href={aiModelRefMap.get($settings.aiModel)} target="_blank"
+              >{$settings.aiModel}</a
+            >)
+          </p>
+        </div>
+        <h1>{aiSummary.title}</h1>
+        <ul>
+          {#each aiSummary.points as point, index (index)}
+            <li>
+              <strong>{point.title}</strong>: <span>{point.text}</span>
+            </li>
+          {/each}
+        </ul>
+        <h2>Zusammenfassung</h2>
+        <p>{aiSummary.summary}</p>
+      </article>
+    </div>
   {/if}
 </Modal>
