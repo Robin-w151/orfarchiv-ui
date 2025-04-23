@@ -28,12 +28,20 @@
       }
     }
 
+    .modal {
+      scrollbar-color: #6b7280 white;
+    }
+
     &.dark {
       color-scheme: dark;
 
       &,
       * {
         scrollbar-color: #111827 #374151;
+      }
+
+      .modal {
+        scrollbar-color: #374151 #111827;
       }
     }
   }
