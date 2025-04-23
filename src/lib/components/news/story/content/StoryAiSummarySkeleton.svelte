@@ -5,58 +5,14 @@
   let skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
 </script>
 
-<div class="flex flex-col my-4">
-  {#each { length: 8 }}
-    <span class="summary-skeleton {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></span>
-  {/each}
+<div class="story-content">
+  <div class="my-2 w-[70%] h-3 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="mt-4 mb-3 w-[55%] h-7 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="mt-4 mb-1 ml-8 w-[60%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="my-1 ml-8 w-[65%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="mt-1 mb-4 ml-8 w-[55%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="mt-3 mb-2 w-[40%] h-6 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="mt-2 mb-1 w-[80%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="my-1 w-[90%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="my-1 w-[85%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
 </div>
-
-<style>
-  .summary-skeleton {
-    margin: 0.25rem 0;
-    width: 100%;
-    height: 16px;
-
-    &:nth-child(1) {
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-      width: 70%;
-      height: 0.75rem;
-    }
-
-    &:nth-child(2) {
-      margin: 1rem 0 0.75rem;
-      width: 60%;
-      height: 1.5rem;
-    }
-
-    &:nth-child(3) {
-      margin-top: 1rem;
-      margin-left: 2rem;
-      width: 50%;
-    }
-
-    &:nth-child(4) {
-      margin-left: 2rem;
-      width: 55%;
-    }
-
-    &:nth-child(5) {
-      margin-bottom: 1rem;
-      margin-left: 2rem;
-      width: 45%;
-    }
-
-    &:nth-child(6) {
-      width: 80%;
-    }
-
-    &:nth-child(7) {
-      width: 95%;
-    }
-
-    &:nth-child(8) {
-      width: 85%;
-    }
-  }
-</style>

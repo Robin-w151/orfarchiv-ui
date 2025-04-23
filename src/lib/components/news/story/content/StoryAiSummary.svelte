@@ -105,6 +105,7 @@
           <li>{point}</li>
         {/each}
       </ul>
+      <h2>Zusammenfassung</h2>
       <p>{aiSummary.summary}</p>
     </article>
   {/if}
