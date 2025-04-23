@@ -2,14 +2,13 @@
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Modal from '$lib/components/shared/content/Modal.svelte';
   import { StoryContent, StorySummary } from '$lib/models/story';
+  import { AiService } from '$lib/services/ai/ai';
   import settings from '$lib/stores/settings';
   import { aiModelRefMap } from '$lib/utils/ai';
   import { logger } from '$lib/utils/logger';
-  import { GoogleGenAI, type Schema } from '@google/genai';
   import { ExclamationCircle } from '@steeze-ui/heroicons';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { zodToJsonSchema } from 'zod-to-json-schema';
   import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
 
   interface Props {
@@ -19,6 +18,7 @@
 
   let { storyContent, onClose }: Props = $props();
 
+  let aiService: AiService | undefined;
   let aiSummary = $state<StorySummary | undefined>(undefined);
   let aiSummaryLoading = $state(false);
   let aiSummaryError = $state<{ title: string; message: string } | undefined>(undefined);
@@ -42,37 +42,17 @@
 
     aiSummaryLoading = true;
 
-    const contents = `
+    aiService = new AiService(apiKey);
+    await aiService.newChat(model);
+
+    const message = `
       Erstelle eine Zusammenfassung.
       Aufbau: Titel, 3 wichtige Punkte, Zusammenfassung in ungefähr 5 Sätzen.
       Text: """${storyContent.contentText}"""
     `;
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const responseSchema = zodToJsonSchema(StorySummary, { target: 'openApi3' });
-      const response = (
-        await ai.models.generateContent({
-          model,
-          contents,
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: responseSchema as Schema,
-          },
-        })
-      ).text;
-
-      if (!response) {
-        throw new Error('No response from AI');
-      }
-
-      const parsedResponse = JSON.parse(response);
-      const validationResponse = StorySummary.safeParse(parsedResponse);
-      if (parsedResponse && validationResponse.success) {
-        aiSummary = validationResponse.data;
-      } else {
-        throw new Error(validationResponse.error?.message);
-      }
+      aiSummary = await aiService.sendMessage(message, StorySummary);
     } catch (error) {
       logger.warn(`Error: ${error}`);
       aiSummaryError = {
