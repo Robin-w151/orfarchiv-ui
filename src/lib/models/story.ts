@@ -48,3 +48,10 @@ export const SearchStoryOptions = z.object({
   includeOesterreichSource: z.boolean().optional(),
 });
 export type SearchStoryOptions = z.infer<typeof SearchStoryOptions>;
+
+export const StorySummary = z.object({
+  title: z.string(),
+  points: z.array(z.string()),
+  summary: z.string(),
+});
+export type StorySummary = z.infer<typeof StorySummary>;
