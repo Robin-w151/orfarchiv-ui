@@ -20,7 +20,7 @@ export class AiService {
       throw new Error('No chat created');
     }
 
-    const responseSchema = zodToJsonSchema(schema, { target: 'openApi3' });
+    const responseSchema = this.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
     const response = (
       await this.chat.sendMessage({
         message,
@@ -41,6 +41,56 @@ export class AiService {
       return validationResponse.data;
     } else {
       throw new Error(validationResponse.error?.message);
+    }
+  }
+
+  async countTokens(message: string, model: AiModel): Promise<number | undefined> {
+    if (!this.chat) {
+      throw new Error('No chat created');
+    }
+
+    return (await this.ai.models.countTokens({ model, contents: message })).totalTokens;
+  }
+
+  private sanitizeSchema(schema: object): object {
+    const schemaCopy = structuredClone(schema);
+    this.removeAdditionalPropertiesRecursive(schemaCopy);
+    return schemaCopy;
+  }
+
+  private removeAdditionalPropertiesRecursive(schemaObject: any): void {
+    if (typeof schemaObject !== 'object' || schemaObject === null || schemaObject === undefined) {
+      return;
+    }
+
+    if ('additionalProperties' in schemaObject) {
+      delete schemaObject.additionalProperties;
+    }
+
+    if (schemaObject.properties && typeof schemaObject.properties === 'object') {
+      for (const propertyKey in schemaObject.properties) {
+        if (Object.prototype.hasOwnProperty.call(schemaObject.properties, propertyKey)) {
+          this.removeAdditionalPropertiesRecursive(schemaObject.properties[propertyKey]);
+        }
+      }
+    }
+
+    if (schemaObject.items) {
+      if (Array.isArray(schemaObject.items)) {
+        for (const item of schemaObject.items) {
+          this.removeAdditionalPropertiesRecursive(item);
+        }
+      } else {
+        this.removeAdditionalPropertiesRecursive(schemaObject.items);
+      }
+    }
+
+    for (const keyword of ['allOf', 'anyOf', 'oneOf']) {
+      if (Array.isArray(schemaObject[keyword])) {
+        for (const subSchema of schemaObject[keyword]) {
+          this.removeAdditionalPropertiesRecursive(subSchema);
+        }
+      }
     }
   }
 }
