@@ -115,7 +115,7 @@
         </div>
         <h1>{aiSummary.title}</h1>
         <ul>
-          {#each aiSummary.points as point (point.title)}
+          {#each aiSummary.points as point, index (index)}
             <li>
               <strong>{point.title}</strong>: <span>{point.text}</span>
             </li>
