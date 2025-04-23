@@ -21,12 +21,13 @@
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
       width: 70%;
+      height: 0.75rem;
     }
 
     &:nth-child(2) {
       margin: 1rem 0 0.75rem;
       width: 60%;
-      height: 1.25rem;
+      height: 1.5rem;
     }
 
     &:nth-child(3) {
