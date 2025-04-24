@@ -18,6 +18,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
 
   interface Props {
     storyContent: StoryContent;
@@ -116,8 +117,8 @@
       <article class="story-content" data-testid="ai-summary">
         <div class="byline">
           <p>
-            Erstellt mit KI (Modell: <a href={aiModelRefMap.get($settings.aiModel)} target="_blank"
-              >{$settings.aiModel}</a
+            Erstellt mit KI (Modell: <Link href={aiModelRefMap.get($settings.aiModel)!} target="_blank"
+              >{$settings.aiModel}</Link
             >)
           </p>
         </div>
