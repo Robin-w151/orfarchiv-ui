@@ -21,9 +21,9 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import StoryAiSummary from './StoryAiSummary.svelte';
+  import StoryAiSummary from './summary/StoryAiSummary.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
-  import StoryImageViewer from './StoryImageViewer.svelte';
+  import StoryImageViewer from './image/StoryImageViewer.svelte';
 
   interface Props {
     story: Story;
