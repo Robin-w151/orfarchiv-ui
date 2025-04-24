@@ -30,6 +30,7 @@
   let aiSummary = $state<StorySummary | undefined>(undefined);
   let aiSummaryLoading = $state(false);
   let aiSummaryError = $state<{ title: string; message: string } | undefined>(undefined);
+  let aiSummaryCancel: (() => void) | undefined;
 
   onMount(async () => {
     const contentText = storyContent?.contentText;
@@ -58,7 +59,9 @@
       const messageTokens = await aiService.countTokens(contentText, model);
       const message = messageTemplate(storyContent, (messageTokens ?? 0) > 500);
 
-      aiSummary = await aiService.sendMessage(message, StorySummary);
+      const { request, cancel } = aiService.sendMessage(message, StorySummary);
+      aiSummaryCancel = cancel;
+      aiSummary = await request;
       logger.debugGroup(
         'ai-summary',
         [
@@ -80,6 +83,11 @@
   });
 
   onDestroy(async () => {
+    if (aiSummaryCancel) {
+      aiSummaryCancel();
+      aiSummaryCancel = undefined;
+    }
+
     aiSummary = undefined;
     aiSummaryLoading = false;
   });

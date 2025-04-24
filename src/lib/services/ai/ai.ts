@@ -1,4 +1,5 @@
 import type { AiModel } from '$lib/models/ai';
+import type { Request } from '$lib/models/request';
 import { Chat, GoogleGenAI, type Schema } from '@google/genai';
 import type { ZodSchema } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -15,33 +16,43 @@ export class AiService {
     this.chat = await this.ai.chats.create({ model });
   }
 
-  async sendMessage<T>(message: string, schema: ZodSchema<T>): Promise<T> {
-    if (!this.chat) {
+  sendMessage<T>(message: string, schema: ZodSchema<T>): Request<T> {
+    const chat = this.chat;
+    if (!chat) {
       throw new Error('No chat created');
     }
 
     const responseSchema = this.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
-    const response = (
-      await this.chat.sendMessage({
-        message,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: responseSchema as Schema,
-        },
-      })
-    ).text;
+    const abortController = new AbortController();
+    const request = async (): Promise<T> => {
+      const response = (
+        await chat.sendMessage({
+          message,
+          config: {
+            responseMimeType: 'application/json',
+            responseSchema: responseSchema as Schema,
+            abortSignal: abortController.signal,
+          },
+        })
+      ).text;
 
-    if (!response) {
-      throw new Error('No response from AI');
-    }
+      if (!response) {
+        throw new Error('No response from AI');
+      }
 
-    const parsedResponse = JSON.parse(response);
-    const validationResponse = schema.safeParse(parsedResponse);
-    if (parsedResponse && validationResponse.success) {
-      return validationResponse.data;
-    } else {
-      throw new Error(validationResponse.error?.message);
-    }
+      const parsedResponse = JSON.parse(response);
+      const validationResponse = schema.safeParse(parsedResponse);
+      if (parsedResponse && validationResponse.success) {
+        return validationResponse.data;
+      } else {
+        throw new Error(validationResponse.error?.message);
+      }
+    };
+
+    return {
+      request: request(),
+      cancel: () => abortController.abort(),
+    };
   }
 
   async countTokens(message: string, model: AiModel): Promise<number | undefined> {
