@@ -1,7 +1,7 @@
 <script lang="ts" module>
   const messageTemplate = (storyContent: StoryContent, extended = false): string => `
       Erstelle eine Zusammenfassung.
-      Aufbau: Titel, ${extended ? 5 : 3} wichtige Punkte, Zusammenfassung in ungefähr ${extended ? 15 : 5} Sätzen.
+      Aufbau: Titel, ${extended ? 5 : 3} wichtige Punkte, Zusammenfassung in ungefähr ${extended ? 15 : 5} Sätzen, maximal 25% der Textlänge.
       Text: """${storyContent.contentText}"""
     `;
 </script>
@@ -58,7 +58,7 @@
 
     try {
       const messageTokens = await aiService.countTokens(contentText, model);
-      const message = messageTemplate(storyContent, (messageTokens ?? 0) > 500);
+      const message = messageTemplate(storyContent, (messageTokens ?? 0) > 800);
 
       const { request, cancel } = aiService.sendMessage(message, StorySummary);
       aiSummaryCancel = cancel;
