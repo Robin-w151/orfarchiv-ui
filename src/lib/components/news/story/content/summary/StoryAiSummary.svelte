@@ -1,8 +1,18 @@
 <script lang="ts" module>
   const messageTemplate = (storyContent: StoryContent, extended = false): string => `
-      Erstelle eine Zusammenfassung.
-      Aufbau: Titel, ${extended ? 5 : 3} wichtige Punkte, Zusammenfassung in ungefähr ${extended ? 15 : 5} Sätzen, maximal 25% der Textlänge.
-      Text: """${storyContent.contentText}"""
+      Du bist ein hilfreicher Assistent, der präzise und informative Zusammenfassungen von Nachrichtenartikeln erstellt.
+      Erstelle eine neutrale und sachliche Zusammenfassung des folgenden Textes. Die Zusammenfassung soll sich strikt an die Fakten im Text halten und keine externen Informationen oder Meinungen hinzufügen.
+
+      **Anweisungen:**
+      1.  **Titel:** Gib der Zusammenfassung einen kurzen, prägnanten Titel, der den Hauptinhalt des Artikels widerspiegelt.
+      2.  **Wichtige Punkte:** Liste die ${extended ? 5 : 3} wichtigsten Kernaussagen des Textes als Stichpunkte auf. Jeder Punkt sollte eine klare Aussage sein.
+      3.  **Zusammenfassung:** Schreibe eine Fliesstext-Zusammenfassung.
+          *   Länge: Ungefähr ${extended ? '15' : '5'} Sätze. Die Gesamtlänge der Zusammenfassung (inklusive Titel und Stichpunkte) darf 25% der Länge des Originaltextes nicht überschreiten.
+          *   Inhalt: Fasse die Hauptinformationen des Artikels zusammen.
+          *   Stil: Neutral, objektiv und informativ. Verwende die gleiche Sprache wie der Originaltext.
+
+      **Originaltext:**
+      """${storyContent.contentText}"""
     `;
 </script>
 
