@@ -32,6 +32,9 @@ export class AiService {
             responseMimeType: 'application/json',
             responseSchema: responseSchema as Schema,
             abortSignal: abortController.signal,
+            thinkingConfig: {
+              thinkingBudget: 0,
+            },
           },
         })
       ).text;
