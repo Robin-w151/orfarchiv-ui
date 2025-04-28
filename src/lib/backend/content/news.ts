@@ -58,6 +58,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   injectSlideShowImages(optimizedDocument, originalDocument);
   injectStoryFooter(optimizedDocument, originalDocument);
   adjustAnchorTags(optimizedDocument);
+  adjustLists(optimizedDocument);
   adjustTables(optimizedDocument);
 
   const storySource = source ? ({ name: source, url: currentUrl } satisfies StorySource) : undefined;
@@ -227,6 +228,14 @@ function adjustAnchorTags(optimizedDocument: Document): void {
   optimizedDocument.querySelectorAll('a').forEach((anchor) => {
     anchor.target = '_blank';
     anchor.rel = 'noopener noreferrer';
+  });
+}
+
+function adjustLists(optimizedDocument: Document): void {
+  optimizedDocument.querySelectorAll('li').forEach((li) => {
+    if (!li.innerHTML) {
+      li.remove();
+    }
   });
 }
 
