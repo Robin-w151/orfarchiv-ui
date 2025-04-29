@@ -6,7 +6,7 @@
 </script>
 
 <div class="story-content">
-  <div class="my-2 w-[40%] h-3 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
+  <div class="my-4 w-[40%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
   <div class="mt-4 mb-3 w-[55%] h-7 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
   <div class="mt-4 mb-1 ml-8 w-[60%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
   <div class="my-1 ml-8 w-[65%] h-4 {aiSummaryLoadingBarClass} {skeletonAnimationClass}"></div>
