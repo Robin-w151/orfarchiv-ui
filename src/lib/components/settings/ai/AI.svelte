@@ -6,9 +6,12 @@
   import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import Label from '$lib/components/shared/controls/Label.svelte';
+  import Link from '$lib/components/shared/controls/Link.svelte';
   import Select from '$lib/components/shared/controls/Select.svelte';
   import { AiModel, AiModels } from '$lib/models/ai';
   import settings from '$lib/stores/settings';
+  import { Key } from '@steeze-ui/heroicons';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   function handleAiSummaryEnabledChange(event: Event & { currentTarget: HTMLInputElement }): void {
     settings.setAiSummaryEnabled(event.currentTarget.checked);
@@ -52,6 +55,12 @@
             placeholder="Gemini API-Key"
           />
         </Label>
+        <div>
+          <Link class="flex items-center gap-2 w-fit" href="https://aistudio.google.com/app/apikey" target="_blank">
+            <Icon src={Key} class="h-4 w-4" />
+            <span>Gemini API-Key erstellen</span>
+          </Link>
+        </div>
       </Item>
     {/if}
   </SectionList>
