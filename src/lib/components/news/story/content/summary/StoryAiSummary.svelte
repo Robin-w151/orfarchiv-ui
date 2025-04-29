@@ -22,13 +22,15 @@
   import { StoryContent, StorySummary } from '$lib/models/story';
   import { AiService } from '$lib/services/ai/ai';
   import settings from '$lib/stores/settings';
-  import { aiModelRefMap } from '$lib/utils/ai';
+  import { aiModelConfigMap } from '$lib/configs/client';
   import { logger } from '$lib/utils/logger';
-  import { ExclamationCircle } from '@steeze-ui/heroicons';
+  import { ArrowPath, ExclamationCircle } from '@steeze-ui/heroicons';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
+  import Button from '$lib/components/shared/controls/Button.svelte';
+  import { Icon } from '@steeze-ui/svelte-icon';
 
   interface Props {
     storyContent: StoryContent;
@@ -63,11 +65,40 @@
 
     aiSummaryLoading = true;
 
-    aiService = new AiService(apiKey);
-    await aiService.newChat(model);
+    aiService = new AiService(apiKey, model);
+    await aiService.newChat();
+
+    await generateAiSummary();
+  });
+
+  onDestroy(async () => {
+    if (aiSummaryCancel) {
+      aiSummaryCancel();
+      aiSummaryCancel = undefined;
+    }
+
+    aiSummary = undefined;
+    aiSummaryLoading = false;
+  });
+
+  async function handleAiSummaryClose(): Promise<void> {
+    onClose?.();
+  }
+
+  async function handleAiSummaryRegenerate(): Promise<void> {
+    await generateAiSummary();
+  }
+
+  async function generateAiSummary(): Promise<void> {
+    if (!storyContent?.contentText || !aiService) {
+      return;
+    }
+
+    aiSummaryCancel?.();
+    aiSummaryLoading = true;
 
     try {
-      const messageTokens = await aiService.countTokens(contentText, model);
+      const messageTokens = await aiService.countTokens(storyContent.contentText);
       const message = messageTemplate(storyContent, (messageTokens ?? 0) > 800);
 
       const { request, cancel } = aiService.sendMessage(message, StorySummary);
@@ -89,22 +120,9 @@
           'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
       };
     } finally {
+      aiSummaryCancel = undefined;
       aiSummaryLoading = false;
     }
-  });
-
-  onDestroy(async () => {
-    if (aiSummaryCancel) {
-      aiSummaryCancel();
-      aiSummaryCancel = undefined;
-    }
-
-    aiSummary = undefined;
-    aiSummaryLoading = false;
-  });
-
-  async function handleAiSummaryClose(): Promise<void> {
-    onClose?.();
   }
 </script>
 
@@ -126,10 +144,15 @@
     <div class="flex flex-col items-center gap-4 pb-4">
       <article class="story-content" data-testid="ai-summary">
         <div class="byline">
-          <p>
-            Erstellt mit KI (Modell: <Link href={aiModelRefMap.get($settings.aiModel)!} target="_blank"
-              >{$settings.aiModel}</Link
-            >)
+          <p class="flex items-center gap-2">
+            <Button btnType="secondary" title="Erneut generieren" iconOnly round onclick={handleAiSummaryRegenerate}>
+              <Icon src={ArrowPath} class="h-4 w-4" />
+            </Button>
+            <span
+              >Erstellt mit KI (Modell: <Link href={aiModelConfigMap.get($settings.aiModel)!.ref} target="_blank"
+                >{$settings.aiModel}</Link
+              >)</span
+            >
           </p>
         </div>
         <h1>{aiSummary.title}</h1>

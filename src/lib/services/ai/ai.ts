@@ -3,17 +3,21 @@ import type { Request } from '$lib/models/request';
 import { Chat, GoogleGenAI, type Schema } from '@google/genai';
 import type { ZodSchema } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { aiModelConfigMap } from '$lib/configs/client';
 
 export class AiService {
   private readonly ai: GoogleGenAI;
   private chat: Chat | undefined;
 
-  constructor(readonly apiKey: string) {
-    this.ai = new GoogleGenAI({ apiKey });
+  constructor(
+    private readonly apiKey: string,
+    private readonly model: AiModel,
+  ) {
+    this.ai = new GoogleGenAI({ apiKey: this.apiKey });
   }
 
-  async newChat(model: AiModel): Promise<void> {
-    this.chat = await this.ai.chats.create({ model });
+  async newChat(): Promise<void> {
+    this.chat = await this.ai.chats.create({ model: this.model });
   }
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Request<T> {
@@ -32,9 +36,11 @@ export class AiService {
             responseMimeType: 'application/json',
             responseSchema: responseSchema as Schema,
             abortSignal: abortController.signal,
-            thinkingConfig: {
-              thinkingBudget: 0,
-            },
+            thinkingConfig: aiModelConfigMap.get(this.model)?.supportsThinking
+              ? {
+                  thinkingBudget: 0,
+                }
+              : undefined,
           },
         })
       ).text;
@@ -58,12 +64,12 @@ export class AiService {
     };
   }
 
-  async countTokens(message: string, model: AiModel): Promise<number | undefined> {
+  async countTokens(message: string): Promise<number | undefined> {
     if (!this.chat) {
       throw new Error('No chat created');
     }
 
-    return (await this.ai.models.countTokens({ model, contents: message })).totalTokens;
+    return (await this.ai.models.countTokens({ model: this.model, contents: message })).totalTokens;
   }
 
   private sanitizeSchema(schema: object): object {
