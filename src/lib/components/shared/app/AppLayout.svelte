@@ -1,6 +1,9 @@
 <script lang="ts">
   import { InfoApi } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
+  import { setAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { setReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import { logger } from '$lib/utils/logger';
   import { defaultScreenSize } from '$lib/utils/styles';
   import { onMount, type Snippet } from 'svelte';
@@ -21,6 +24,10 @@
   }
 
   let { children }: Props = $props();
+
+  setReducedMotionStore();
+  setSkeletonStore();
+  setAudioStore();
 
   const infoApi = new InfoApi();
 

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { skeletonStore } from '$lib/stores/runes/skeleton.svelte';
+  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
+
+  const skeletonStore = getSkeletonStore();
 
   const contentSkeletonClass = 'content-skeleton flex flex-col items-start w-full';
   const contentSkeletonBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';

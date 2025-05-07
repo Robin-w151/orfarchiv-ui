@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { reducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import { transitionDefaults } from '$lib/utils/transitions';
   import type { Snippet } from 'svelte';
   import { fade, type TransitionConfig } from 'svelte/transition';
@@ -21,6 +21,8 @@
     children,
     ...restProps
   }: Props = $props();
+
+  const reducedMotionStore = getReducedMotionStore();
 
   let usedTransition = $derived(reducedMotionStore.useReducedMotion ? fade : transition);
   let usedTransitionProps = $derived(reducedMotionStore.useReducedMotion ? transitionDefaults : transitionProps);

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getSourceLabel } from '$lib/models/settings';
-  import { audioStore } from '$lib/stores/runes/audio.svelte';
+  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
   import { formatTimestamp } from '$lib/utils/datetime';
   import {
     ArrowsPointingOut,
@@ -15,6 +15,8 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
+
+  const audioStore = getAudioStore();
 
   let minimized = $state(false);
   let sourceLabel = $derived(getSourceLabel(audioStore.story?.source));

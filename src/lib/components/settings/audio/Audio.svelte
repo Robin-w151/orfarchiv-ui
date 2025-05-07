@@ -5,8 +5,10 @@
   import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
   import Label from '$lib/components/shared/controls/Label.svelte';
   import Select from '$lib/components/shared/controls/Select.svelte';
-  import { audioStore } from '$lib/stores/runes/audio.svelte';
+  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
+
+  const audioStore = getAudioStore();
 
   function handleAudioEnabledChange(event: Event & { currentTarget: HTMLInputElement }): void {
     settings.setAudioEnabled(event.currentTarget.checked);

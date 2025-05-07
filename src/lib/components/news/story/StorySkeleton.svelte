@@ -1,6 +1,8 @@
 <script lang="ts">
   import Item from '$lib/components/shared/content/Item.svelte';
-  import { skeletonStore } from '$lib/stores/runes/skeleton.svelte';
+  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
+
+  const skeletonStore = getSkeletonStore();
 
   const headerClass = 'flex flex-row items-center gap-3';
   const buttonClass = 'w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-md';

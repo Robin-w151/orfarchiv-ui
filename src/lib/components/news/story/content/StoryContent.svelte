@@ -14,7 +14,7 @@
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
-  import { audioStore } from '$lib/stores/runes/audio.svelte';
+  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
@@ -32,6 +32,7 @@
 
   let { story, onCollapse }: Props = $props();
 
+  const audioStore = getAudioStore();
   const newsApi = new NewsApi();
 
   const wrapperClass = 'flex flex-col items-center gap-3';

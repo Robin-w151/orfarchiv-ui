@@ -1,25 +1,31 @@
+import { getContext, setContext } from 'svelte';
 import { MediaQuery } from 'svelte/reactivity';
 import settings from '../settings';
 
-interface ReducedMotionStore {
+export interface ReducedMotionStoreInterface {
   useReducedMotion: boolean;
 }
 
-function ReducedMotionStore(): ReducedMotionStore {
-  const prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
-  let forceReducedMotion = $state(false);
+class ReducedMotionStore implements ReducedMotionStoreInterface {
+  private prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
+  private forceReducedMotion = $state(false);
 
-  const useReducedMotion = $derived(forceReducedMotion || prefersReducedMotion.current);
+  useReducedMotion = $derived(this.forceReducedMotion || this.prefersReducedMotion.current);
 
-  settings.subscribe((settings) => {
-    forceReducedMotion = settings.forceReducedMotion;
-  });
-
-  return {
-    get useReducedMotion() {
-      return useReducedMotion;
-    },
-  };
+  constructor() {
+    settings.subscribe((settings) => {
+      this.forceReducedMotion = settings.forceReducedMotion;
+    });
+  }
 }
 
-export const reducedMotionStore = ReducedMotionStore();
+const DEFAULT_KEY = 'root_reduced_motion_store';
+
+export function getReducedMotionStore(key: string = DEFAULT_KEY): ReducedMotionStoreInterface {
+  return getContext(key);
+}
+
+export function setReducedMotionStore(key: string = DEFAULT_KEY): ReducedMotionStoreInterface {
+  const reducedMotionStore = new ReducedMotionStore();
+  return setContext(key, reducedMotionStore);
+}

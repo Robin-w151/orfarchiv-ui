@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { skeletonStore } from '$lib/stores/runes/skeleton.svelte';
+  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
+
+  const skeletonStore = getSkeletonStore();
 
   const aiSummaryLoadingBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';
-  let skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
+  const skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
 </script>
 
 <div class="story-content">
