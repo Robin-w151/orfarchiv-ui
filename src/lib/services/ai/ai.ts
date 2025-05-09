@@ -9,7 +9,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 export class AiService {
   private readonly ai: GoogleGenAI;
   private chat: Chat | undefined;
-
+  private lastRequestFailed = false;
   constructor(
     private readonly apiKey: string,
     private readonly model: AiModel,
@@ -38,29 +38,24 @@ export class AiService {
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
     const self = this;
     return Effect.gen(function* () {
-      const chatOrUndefined = self.chat;
-      if (!chatOrUndefined) {
-        return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
-      }
+      let chat = self.lastRequestFailed || !self.chat ? yield* self.newChat(true) : self.chat;
+      yield* Effect.sync(() => {
+        self.lastRequestFailed = false;
+      });
 
-      let chat = chatOrUndefined;
       const responseSchema = self.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
-
-      let isRetry = false;
       const response = yield* Effect.gen(function* () {
-        if (isRetry) {
+        if (self.lastRequestFailed) {
           chat = yield* self.newChat(true);
-        } else {
-          isRetry = true;
         }
 
         return yield* Effect.tryPromise({
           try: (abortSignal) => {
-            logger.debugGroup(
+            logger.infoGroup(
               'ai-message',
               [
                 ['message', message],
-                ['responseSchema', responseSchema],
+                ['response-schema', responseSchema],
               ],
               true,
             );
@@ -75,7 +70,19 @@ export class AiService {
           },
           catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
         });
-      }).pipe(Effect.retry({ times: 1, schedule: Schedule.exponential(2000) }));
+      }).pipe(
+        Effect.tapBoth({
+          onSuccess: () =>
+            Effect.sync(() => {
+              self.lastRequestFailed = false;
+            }),
+          onFailure: () =>
+            Effect.sync(() => {
+              self.lastRequestFailed = true;
+            }),
+        }),
+        Effect.retry({ times: 1, schedule: Schedule.exponential(2000) }),
+      );
       const responseText = response?.text;
 
       if (!responseText) {
@@ -93,6 +100,9 @@ export class AiService {
       });
 
       if (parsedResponse && validationResponse.success) {
+        yield* Effect.sync(() => {
+          logger.infoGroup('ai-message-response', [['response', validationResponse.data]], true);
+        });
         return validationResponse.data;
       } else {
         return yield* Effect.fail(new AiServiceError({ message: 'Invalid response', cause: validationResponse.error }));
@@ -108,12 +118,18 @@ export class AiService {
         return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
       }
 
-      return yield* Effect.tryPromise({
+      const totalTokens = yield* Effect.tryPromise({
         try: async (abortSignal) =>
           (await self.ai.models.countTokens({ model: self.model, contents: message, config: { abortSignal } }))
             .totalTokens,
         catch: (error) => new AiServiceError({ message: 'Failed to count tokens', cause: error }),
+      }).pipe(Effect.retry({ times: 1, schedule: Schedule.exponential(1000) }));
+
+      yield* Effect.sync(() => {
+        logger.infoGroup('ai-message-tokens', [['total-tokens', totalTokens]]);
       });
+
+      return totalTokens;
     });
   }
 

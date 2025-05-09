@@ -83,6 +83,7 @@ export class StoryAiSummaryState {
     const program = Effect.gen(function* () {
       yield* Effect.sync(() => {
         self.aiSummaryLoading = true;
+        self.aiSummaryError = undefined;
       });
 
       const messageTokens = yield* aiService.countTokens(storyContent.contentText);
@@ -92,14 +93,6 @@ export class StoryAiSummaryState {
 
       yield* Effect.sync(() => {
         self.aiSummary = summary;
-        logger.debugGroup(
-          'ai-summary',
-          [
-            ['ai-summary', $state.snapshot(self.aiSummary)],
-            ['message-tokens', messageTokens],
-          ],
-          true,
-        );
       });
     }).pipe(
       Effect.catchTag('AiServiceError', (error) =>

@@ -56,7 +56,11 @@
       message={aiSummaryState.aiSummaryError.message}
       icon={ExclamationCircle}
       boxPadding="p-4 sm:p-8"
-    />
+    >
+      {#snippet actionsContent()}
+        <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
+      {/snippet}
+    </AlertBox>
   {:else if aiSummaryState.aiSummaryLoading}
     <StoryAiSummarySkeleton />
   {:else if aiSummaryState.aiSummary}
