@@ -51,7 +51,12 @@ export class StoryAiSummaryState {
   }
 
   initialize = async (): Promise<void> => {
-    await Effect.runPromise(this.aiService?.newChat() ?? Effect.void);
+    const aiService = this.aiService;
+    if (!aiService) {
+      return;
+    }
+
+    await Effect.runPromise(aiService.newChat());
   };
 
   destroy = (): void => {

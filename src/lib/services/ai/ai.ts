@@ -1,7 +1,8 @@
 import { AiServiceError } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
+import { logger } from '$lib/utils/logger';
 import { Chat, GoogleGenAI, type Schema } from '@google/genai';
-import { Effect } from 'effect';
+import { Effect, Schedule } from 'effect';
 import type { ZodSchema } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -16,48 +17,73 @@ export class AiService {
     this.ai = new GoogleGenAI({ apiKey: this.apiKey });
   }
 
-  newChat(): Effect.Effect<void, AiServiceError> {
+  newChat(keepHistory = false): Effect.Effect<Chat, AiServiceError> {
     const self = this;
     return Effect.gen(function* () {
+      const history = keepHistory ? self.chat?.getHistory(true) : undefined;
+
       const chat = yield* Effect.tryPromise({
-        try: async () => await self.ai.chats.create({ model: self.model }),
+        try: async () => await self.ai.chats.create({ model: self.model, history }),
         catch: (error) => new AiServiceError({ message: 'Failed to create chat', cause: error }),
       });
 
       yield* Effect.sync(() => {
         self.chat = chat;
       });
+
+      return chat;
     });
   }
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
     const self = this;
     return Effect.gen(function* () {
-      const chat = self.chat;
-      if (!chat) {
+      const chatOrUndefined = self.chat;
+      if (!chatOrUndefined) {
         return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
       }
 
+      let chat = chatOrUndefined;
       const responseSchema = self.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
-      const response = (yield* Effect.tryPromise({
-        try: (abortSignal) =>
-          chat.sendMessage({
-            message,
-            config: {
-              responseMimeType: 'application/json',
-              responseSchema: responseSchema as Schema,
-              abortSignal,
-            },
-          }),
-        catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
-      })).text;
 
-      if (!response) {
+      let isRetry = false;
+      const response = yield* Effect.gen(function* () {
+        if (isRetry) {
+          chat = yield* self.newChat(true);
+        } else {
+          isRetry = true;
+        }
+
+        return yield* Effect.tryPromise({
+          try: (abortSignal) => {
+            logger.debugGroup(
+              'ai-message',
+              [
+                ['message', message],
+                ['responseSchema', responseSchema],
+              ],
+              true,
+            );
+            return chat.sendMessage({
+              message,
+              config: {
+                responseMimeType: 'application/json',
+                responseSchema: responseSchema as Schema,
+                abortSignal,
+              },
+            });
+          },
+          catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
+        });
+      }).pipe(Effect.retry({ times: 1, schedule: Schedule.exponential(2000) }));
+      const responseText = response?.text;
+
+      if (!responseText) {
         return yield* Effect.fail(new AiServiceError({ message: 'No response from AI' }));
       }
 
       const parsedResponse = yield* Effect.try({
-        try: () => JSON.parse(response),
+        try: () => JSON.parse(responseText),
         catch: (error) => new AiServiceError({ message: 'Failed to parse response', cause: error }),
       });
 
