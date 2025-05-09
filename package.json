@@ -62,6 +62,7 @@
     "dompurify": "3.2.5",
     "dotenv-flow": "4.1.0",
     "easy-speech": "2.4.0",
+    "effect": "3.14.21",
     "escodegen": "2.1.0",
     "eslint": "9.26.0",
     "eslint-config-prettier": "10.1.2",

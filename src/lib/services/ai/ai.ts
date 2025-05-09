@@ -1,9 +1,9 @@
+import { AiServiceError } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
-import type { Request } from '$lib/models/request';
 import { Chat, GoogleGenAI, type Schema } from '@google/genai';
+import { Effect } from 'effect';
 import type { ZodSchema } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { aiModelConfigMap } from '$lib/configs/client';
 
 export class AiService {
   private readonly ai: GoogleGenAI;
@@ -16,60 +16,79 @@ export class AiService {
     this.ai = new GoogleGenAI({ apiKey: this.apiKey });
   }
 
-  async newChat(): Promise<void> {
-    this.chat = await this.ai.chats.create({ model: this.model });
+  newChat(): Effect.Effect<void, AiServiceError> {
+    const self = this;
+    return Effect.gen(function* () {
+      const chat = yield* Effect.tryPromise({
+        try: async () => await self.ai.chats.create({ model: self.model }),
+        catch: (error) => new AiServiceError({ message: 'Failed to create chat', cause: error }),
+      });
+
+      yield* Effect.sync(() => {
+        self.chat = chat;
+      });
+    });
   }
 
-  sendMessage<T>(message: string, schema: ZodSchema<T>): Request<T> {
-    const chat = this.chat;
-    if (!chat) {
-      throw new Error('No chat created');
-    }
-
-    const responseSchema = this.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
-    const abortController = new AbortController();
-    const request = async (): Promise<T> => {
-      const response = (
-        await chat.sendMessage({
-          message,
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: responseSchema as Schema,
-            abortSignal: abortController.signal,
-            thinkingConfig: aiModelConfigMap.get(this.model)?.supportsThinking
-              ? {
-                  thinkingBudget: 0,
-                }
-              : undefined,
-          },
-        })
-      ).text;
-
-      if (!response) {
-        throw new Error('No response from AI');
+  sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
+    const self = this;
+    return Effect.gen(function* () {
+      const chat = self.chat;
+      if (!chat) {
+        return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
       }
 
-      const parsedResponse = JSON.parse(response);
-      const validationResponse = schema.safeParse(parsedResponse);
+      const responseSchema = self.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
+      const response = (yield* Effect.tryPromise({
+        try: (abortSignal) =>
+          chat.sendMessage({
+            message,
+            config: {
+              responseMimeType: 'application/json',
+              responseSchema: responseSchema as Schema,
+              abortSignal,
+            },
+          }),
+        catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
+      })).text;
+
+      if (!response) {
+        return yield* Effect.fail(new AiServiceError({ message: 'No response from AI' }));
+      }
+
+      const parsedResponse = yield* Effect.try({
+        try: () => JSON.parse(response),
+        catch: (error) => new AiServiceError({ message: 'Failed to parse response', cause: error }),
+      });
+
+      const validationResponse = yield* Effect.try({
+        try: () => schema.safeParse(parsedResponse),
+        catch: (error) => new AiServiceError({ message: 'Failed to validate response', cause: error }),
+      });
+
       if (parsedResponse && validationResponse.success) {
         return validationResponse.data;
       } else {
-        throw new Error(validationResponse.error?.message);
+        return yield* Effect.fail(new AiServiceError({ message: 'Invalid response', cause: validationResponse.error }));
       }
-    };
-
-    return {
-      request: request(),
-      cancel: () => abortController.abort(),
-    };
+    });
   }
 
-  async countTokens(message: string): Promise<number | undefined> {
-    if (!this.chat) {
-      throw new Error('No chat created');
-    }
+  countTokens(message: string): Effect.Effect<number | undefined, AiServiceError> {
+    const self = this;
+    return Effect.gen(function* () {
+      const chat = self.chat;
+      if (!chat) {
+        return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
+      }
 
-    return (await this.ai.models.countTokens({ model: this.model, contents: message })).totalTokens;
+      return yield* Effect.tryPromise({
+        try: async (abortSignal) =>
+          (await self.ai.models.countTokens({ model: self.model, contents: message, config: { abortSignal } }))
+            .totalTokens,
+        catch: (error) => new AiServiceError({ message: 'Failed to count tokens', cause: error }),
+      });
+    });
   }
 
   private sanitizeSchema(schema: object): object {

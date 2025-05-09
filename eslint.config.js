@@ -54,6 +54,12 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+      '@typescript-eslint/no-this-alias': [
+        'error',
+        {
+          allowedNames: ['self'],
+        },
+      ],
       'no-unused-vars': 'off',
       'no-undef': 'off',
     },

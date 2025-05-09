@@ -3,6 +3,7 @@ import { StorySummary, type StoryContent } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
 import settings from '$lib/stores/settings';
 import { logger } from '$lib/utils/logger';
+import { Effect, Fiber } from 'effect';
 import { get } from 'svelte/store';
 
 const messageTemplate = (storyContent: StoryContent, extended = false): string => `
@@ -50,7 +51,7 @@ export class StoryAiSummaryState {
   }
 
   initialize = async (): Promise<void> => {
-    await this.aiService?.newChat();
+    await Effect.runPromise(this.aiService?.newChat() ?? Effect.void);
   };
 
   destroy = (): void => {
@@ -65,38 +66,57 @@ export class StoryAiSummaryState {
   };
 
   generateAiSummary = async (): Promise<void> => {
-    if (!this.storyContent?.contentText || !this.aiService) {
+    const storyContent = this.storyContent;
+    const aiService = this.aiService;
+    if (!storyContent?.contentText || !aiService) {
       return;
     }
 
     this.aiSummaryCancel?.();
-    this.aiSummaryLoading = true;
 
-    try {
-      const messageTokens = await this.aiService.countTokens(this.storyContent.contentText);
-      const message = messageTemplate(this.storyContent, (messageTokens ?? 0) > 800);
+    const self = this;
+    const program = Effect.gen(function* () {
+      yield* Effect.sync(() => {
+        self.aiSummaryLoading = true;
+      });
 
-      const { request, cancel } = this.aiService.sendMessage(message, StorySummary);
-      this.aiSummaryCancel = cancel;
-      this.aiSummary = await request;
-      logger.debugGroup(
-        'ai-summary',
-        [
-          ['ai-summary', $state.snapshot(this.aiSummary)],
-          ['message-tokens', messageTokens],
-        ],
-        true,
-      );
-    } catch (error) {
-      logger.warn(`Error: ${error}`);
-      this.aiSummaryError = {
-        title: 'Ein Fehler ist aufgetreten',
-        message:
-          'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
-      };
-    } finally {
-      this.aiSummaryCancel = undefined;
-      this.aiSummaryLoading = false;
-    }
+      const messageTokens = yield* aiService.countTokens(storyContent.contentText);
+      const message = messageTemplate(storyContent, (messageTokens ?? 0) > 800);
+
+      const summary = yield* aiService.sendMessage(message, StorySummary);
+
+      yield* Effect.sync(() => {
+        self.aiSummary = summary;
+        logger.debugGroup(
+          'ai-summary',
+          [
+            ['ai-summary', $state.snapshot(self.aiSummary)],
+            ['message-tokens', messageTokens],
+          ],
+          true,
+        );
+      });
+    }).pipe(
+      Effect.catchTag('AiServiceError', (error) =>
+        Effect.sync(() => {
+          logger.warn(`Error: ${error}`);
+          self.aiSummaryError = {
+            title: 'Ein Fehler ist aufgetreten',
+            message:
+              'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
+          };
+        }),
+      ),
+      Effect.ensuring(
+        Effect.sync(() => {
+          self.aiSummaryCancel = undefined;
+          self.aiSummaryLoading = false;
+        }),
+      ),
+    );
+
+    const fiber = Effect.runFork(program);
+
+    this.aiSummaryCancel = () => Effect.runSync(Fiber.interruptFork(fiber));
   };
 }
