@@ -20,7 +20,9 @@ const messageTemplate = (storyContent: StoryContent, extended = false): string =
       *   Stil: Neutral, objektiv und informativ. Verwende die gleiche Sprache wie der Originaltext.
 
   **Originaltext:**
-  """${storyContent.contentText}"""
+  """
+  ${storyContent.contentText}
+  """
 `;
 
 export class StoryAiSummaryState {
@@ -79,11 +81,10 @@ export class StoryAiSummaryState {
 
     this.aiSummaryCancel?.();
 
-    const self = this;
-    const program = Effect.gen(function* () {
+    const program = Effect.gen(this, function* () {
       yield* Effect.sync(() => {
-        self.aiSummaryLoading = true;
-        self.aiSummaryError = undefined;
+        this.aiSummaryLoading = true;
+        this.aiSummaryError = undefined;
       });
 
       const messageTokens = yield* aiService.countTokens(storyContent.contentText);
@@ -92,13 +93,13 @@ export class StoryAiSummaryState {
       const summary = yield* aiService.sendMessage(message, StorySummary);
 
       yield* Effect.sync(() => {
-        self.aiSummary = summary;
+        this.aiSummary = summary;
       });
     }).pipe(
       Effect.catchTag('AiServiceError', (error) =>
         Effect.sync(() => {
           logger.warn(`Error: ${error}`);
-          self.aiSummaryError = {
+          this.aiSummaryError = {
             title: 'Ein Fehler ist aufgetreten',
             message:
               'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
@@ -107,14 +108,13 @@ export class StoryAiSummaryState {
       ),
       Effect.ensuring(
         Effect.sync(() => {
-          self.aiSummaryCancel = undefined;
-          self.aiSummaryLoading = false;
+          this.aiSummaryCancel = undefined;
+          this.aiSummaryLoading = false;
         }),
       ),
     );
 
     const fiber = Effect.runFork(program);
-
     this.aiSummaryCancel = () => Effect.runSync(Fiber.interruptFork(fiber));
   };
 }

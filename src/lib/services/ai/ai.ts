@@ -18,17 +18,16 @@ export class AiService {
   }
 
   newChat(keepHistory = false): Effect.Effect<Chat, AiServiceError> {
-    const self = this;
-    return Effect.gen(function* () {
-      const history = keepHistory ? self.chat?.getHistory(true) : undefined;
+    return Effect.gen(this, function* () {
+      const history = keepHistory ? this.chat?.getHistory(true) : undefined;
 
       const chat = yield* Effect.tryPromise({
-        try: async () => await self.ai.chats.create({ model: self.model, history }),
+        try: async () => await this.ai.chats.create({ model: this.model, history }),
         catch: (error) => new AiServiceError({ message: 'Failed to create chat', cause: error }),
       });
 
       yield* Effect.sync(() => {
-        self.chat = chat;
+        this.chat = chat;
       });
 
       return chat;
@@ -36,17 +35,16 @@ export class AiService {
   }
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
-    const self = this;
-    return Effect.gen(function* () {
-      let chat = self.lastRequestFailed || !self.chat ? yield* self.newChat(true) : self.chat;
+    return Effect.gen(this, function* () {
+      let chat = this.lastRequestFailed || !this.chat ? yield* this.newChat(true) : this.chat;
       yield* Effect.sync(() => {
-        self.lastRequestFailed = false;
+        this.lastRequestFailed = false;
       });
 
-      const responseSchema = self.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
-      const response = yield* Effect.gen(function* () {
-        if (self.lastRequestFailed) {
-          chat = yield* self.newChat(true);
+      const responseSchema = this.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
+      const response = yield* Effect.gen(this as AiService, function* () {
+        if (this.lastRequestFailed) {
+          chat = yield* this.newChat(true);
         }
 
         return yield* Effect.tryPromise({
@@ -74,11 +72,11 @@ export class AiService {
         Effect.tapBoth({
           onSuccess: () =>
             Effect.sync(() => {
-              self.lastRequestFailed = false;
+              this.lastRequestFailed = false;
             }),
           onFailure: () =>
             Effect.sync(() => {
-              self.lastRequestFailed = true;
+              this.lastRequestFailed = true;
             }),
         }),
         Effect.retry({ times: 1, schedule: Schedule.exponential(2000) }),
@@ -111,16 +109,15 @@ export class AiService {
   }
 
   countTokens(message: string): Effect.Effect<number | undefined, AiServiceError> {
-    const self = this;
-    return Effect.gen(function* () {
-      const chat = self.chat;
+    return Effect.gen(this, function* () {
+      const chat = this.chat;
       if (!chat) {
         return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
       }
 
       const totalTokens = yield* Effect.tryPromise({
         try: async (abortSignal) =>
-          (await self.ai.models.countTokens({ model: self.model, contents: message, config: { abortSignal } }))
+          (await this.ai.models.countTokens({ model: this.model, contents: message, config: { abortSignal } }))
             .totalTokens,
         catch: (error) => new AiServiceError({ message: 'Failed to count tokens', cause: error }),
       }).pipe(Effect.retry({ times: 1, schedule: Schedule.exponential(1000) }));
