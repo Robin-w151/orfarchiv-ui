@@ -98,7 +98,7 @@ export class StoryAiSummaryState {
     }).pipe(
       Effect.catchTag('AiServiceError', (error) =>
         Effect.sync(() => {
-          logger.warn(`Error: ${error}`);
+          logger.errorGroup('story-summary-error', [['error', error]]);
           this.aiSummaryError = {
             title: 'Ein Fehler ist aufgetreten',
             message:
