@@ -2,8 +2,9 @@ import { browser } from '$app/environment';
 import { StorySummary, type StoryContent } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
 import settings from '$lib/stores/settings';
+import { runEffect } from '$lib/utils/effectHelper';
 import { logger } from '$lib/utils/logger';
-import { Effect, Fiber } from 'effect';
+import { Effect } from 'effect';
 import { get } from 'svelte/store';
 
 const messageTemplate = (storyContent: StoryContent, extended = false): string => `
@@ -114,7 +115,7 @@ export class StoryAiSummaryState {
       ),
     );
 
-    const fiber = Effect.runFork(program);
-    this.aiSummaryCancel = () => Effect.runSync(Fiber.interruptFork(fiber));
+    const { cancel } = runEffect(program);
+    this.aiSummaryCancel = cancel;
   };
 }
