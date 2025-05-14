@@ -28,7 +28,6 @@
       return;
     }
 
-    await aiSummaryState.initialize();
     await aiSummaryState.generateAiSummary();
   });
 

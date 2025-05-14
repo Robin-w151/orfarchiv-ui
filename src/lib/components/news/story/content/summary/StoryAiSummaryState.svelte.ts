@@ -53,15 +53,6 @@ export class StoryAiSummaryState {
     this.aiService = new AiService(apiKey, model);
   }
 
-  initialize = async (): Promise<void> => {
-    const aiService = this.aiService;
-    if (!aiService) {
-      return;
-    }
-
-    await Effect.runPromise(aiService.newChat());
-  };
-
   destroy = (): void => {
     if (this.aiSummaryCancel) {
       this.aiSummaryCancel();
@@ -82,14 +73,14 @@ export class StoryAiSummaryState {
 
     this.aiSummaryCancel?.();
 
-    const program = Effect.gen(this, function* () {
+    const effect = Effect.gen(this, function* () {
       yield* Effect.sync(() => {
         this.aiSummaryLoading = true;
         this.aiSummaryError = undefined;
       });
 
-      const messageTokens = yield* aiService.countTokens(storyContent.contentText);
-      const message = messageTemplate(storyContent, (messageTokens ?? 0) > 800);
+      const messageWords = yield* aiService.countWords(storyContent.contentText);
+      const message = messageTemplate(storyContent, (messageWords ?? 0) > 400);
 
       const summary = yield* aiService.sendMessage(message, StorySummary);
 
@@ -115,7 +106,7 @@ export class StoryAiSummaryState {
       ),
     );
 
-    const { cancel } = runEffect(program);
+    const { cancel } = runEffect(effect);
     this.aiSummaryCancel = cancel;
   };
 }

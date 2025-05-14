@@ -1,87 +1,54 @@
 import { AiServiceError } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
-import { Chat, GoogleGenAI, type Schema } from '@google/genai';
 import { Effect, Schedule } from 'effect';
+import OpenAI from 'openai';
+import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodSchema } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export class AiService {
-  private readonly ai: GoogleGenAI;
-  private chat: Chat | undefined;
-  private lastRequestFailed = false;
+  private ai: OpenAI;
+
   constructor(
     private readonly apiKey: string,
     private readonly model: AiModel,
   ) {
-    this.ai = new GoogleGenAI({ apiKey: this.apiKey });
-  }
-
-  newChat(keepHistory = false): Effect.Effect<Chat, AiServiceError> {
-    return Effect.gen(this, function* () {
-      const history = keepHistory ? this.chat?.getHistory(true) : undefined;
-
-      const chat = yield* Effect.tryPromise({
-        try: async () => await this.ai.chats.create({ model: this.model, history }),
-        catch: (error) => new AiServiceError({ message: 'Failed to create chat', cause: error }),
-      });
-
-      yield* Effect.sync(() => {
-        this.chat = chat;
-      });
-
-      return chat;
-    });
+    this.ai = this.newClient();
   }
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
     return Effect.gen(this, function* () {
-      let chat = this.lastRequestFailed || !this.chat ? yield* this.newChat(true) : this.chat;
-      yield* Effect.sync(() => {
-        this.lastRequestFailed = false;
-      });
-
-      const responseSchema = this.sanitizeSchema(zodToJsonSchema(schema, { target: 'openApi3' }));
       const response = yield* Effect.gen(this as AiService, function* () {
-        if (this.lastRequestFailed) {
-          chat = yield* this.newChat(true);
-        }
-
         return yield* Effect.tryPromise({
           try: (abortSignal) => {
             logger.infoGroup(
               'ai-message',
               [
                 ['message', message],
-                ['response-schema', responseSchema],
+                ['response-schema', schema],
               ],
               true,
             );
-            return chat.sendMessage({
-              message,
-              config: {
-                responseMimeType: 'application/json',
-                responseSchema: responseSchema as Schema,
-                abortSignal,
+            return this.ai.chat.completions.create(
+              {
+                model: this.model,
+                messages: [{ role: 'user', content: message }],
+                response_format: zodResponseFormat(schema, 'json_object'),
               },
-            });
+              { signal: abortSignal, maxRetries: 0 },
+            );
           },
           catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
         });
       }).pipe(
-        Effect.tapBoth({
-          onSuccess: () =>
-            Effect.sync(() => {
-              this.lastRequestFailed = false;
-            }),
-          onFailure: () =>
-            Effect.sync(() => {
-              this.lastRequestFailed = true;
-            }),
-        }),
-        Effect.retry({ times: 1, schedule: Schedule.exponential(2000) }),
+        Effect.timeout('60 seconds'),
+        Effect.retry({ times: 1, schedule: Schedule.exponential(5000) }),
+        Effect.catchTag(
+          'TimeoutException',
+          (error) => new AiServiceError({ message: 'Response generation timed out', cause: error }),
+        ),
       );
-      const responseText = response?.text;
+      const responseText = response?.choices[0]?.message.content;
 
       if (!responseText) {
         return yield* Effect.fail(new AiServiceError({ message: 'No response from AI' }));
@@ -108,67 +75,33 @@ export class AiService {
     });
   }
 
-  countTokens(message: string): Effect.Effect<number | undefined, AiServiceError> {
+  countWords(message: string): Effect.Effect<number> {
     return Effect.gen(this, function* () {
-      const chat = this.chat;
-      if (!chat) {
-        return yield* Effect.fail(new AiServiceError({ message: 'No chat created' }));
-      }
-
-      const totalTokens = yield* Effect.tryPromise({
-        try: async (abortSignal) =>
-          (await this.ai.models.countTokens({ model: this.model, contents: message, config: { abortSignal } }))
-            .totalTokens,
-        catch: (error) => new AiServiceError({ message: 'Failed to count tokens', cause: error }),
-      }).pipe(Effect.retry({ times: 1, schedule: Schedule.exponential(1000) }));
+      const totalWords = message.split(/\s+/).filter(Boolean).length;
 
       yield* Effect.sync(() => {
-        logger.infoGroup('ai-message-tokens', [['total-tokens', totalTokens]]);
+        logger.infoGroup('ai-message-words', [['total-words', totalWords]]);
       });
 
-      return totalTokens;
+      return totalWords;
     });
   }
 
-  private sanitizeSchema(schema: object): object {
-    const schemaCopy = structuredClone(schema);
-    this.removeAdditionalPropertiesRecursive(schemaCopy);
-    return schemaCopy;
-  }
-
-  private removeAdditionalPropertiesRecursive(schemaObject: any): void {
-    if (typeof schemaObject !== 'object' || schemaObject === null || schemaObject === undefined) {
-      return;
-    }
-
-    if ('additionalProperties' in schemaObject) {
-      delete schemaObject.additionalProperties;
-    }
-
-    if (schemaObject.properties && typeof schemaObject.properties === 'object') {
-      for (const propertyKey in schemaObject.properties) {
-        if (Object.prototype.hasOwnProperty.call(schemaObject.properties, propertyKey)) {
-          this.removeAdditionalPropertiesRecursive(schemaObject.properties[propertyKey]);
-        }
-      }
-    }
-
-    if (schemaObject.items) {
-      if (Array.isArray(schemaObject.items)) {
-        for (const item of schemaObject.items) {
-          this.removeAdditionalPropertiesRecursive(item);
-        }
-      } else {
-        this.removeAdditionalPropertiesRecursive(schemaObject.items);
-      }
-    }
-
-    for (const keyword of ['allOf', 'anyOf', 'oneOf']) {
-      if (Array.isArray(schemaObject[keyword])) {
-        for (const subSchema of schemaObject[keyword]) {
-          this.removeAdditionalPropertiesRecursive(subSchema);
-        }
-      }
-    }
+  private newClient(): OpenAI {
+    return new OpenAI({
+      apiKey: this.apiKey,
+      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
+      dangerouslyAllowBrowser: true,
+      defaultHeaders: {
+        'x-stainless-arch': null,
+        'x-stainless-lang': null,
+        'x-stainless-os': null,
+        'x-stainless-package-version': null,
+        'x-stainless-retry-count': null,
+        'x-stainless-runtime': null,
+        'x-stainless-runtime-version': null,
+        'x-stainless-timeout': null,
+      },
+    });
   }
 }
