@@ -1,4 +1,4 @@
-import type { Action } from 'svelte/action';
+import type { Attachment } from 'svelte/attachments';
 
 export interface FocusTrapOptions {
   /**
@@ -15,108 +15,107 @@ export interface FocusTrapOptions {
 }
 
 /**
- * Svelte action which traps Tab/Shift+Tab focus inside its node.
+ * Svelte attachment which traps Tab/Shift+Tab focus inside its node.
  */
-export const focusTrap: Action<HTMLElement, FocusTrapOptions> = (node, { initialFocus, fallbackFocus } = {}) => {
-  const getFocusableElements = (): HTMLElement[] => {
-    const selector = [
-      'a[href]',
-      'area[href]',
-      'input:not([disabled]):not([type=hidden])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'button:not([disabled])',
-      'iframe',
-      'object',
-      'embed',
-      '[contenteditable]',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',');
+export const focusTrap = ({ initialFocus, fallbackFocus }: FocusTrapOptions = {}): Attachment<HTMLElement> => {
+  return (node) => {
+    const getFocusableElements = (): HTMLElement[] => {
+      const selector = [
+        'a[href]',
+        'area[href]',
+        'input:not([disabled]):not([type=hidden])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        'button:not([disabled])',
+        'iframe',
+        'object',
+        'embed',
+        '[contenteditable]',
+        '[tabindex]:not([tabindex="-1"])',
+      ].join(',');
 
-    return Array.from(node.querySelectorAll<HTMLElement>(selector)).filter((el) => {
-      const style = getComputedStyle(el);
-      return (
-        (el.offsetWidth > 0 || el.offsetHeight > 0 || style.visibility !== 'hidden') &&
-        el.getAttribute('aria-hidden') !== 'true'
-      );
-    });
-  };
+      return Array.from(node.querySelectorAll<HTMLElement>(selector)).filter((el) => {
+        const style = getComputedStyle(el);
+        return (
+          (el.offsetWidth > 0 || el.offsetHeight > 0 || style.visibility !== 'hidden') &&
+          el.getAttribute('aria-hidden') !== 'true'
+        );
+      });
+    };
 
-  const resolveFocusTarget = (element: string | HTMLElement | undefined, fallbackElement: HTMLElement): HTMLElement => {
-    if (!element) {
-      return fallbackElement;
-    }
-
-    if (typeof element === 'string') {
-      return node.querySelector<HTMLElement>(element) ?? fallbackElement;
-    }
-
-    return element;
-  };
-
-  const focusInitial = (): void => {
-    const all = getFocusableElements();
-    const first = all[0];
-    const fallback = resolveFocusTarget(fallbackFocus, node);
-    const target = resolveFocusTarget(initialFocus, first || fallback);
-    target.focus();
-  };
-
-  const onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key !== 'Tab') {
-      return;
-    }
-
-    const focusable = getFocusableElements();
-    if (focusable.length === 0) {
-      event.preventDefault();
-      resolveFocusTarget(fallbackFocus, node).focus();
-      return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    const active = document.activeElement as HTMLElement;
-
-    if (!node.contains(active)) {
-      event.preventDefault();
-      first.focus();
-      return;
-    }
-
-    if (event.shiftKey) {
-      if (active === first) {
-        event.preventDefault();
-        last.focus();
+    const resolveFocusTarget = (
+      element: string | HTMLElement | undefined,
+      fallbackElement: HTMLElement,
+    ): HTMLElement => {
+      if (!element) {
+        return fallbackElement;
       }
-    } else {
-      if (active === last) {
+
+      if (typeof element === 'string') {
+        return node.querySelector<HTMLElement>(element) ?? fallbackElement;
+      }
+
+      return element;
+    };
+
+    const focusInitial = (): void => {
+      const all = getFocusableElements();
+      const first = all[0];
+      const fallback = resolveFocusTarget(fallbackFocus, node);
+      const target = resolveFocusTarget(initialFocus, first || fallback);
+      target.focus();
+    };
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        resolveFocusTarget(fallbackFocus, node).focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement;
+
+      if (!node.contains(active)) {
         event.preventDefault();
         first.focus();
+        return;
       }
-    }
-  };
 
-  const onFocusIn = (event: FocusEvent): void => {
-    if (!node.contains(event.target as Node)) {
-      event.stopImmediatePropagation();
-      focusInitial();
-    }
-  };
+      if (event.shiftKey) {
+        if (active === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
 
-  node.addEventListener('keydown', onKeyDown);
-  document.addEventListener('focusin', onFocusIn);
+    const onFocusIn = (event: FocusEvent): void => {
+      if (!node.contains(event.target as Node)) {
+        event.stopImmediatePropagation();
+        focusInitial();
+      }
+    };
 
-  focusInitial();
+    node.addEventListener('keydown', onKeyDown);
+    document.addEventListener('focusin', onFocusIn);
 
-  return {
-    update(newOptions: FocusTrapOptions) {
-      initialFocus = newOptions.initialFocus;
-      fallbackFocus = newOptions.fallbackFocus;
-    },
-    destroy() {
+    focusInitial();
+
+    return () => {
       node.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('focusin', onFocusIn);
-    },
+    };
   };
 };
