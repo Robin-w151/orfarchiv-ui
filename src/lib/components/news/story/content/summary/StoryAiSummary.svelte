@@ -2,6 +2,7 @@
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Modal from '$lib/components/shared/content/Modal.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
+  import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
   import { aiModelConfigMap } from '$lib/configs/client';
   import { StoryContent } from '$lib/models/story';
@@ -58,6 +59,7 @@
     >
       {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
+        <ButtonLink class="w-max" href="/settings">Zu den Einstellungen</ButtonLink>
       {/snippet}
     </AlertBox>
   {:else if aiSummaryState.aiSummaryLoading}

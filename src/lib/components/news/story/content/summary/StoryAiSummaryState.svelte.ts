@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import type { AiServiceError } from '$lib/errors/errors';
 import { StorySummary, type StoryContent } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
 import settings from '$lib/stores/settings';
@@ -7,7 +8,8 @@ import { logger } from '$lib/utils/logger';
 import { Effect } from 'effect';
 import { get } from 'svelte/store';
 
-const messageTemplate = (storyContent: StoryContent, extended = false): string => `
+function messageTemplate(storyContent: StoryContent, extended = false): string {
+  return `
   Du bist ein hilfreicher Assistent, der präzise und informative Zusammenfassungen von Nachrichtenartikeln erstellt.
   Erstelle eine neutrale und sachliche Zusammenfassung des folgenden Textes. Die Zusammenfassung soll sich strikt an die Fakten im Text halten und keine externen Informationen oder Meinungen hinzufügen.
   Die Sprache soll immer Deutsch sein.
@@ -25,6 +27,18 @@ const messageTemplate = (storyContent: StoryContent, extended = false): string =
   ${storyContent.contentText}
   """
 `;
+}
+
+function errorMessage(error: AiServiceError): string {
+  switch (error.type) {
+    case 'TIMEOUT':
+      return 'Das Generieren der KI-Zusammenfassung hat zu lange gedauert. Eventuell gibt es Probleme mit der Netzwerkverbindung oder das KI-Modell ist überlastet. Bitte versuchen Sie es später erneut.';
+    case 'RATE_LIMIT':
+      return 'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Möglicherweise ist nicht ausreichend Guthaben vorhanden oder es wurden in letzter Zeit zu viele Anfragen an die KI gestellt. Wechseln Sie das KI-Modell in den Einstellungen oder versuchen Sie es später erneut.';
+    default:
+      return 'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.';
+  }
+}
 
 export class StoryAiSummaryState {
   aiSummary = $state<StorySummary | undefined>(undefined);
@@ -90,11 +104,13 @@ export class StoryAiSummaryState {
     }).pipe(
       Effect.catchTag('AiServiceError', (error) =>
         Effect.sync(() => {
-          logger.errorGroup('story-summary-error', [['error', error]]);
+          logger.errorGroup('story-summary-error', [
+            ['error', error],
+            ['type', error.type],
+          ]);
           this.aiSummaryError = {
             title: 'Ein Fehler ist aufgetreten',
-            message:
-              'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
+            message: errorMessage(error),
           };
         }),
       ),

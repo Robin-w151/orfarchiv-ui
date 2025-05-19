@@ -1,4 +1,4 @@
-import { AiServiceError } from '$lib/errors/errors';
+import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule } from 'effect';
@@ -18,34 +18,48 @@ export class AiService {
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
     return Effect.gen(this, function* () {
-      const response = yield* Effect.gen(this as AiService, function* () {
-        return yield* Effect.tryPromise({
-          try: (abortSignal) => {
-            logger.infoGroup(
-              'ai-message',
-              [
-                ['message', message],
-                ['response-schema', schema],
-              ],
-              true,
-            );
-            return this.ai.chat.completions.create(
-              {
-                model: this.model,
-                messages: [{ role: 'user', content: message }],
-                response_format: zodResponseFormat(schema, 'json_object'),
-              },
-              { signal: abortSignal, maxRetries: 0 },
-            );
-          },
-          catch: (error) => new AiServiceError({ message: 'Failed to send message', cause: error }),
-        });
+      const response = yield* Effect.tryPromise({
+        try: (abortSignal) => {
+          logger.infoGroup(
+            'ai-message',
+            [
+              ['message', message],
+              ['response-schema', schema],
+            ],
+            true,
+          );
+          return this.ai.chat.completions.create(
+            {
+              model: this.model,
+              messages: [{ role: 'user', content: message }],
+              response_format: zodResponseFormat(schema, 'json_object'),
+            },
+            { signal: abortSignal, maxRetries: 0 },
+          );
+        },
+        catch: (error) => {
+          let type: AiServiceErrorType | undefined;
+          if (error instanceof OpenAI.APIError) {
+            switch (error.status) {
+              case 400:
+                type = 'INVALID_REQUEST';
+                break;
+              case 429:
+                type = 'RATE_LIMIT';
+                break;
+              default:
+                break;
+            }
+          }
+
+          return new AiServiceError({ message: 'Failed to send message', type, cause: error });
+        },
       }).pipe(
-        Effect.timeout('60 seconds'),
-        Effect.retry({ times: 1, schedule: Schedule.exponential(5000) }),
+        Effect.timeout('2 minutes'),
+        Effect.retry({ times: 1, schedule: Schedule.exponential(5000).pipe(Schedule.jittered) }),
         Effect.catchTag(
           'TimeoutException',
-          (error) => new AiServiceError({ message: 'Response generation timed out', cause: error }),
+          (error) => new AiServiceError({ message: 'Response generation timed out', type: 'TIMEOUT', cause: error }),
         ),
       );
       const responseText = response?.choices[0]?.message.content;
