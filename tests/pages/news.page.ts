@@ -44,8 +44,20 @@ export class NewsPage {
     );
   }
 
+  get aiSummaryButton(): Locator {
+    return this.page.getByRole('button', { name: 'KI-Zusammenfassung' });
+  }
+
   get popover(): Locator {
     return this.page.locator('div[data-testid="popover"]');
+  }
+
+  get modal(): Locator {
+    return this.page.locator('div[data-testid="modal"]');
+  }
+
+  get modalCloseButton(): Locator {
+    return this.modal.getByRole('button', { name: 'Schließen' });
   }
 
   constructor(private readonly page: Page) {}
@@ -70,22 +82,25 @@ export class NewsPage {
     data: unknown,
     { filter, update }: { filter?: string; update?: boolean } = {},
   ): Promise<void> {
-    await this.page.route('**/api/news/search**', (route) => {
+    await this.page.route('**/api/trpc/news.search**', (route) => {
       const url = new URL(route.request().url());
-      const prevId = url.searchParams.get('prevId');
-      if (prevId && !update) {
+      const input = JSON.parse(url.searchParams.get('input') ?? '{}');
+
+      if (input.pageKey?.type === 'prev' && !update) {
         route.fulfill({
           status: 200,
-          body: JSON.stringify(newsMockEmptyUpdate),
+          body: this.toTrpcResponseData(newsMockEmptyUpdate),
         });
         return;
       }
 
-      const filterParam = url.searchParams.get('textFilter');
-      if ((!filter && !filterParam) || filter === filterParam) {
+      if (
+        (!filter && !input.searchRequestParameters.textFilter) ||
+        filter === input.searchRequestParameters.textFilter
+      ) {
         route.fulfill({
           status: 200,
-          body: JSON.stringify(data),
+          body: this.toTrpcResponseData(data),
         });
       } else {
         route.continue();
@@ -93,16 +108,25 @@ export class NewsPage {
     });
   }
 
-  async mockFetchContentApi(data: unknown): Promise<void> {
-    await this.page.route('**/api/news/content**', (route) =>
-      route.fulfill({
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }),
-    );
+  async mockFetchContentApi(data: unknown, failOnFirstTry = false): Promise<void> {
+    let firstTry = true;
+
+    await this.page.route('**/api/trpc/news.content**', (route) => {
+      if (firstTry && failOnFirstTry) {
+        route.fulfill({
+          status: 500,
+        });
+        firstTry = false;
+      } else {
+        route.fulfill({
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: this.toTrpcResponseData(data),
+        });
+      }
+    });
   }
 
   async visitSite(): Promise<void> {
@@ -118,11 +142,11 @@ export class NewsPage {
   }
 
   async waitForSearch(): Promise<void> {
-    await this.page.waitForResponse(/\/api\/news\/search/i);
+    await this.page.waitForResponse(/\/api\/trpc\/news.search/i);
   }
 
   async waitForStoryContent(): Promise<void> {
-    await this.page.waitForResponse(/\/api\/news\/content/i);
+    await this.page.waitForResponse(/\/api\/trpc\/news.content/i);
   }
 
   async searchNews(textFilter: string): Promise<void> {
@@ -158,5 +182,13 @@ export class NewsPage {
   async toggleStoryContent(index: number): Promise<void> {
     const storyHeader = this.getNewsListItem(index).locator('header');
     await storyHeader.click();
+  }
+
+  private toTrpcResponseData(data: unknown): string {
+    return JSON.stringify({
+      result: {
+        data,
+      },
+    });
   }
 }

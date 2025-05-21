@@ -50,7 +50,7 @@ function setupMessageListener(): void {
 function generateRouteConfig(): Array<RouteConfig> {
   return [
     {
-      capture: /\/api\/news\/search(\?.*)?$/,
+      capture: /\/api\/trpc\/news\.search(\?.*)?$/,
       handler: new NetworkFirst({
         cacheName: 'api-news-search',
         plugins: [new ExpirationPlugin({ maxEntries: 64 }), fallbackResponsePlugin({ stories: [] })],
@@ -58,14 +58,14 @@ function generateRouteConfig(): Array<RouteConfig> {
       }),
     },
     {
-      capture: /\/api\/news\/search\/updates(\?.*)?$/,
+      capture: /\/api\/trpc\/news\.checkUpdates(\?.*)?$/,
       handler: new NetworkOnly({
         plugins: [fallbackResponsePlugin({ updateAvailable: false })],
         networkTimeoutSeconds,
       }),
     },
     {
-      capture: /\/api\/news\/content(\?.*)?$/,
+      capture: /\/api\/trpc\/news\.content(\?.*)?$/,
       handler: new NetworkFirst({
         cacheName: 'api-news-content',
         plugins: [new ExpirationPlugin({ maxEntries: 256 })],
@@ -77,7 +77,12 @@ function generateRouteConfig(): Array<RouteConfig> {
 
 function fallbackResponsePlugin<T>(data: T): WorkboxPlugin {
   return {
-    handlerDidError: async () => json(data),
+    handlerDidError: async () =>
+      json({
+        result: {
+          data,
+        },
+      }),
   };
 }
 

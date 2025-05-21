@@ -219,6 +219,35 @@ test.describe('NewsPage', () => {
       await newsPage.toggleStoryContent(storyIndex);
       await expect(storyContent).not.toBeVisible();
     });
+
+    test('retry on error', async ({ newsPage }) => {
+      await newsPage.mockFetchContentApi(contentMock, true);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const storyContent = newsPage.getStoryContent(storyIndex);
+      await expect(storyContent).toContainText(contentMockText);
+    });
+
+    test('ai summary error', async ({ newsPage, settingsPage }) => {
+      const enableAiSummary = settingsPage.getListSectionInput(
+        'Künstliche Intelligenz',
+        'KI-Zusammenfassung aktivieren',
+      );
+      await expect(enableAiSummary).not.toBeChecked();
+      await enableAiSummary.click();
+
+      await newsPage.visitSite();
+      await newsPage.mockFetchContentApi(contentMock);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+      await newsPage.aiSummaryButton.click();
+
+      await expect(newsPage.modal).toContainText('Kein API-Key hinterlegt');
+      await expect(newsPage.modal).toContainText('Es ist kein API-Key für die AI Zusammenfassung hinterlegt.');
+    });
   });
 });
 

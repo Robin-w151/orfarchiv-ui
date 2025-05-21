@@ -1,19 +1,21 @@
-import { fetchContent } from '$lib/api/news';
 import type { Bookmarks } from '$lib/models/bookmarks';
 import type { News, NewsBucket } from '$lib/models/news';
-import type { Story } from '$lib/models/story';
+import type { Story, StoryContent } from '$lib/models/story';
 import { DateTime } from 'luxon';
 import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
 import { logger } from '$lib/utils/logger';
+import type { Request } from '$lib/models/request';
 
 export interface NewsStore extends Readable<News>, Partial<News> {
   setNews: (news: News, newNews?: News) => void;
   addNews: (news: News, append?: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   taskWithLoading: (handler: () => void | Promise<void>) => Promise<void>;
-  cacheForOfflineUse: () => Promise<void>;
+  cacheForOfflineUse: (
+    fetchContent: (url: string, fetchReadMoreContent: boolean) => Request<StoryContent>,
+  ) => Promise<void>;
 }
 
 const initialState = { stories: [], isLoading: true };
@@ -71,13 +73,15 @@ async function taskWithLoading(handler: () => void | Promise<void>): Promise<voi
   }
 }
 
-async function cacheForOfflineUse(): Promise<void> {
+async function cacheForOfflineUse(
+  fetchContent: (url: string, fetchReadMoreContent: boolean) => Request<StoryContent>,
+): Promise<void> {
   const fetchReadMoreContentPreference = get(settings).fetchReadMoreContent;
   const stories = get(news).stories.slice(0, 100);
   await Promise.allSettled(
     stories.map((story) => {
       const fetchReadMoreContent = fetchReadMoreContentPreference && story.source === 'news';
-      return fetchContent(story.url, fetchReadMoreContent);
+      return fetchContent(story.url, fetchReadMoreContent).request;
     }),
   );
 }

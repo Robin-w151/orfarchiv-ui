@@ -2,7 +2,7 @@ import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 import createDOMPurify, { type WindowLike } from 'dompurify';
 import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
-import { isOrfStoryUrl } from '$lib/backend/utils/urls';
+import { isOrfStoryUrl } from '$lib/utils/urls';
 import type { StoryContent, StorySource } from '$lib/models/story';
 import { searchStory } from '$lib/backend/db/news';
 import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
@@ -45,6 +45,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   removePrintWarnings(document);
   removeVideo(document);
   removeMoreToReadSection(document);
+  await removeCharts(document, currentUrl);
   const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
   if (!optimizedContent) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
@@ -57,6 +58,7 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   injectSlideShowImages(optimizedDocument, originalDocument);
   injectStoryFooter(optimizedDocument, originalDocument);
   adjustAnchorTags(optimizedDocument);
+  adjustLists(optimizedDocument);
   adjustTables(optimizedDocument);
 
   const storySource = source ? ({ name: source, url: currentUrl } satisfies StorySource) : undefined;
@@ -121,6 +123,40 @@ function removeVideo(document: Document): void {
 function removeMoreToReadSection(document: Document): void {
   document.querySelectorAll('#more-to-read').forEach((element) => {
     element.remove();
+  });
+}
+
+async function removeCharts(document: Document, url: string): Promise<void> {
+  const charts: Array<[Element, any]> = await Promise.all(
+    [...document.querySelectorAll('div.embed.migsys')].map((chart) => {
+      const dataMigUrl = chart.querySelector('div.migsys')?.getAttribute('data-mig-url');
+      return (async () => {
+        if (!dataMigUrl) {
+          return [chart, undefined];
+        }
+
+        try {
+          const response = await fetch(`${dataMigUrl}/config.json`);
+          if (!response.ok) {
+            return [chart, undefined];
+          }
+
+          const data = await response.json();
+          return [chart, data];
+        } catch (error: unknown) {
+          logger.warn(`Error fetching chart data from url='${dataMigUrl}/config.json'. Error: ${error}`);
+          return [chart, undefined];
+        }
+      })();
+    }),
+  );
+
+  charts.forEach(([chart, data]) => {
+    const placeholderAnchor = document.createElement('a');
+    placeholderAnchor.href = url;
+    placeholderAnchor.textContent = `Grafik zu „${data?.title?.trim() ?? 'unbekannt'}“`;
+
+    chart.replaceWith(placeholderAnchor);
   });
 }
 
@@ -192,6 +228,14 @@ function adjustAnchorTags(optimizedDocument: Document): void {
   optimizedDocument.querySelectorAll('a').forEach((anchor) => {
     anchor.target = '_blank';
     anchor.rel = 'noopener noreferrer';
+  });
+}
+
+function adjustLists(optimizedDocument: Document): void {
+  optimizedDocument.querySelectorAll('li').forEach((li) => {
+    if (!li.innerHTML) {
+      li.remove();
+    }
   });
 }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StoryImageViewer from '$lib/components/news/story/content/StoryImageViewer.svelte';
+  import StoryImageViewer from '$lib/components/news/story/content/image/StoryImageViewer.svelte';
   import type { StoryImage } from '$lib/models/story';
 
   let images: Array<StoryImage> = [

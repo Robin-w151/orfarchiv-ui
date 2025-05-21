@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { fetchInfo } from '$lib/api/info';
+  import { InfoApi } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
+  import { setAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { setReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import { logger } from '$lib/utils/logger';
   import { defaultScreenSize } from '$lib/utils/styles';
   import { onMount, type Snippet } from 'svelte';
@@ -22,6 +25,12 @@
 
   let { children }: Props = $props();
 
+  setReducedMotionStore();
+  setSkeletonStore();
+  setAudioStore();
+
+  const infoApi = new InfoApi();
+
   const wrapperClass = `
     flex flex-col gap-2 lg:gap-3
     p-2 pb-20 lg:p-4 lg:pb-20
@@ -40,7 +49,7 @@
 
   async function checkApiVersion(): Promise<void> {
     try {
-      const { apiVersion } = await fetchInfo();
+      const { apiVersion } = await infoApi.fetchInfo();
       isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
     } catch (_error) {
       logger.warn('Could not determine current API version!');
