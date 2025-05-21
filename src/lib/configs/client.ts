@@ -49,7 +49,7 @@ export const aiModelConfigMap = new Map<AiModel, AiModelConfig>([
     { ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite', supportsThinking: false },
   ],
   [
-    'gemini-2.5-flash-preview-04-17',
+    'gemini-2.5-flash-preview-05-20',
     { ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview', supportsThinking: true },
   ],
 ]);
