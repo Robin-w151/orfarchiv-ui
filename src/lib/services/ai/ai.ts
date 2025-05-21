@@ -1,9 +1,11 @@
+import { aiModelConfigMap } from '$lib/configs/client';
 import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule } from 'effect';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
+import type { ReasoningEffort } from 'openai/resources/shared.mjs';
 import type { ZodSchema } from 'zod';
 
 export class AiService {
@@ -28,11 +30,15 @@ export class AiService {
             ],
             true,
           );
+          const reasoningEffort = aiModelConfigMap[this.model].supportsThinking
+            ? ('none' as ReasoningEffort)
+            : undefined;
           return this.ai.chat.completions.create(
             {
               model: this.model,
               messages: [{ role: 'user', content: message }],
               response_format: zodResponseFormat(schema, 'json_object'),
+              reasoning_effort: reasoningEffort,
             },
             { signal: abortSignal, maxRetries: 0 },
           );

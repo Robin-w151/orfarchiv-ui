@@ -9,3 +9,7 @@ export interface AiModelConfig {
   ref: string;
   supportsThinking: boolean;
 }
+
+export type AiModelConfigMap = {
+  [K in AiModel]: AiModelConfig;
+};

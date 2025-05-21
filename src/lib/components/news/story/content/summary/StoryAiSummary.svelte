@@ -73,7 +73,7 @@
               <Icon src={ArrowPath} class="h-4 w-4" />
             </Button>
             <span
-              >Erstellt mit KI (Modell: <Link href={aiModelConfigMap.get($settings.aiModel)!.ref} target="_blank"
+              >Erstellt mit KI (Modell: <Link href={aiModelConfigMap[$settings.aiModel].ref} target="_blank"
                 >{$settings.aiModel}</Link
               >)</span
             >

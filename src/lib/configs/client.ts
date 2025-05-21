@@ -1,4 +1,4 @@
-import type { AiModel, AiModelConfig } from '$lib/models/ai';
+import type { AiModelConfigMap } from '$lib/models/ai';
 
 // Context keys
 export const CTX_STORE = Symbol('store');
@@ -39,17 +39,17 @@ export const STORY_CONTENT_FETCH_RETRIES = 5;
 export const PAN_DISTANCE = 50;
 
 // AI
-export const aiModelConfigMap = new Map<AiModel, AiModelConfig>([
-  [
-    'gemini-2.0-flash',
-    { ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash', supportsThinking: false },
-  ],
-  [
-    'gemini-2.0-flash-lite',
-    { ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite', supportsThinking: false },
-  ],
-  [
-    'gemini-2.5-flash-preview-05-20',
-    { ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview', supportsThinking: true },
-  ],
-]);
+export const aiModelConfigMap: AiModelConfigMap = {
+  'gemini-2.0-flash': {
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash',
+    supportsThinking: false,
+  },
+  'gemini-2.0-flash-lite': {
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite',
+    supportsThinking: false,
+  },
+  'gemini-2.5-flash-preview-05-20': {
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview',
+    supportsThinking: true,
+  },
+};
