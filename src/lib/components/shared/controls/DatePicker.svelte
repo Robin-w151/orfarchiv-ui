@@ -82,6 +82,7 @@
   let inputValue = $state<string>('');
   let inputRef = $state<Input | undefined>(undefined);
   let popoverRef = $state<Popover | undefined>(undefined);
+  let datePickerRef = $state<HTMLDivElement | undefined>(undefined);
 
   const month = $derived(firstDayOfMonth.month);
   const monthName = $derived(firstDayOfMonth.monthLong);
@@ -246,6 +247,59 @@
     }
   }
 
+  function handleKeydown(event: KeyboardEvent): void {
+    if (datePickerState !== 'datePicker') {
+      return;
+    }
+
+    const currentDay = value?.isValid ? value : today;
+    let newFocusedDay: DateTime | undefined = undefined;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        newFocusedDay = currentDay.minus({ days: 1 });
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        newFocusedDay = currentDay.plus({ days: 1 });
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        newFocusedDay = currentDay.minus({ days: 7 });
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        newFocusedDay = currentDay.plus({ days: 7 });
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (!value) {
+          value = currentDay;
+          inputValue = value.toFormat('dd.MM.yyyy');
+          onchange?.(value);
+        }
+        popoverRef?.setOpen(false);
+        break;
+      case 'Escape':
+        event.preventDefault();
+        popoverRef?.setOpen(false);
+        inputRef?.focus();
+        break;
+    }
+
+    if (newFocusedDay && newFocusedDay.isValid) {
+      value = newFocusedDay;
+      inputValue = value.toFormat('dd.MM.yyyy');
+      onchange?.(value);
+
+      if (newFocusedDay.month !== month || newFocusedDay.year !== year) {
+        firstDayOfMonth = newFocusedDay.startOf('month');
+      }
+    }
+  }
+
   function setValue(newInputValue: string | undefined): void {
     if (newInputValue) {
       const date = DateTime.fromFormat(newInputValue, 'd.M.y');
@@ -329,7 +383,16 @@
   {#snippet popoverContent()}
     <PopoverContent>
       {#if datePickerState === 'datePicker'}
-        <div class={containerClass}>
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class={containerClass}
+          role="application"
+          aria-label="Datumsauswahl mit Pfeiltasten navigieren, Enter zum Auswählen"
+          tabindex="0"
+          onkeydown={handleKeydown}
+          bind:this={datePickerRef}
+        >
           <div class={headerClass}>
             <button class={roundButtonClass} title="Vorheriger Monat" onclick={handlePreviousMonthClick}>
               <Icon src={ChevronLeft} theme="outlined" class="size-6" />
