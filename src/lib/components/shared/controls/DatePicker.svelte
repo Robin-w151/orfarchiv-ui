@@ -252,7 +252,14 @@
       return;
     }
 
-    const currentDay = value?.isValid ? value : today;
+    let currentDay: DateTime;
+    if (value?.isValid) {
+      currentDay = value;
+    } else if (today.month === firstDayOfMonth.month && today.year === firstDayOfMonth.year) {
+      currentDay = today;
+    } else {
+      currentDay = firstDayOfMonth;
+    }
     let newFocusedDay: DateTime | undefined = undefined;
 
     switch (event.key) {
@@ -297,6 +304,12 @@
       if (newFocusedDay.month !== month || newFocusedDay.year !== year) {
         firstDayOfMonth = newFocusedDay.startOf('month');
       }
+    }
+  }
+
+  function handleDatePickerHeaderKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.stopPropagation();
     }
   }
 
@@ -393,7 +406,8 @@
           onkeydown={handleKeydown}
           bind:this={datePickerRef}
         >
-          <div class={headerClass}>
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class={headerClass} onkeydown={handleDatePickerHeaderKeydown}>
             <button class={roundButtonClass} title="Vorheriger Monat" onclick={handlePreviousMonthClick}>
               <Icon src={ChevronLeft} theme="outlined" class="size-6" />
             </button>
