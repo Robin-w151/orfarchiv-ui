@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { STYLES_STORE_NAME } from '$lib/configs/client';
-import { persisted } from 'svelte-local-storage-store';
+import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
 
 export type ColorScheme = 'light' | 'dark' | 'system';
