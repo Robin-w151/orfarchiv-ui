@@ -22,17 +22,21 @@ export class AiService {
     return Effect.gen(this, function* () {
       const response = yield* Effect.tryPromise({
         try: (abortSignal) => {
+          const reasoningEffort = aiModelConfigMap[this.model].supportsThinking
+            ? ('none' as ReasoningEffort)
+            : undefined;
+
           logger.infoGroup(
             'ai-message',
             [
+              ['model', this.model],
+              ['reasoning-effort', reasoningEffort],
               ['message', message],
               ['response-schema', schema],
             ],
             true,
           );
-          const reasoningEffort = aiModelConfigMap[this.model].supportsThinking
-            ? ('none' as ReasoningEffort)
-            : undefined;
+
           return this.ai.chat.completions.create(
             {
               model: this.model,
@@ -68,8 +72,8 @@ export class AiService {
           (error) => new AiServiceError({ message: 'Response generation timed out', type: 'TIMEOUT', cause: error }),
         ),
       );
-      const responseText = response?.choices[0]?.message.content;
 
+      const responseText = response?.choices[0]?.message.content;
       if (!responseText) {
         return yield* Effect.fail(new AiServiceError({ message: 'No response from AI' }));
       }
@@ -86,7 +90,16 @@ export class AiService {
 
       if (parsedResponse && validationResponse.success) {
         yield* Effect.sync(() => {
-          logger.infoGroup('ai-message-response', [['response', validationResponse.data]], true);
+          logger.infoGroup(
+            'ai-message-response',
+            [
+              ['response', validationResponse.data],
+              ['total-tokens', response.usage?.total_tokens],
+              ['prompt-tokens', response.usage?.prompt_tokens],
+              ['completion-tokens', response.usage?.completion_tokens],
+            ],
+            true,
+          );
         });
         return validationResponse.data;
       } else {
