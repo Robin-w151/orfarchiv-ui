@@ -401,6 +401,7 @@
           class={containerClass}
           role="application"
           aria-label="Datumsauswahl mit Pfeiltasten navigieren, Enter zum Auswählen"
+          aria-roledescription="calendar"
           tabindex="0"
           onkeydown={handleKeydown}
         >
