@@ -246,6 +246,72 @@
     }
   }
 
+  function handleKeydown(event: KeyboardEvent): void {
+    if (datePickerState !== 'datePicker') {
+      return;
+    }
+
+    let currentDay: DateTime;
+    if (value?.isValid) {
+      currentDay = value;
+    } else if (today.month === firstDayOfMonth.month && today.year === firstDayOfMonth.year) {
+      currentDay = today;
+    } else {
+      currentDay = firstDayOfMonth;
+    }
+    let newFocusedDay: DateTime | undefined = undefined;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        newFocusedDay = currentDay.minus({ days: 1 });
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        newFocusedDay = currentDay.plus({ days: 1 });
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        newFocusedDay = currentDay.minus({ days: 7 });
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        newFocusedDay = currentDay.plus({ days: 7 });
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (!value) {
+          value = currentDay;
+          inputValue = value.toFormat('dd.MM.yyyy');
+          onchange?.(value);
+        }
+        popoverRef?.setOpen(false);
+        break;
+      case 'Escape':
+        event.preventDefault();
+        popoverRef?.setOpen(false);
+        inputRef?.focus();
+        break;
+    }
+
+    if (newFocusedDay && newFocusedDay.isValid) {
+      value = newFocusedDay;
+      inputValue = value.toFormat('dd.MM.yyyy');
+      onchange?.(value);
+
+      if (newFocusedDay.month !== month || newFocusedDay.year !== year) {
+        firstDayOfMonth = newFocusedDay.startOf('month');
+      }
+    }
+  }
+
+  function handleDatePickerHeaderKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.stopPropagation();
+    }
+  }
+
   function setValue(newInputValue: string | undefined): void {
     if (newInputValue) {
       const date = DateTime.fromFormat(newInputValue, 'd.M.y');
@@ -329,8 +395,18 @@
   {#snippet popoverContent()}
     <PopoverContent>
       {#if datePickerState === 'datePicker'}
-        <div class={containerClass}>
-          <div class={headerClass}>
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class={containerClass}
+          role="application"
+          aria-label="Datumsauswahl mit Pfeiltasten navigieren, Enter zum Auswählen"
+          aria-roledescription="calendar"
+          tabindex="0"
+          onkeydown={handleKeydown}
+        >
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class={headerClass} onkeydown={handleDatePickerHeaderKeydown}>
             <button class={roundButtonClass} title="Vorheriger Monat" onclick={handlePreviousMonthClick}>
               <Icon src={ChevronLeft} theme="outlined" class="size-6" />
             </button>
