@@ -82,7 +82,6 @@
   let inputValue = $state<string>('');
   let inputRef = $state<Input | undefined>(undefined);
   let popoverRef = $state<Popover | undefined>(undefined);
-  let datePickerRef = $state<HTMLDivElement | undefined>(undefined);
 
   const month = $derived(firstDayOfMonth.month);
   const monthName = $derived(firstDayOfMonth.monthLong);
@@ -404,7 +403,6 @@
           aria-label="Datumsauswahl mit Pfeiltasten navigieren, Enter zum Auswählen"
           tabindex="0"
           onkeydown={handleKeydown}
-          bind:this={datePickerRef}
         >
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div class={headerClass} onkeydown={handleDatePickerHeaderKeydown}>
