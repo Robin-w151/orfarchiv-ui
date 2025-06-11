@@ -124,8 +124,7 @@
 
   function handleContentChange(ref?: HTMLElement): void {
     const images = findAllImages(ref);
-
-    storyImages = Array.from(images.entries()).map(([image, meta]) => {
+    const newStoryImages = Array.from(images.entries()).map(([image, meta]) => {
       const storyImage = {
         src: meta?.source?.srcset ?? image.src,
         alt: image.alt,
@@ -144,13 +143,15 @@
       });
       return storyImage;
     });
+
+    storyImages = deduplicateStoryImages(newStoryImages);
   }
 
   function handleImageClose(): void {
     activeStoryImage = undefined;
   }
 
-  async function handleGenerateAiSummary(): Promise<void> {
+  function handleGenerateAiSummary(): void {
     if (!storyContent?.contentText) {
       return;
     }
@@ -158,7 +159,7 @@
     showAiSummary = true;
   }
 
-  async function handleAiSummaryClose(): Promise<void> {
+  function handleAiSummaryClose(): void {
     showAiSummary = false;
   }
 
@@ -193,8 +194,16 @@
     return images;
   }
 
-  function findLargestSource(sources: Array<HTMLSourceElement>): HTMLSourceElement {
+  function findLargestSource(sources: Array<HTMLSourceElement>): HTMLSourceElement | undefined {
+    if (sources.length === 0) {
+      return undefined;
+    }
+
     return sources.toSorted((a, b) => b.width - a.width)[0];
+  }
+
+  function deduplicateStoryImages(images: Array<StoryImage>): Array<StoryImage> {
+    return [...new Map(images.map((image) => [image.src, image])).values()];
   }
 
   function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
