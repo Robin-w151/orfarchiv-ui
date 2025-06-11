@@ -3,7 +3,7 @@ import { SETTINGS_STORE_NAME } from '$lib/configs/client';
 import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
-import { persisted } from 'svelte-local-storage-store';
+import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
 
 export interface SettingsStore extends Readable<Settings> {
