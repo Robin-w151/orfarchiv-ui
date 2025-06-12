@@ -80,15 +80,12 @@
           </p>
         </div>
         <h1>{aiSummaryState.aiSummary.title}</h1>
-        <ul>
+        <div>
           {#each aiSummaryState.aiSummary.points as point, index (index)}
-            <li>
-              <strong>{point.title}</strong>: <span>{point.text}</span>
-            </li>
+            <h2>{point.title}</h2>
+            <p>{point.text}</p>
           {/each}
-        </ul>
-        <h2>Zusammenfassung</h2>
-        <p>{aiSummaryState.aiSummary.summary}</p>
+        </div>
       </article>
     </div>
   {/if}

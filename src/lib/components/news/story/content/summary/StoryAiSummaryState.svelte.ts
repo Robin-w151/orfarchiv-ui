@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { STORY_SUMMARY_EXTENDED_WORD_LIMIT } from '$lib/configs/client';
 import type { AiServiceError } from '$lib/errors/errors';
 import { StorySummary, type StoryContent } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
@@ -10,17 +11,24 @@ import { get } from 'svelte/store';
 
 function messageTemplate(storyContent: StoryContent, extended = false): string {
   return `
-  Du bist ein hilfreicher Assistent, der präzise und informative Zusammenfassungen von Nachrichtenartikeln erstellt.
-  Erstelle eine neutrale und sachliche Zusammenfassung des folgenden Textes. Die Zusammenfassung soll sich strikt an die Fakten im Text halten und keine externen Informationen oder Meinungen hinzufügen.
-  Die Sprache soll immer Deutsch sein.
+  Du bist ein erfahrener Nachrichtenredakteur und Analyst, spezialisiert auf die Erstellung präziser, unvoreingenommener und faktenbasierter Zusammenfassungen.
+  Dein Ziel ist es, den folgenden Nachrichtenartikel objektiv und wertungsfrei zusammenzufassen.
+  Konzentriere dich ausschließlich auf die im Text präsentierten Informationen.
 
-  **Anweisungen:**
-  1.  **Titel:** Gib der Zusammenfassung einen kurzen, prägnanten Titel, der den Hauptinhalt des Artikels widerspiegelt.
-  2.  **Wichtige Punkte:** Liste die ${extended ? 5 : 3} wichtigsten Kernaussagen des Textes als Stichpunkte auf. Jeder Punkt sollte eine klare Aussage sein.
-  3.  **Zusammenfassung:** Schreibe eine Fliesstext-Zusammenfassung.
-      *   Länge: Ungefähr ${extended ? '15' : '5'} Sätze. Die Gesamtlänge der Zusammenfassung (inklusive Titel und Stichpunkte) darf 25% der Länge des Originaltextes nicht überschreiten.
-      *   Inhalt: Fasse die Hauptinformationen des Artikels zusammen.
-      *   Stil: Neutral, objektiv und informativ. Verwende die gleiche Sprache wie der Originaltext.
+  **Anweisungen für die Ausgabe:**
+  1.  **Titel:** Erstelle einen kurzen, prägnanten Titel (maximal 10 Wörter), der den Kern des Artikels erfasst.
+  2.  **Kernaussagen in Stichpunkten:** Fasse die wichtigsten Informationen in ${extended ? '5' : '3'} separaten Stichpunkten zusammen.
+      *   **Aussagentitel:** Jeder Stichpunkt beginnt mit einem Titel von maximal 5 Wörtern.
+      *   **Aussage:** Fasse die jeweilige Kernaussage in 2 bis 5 vollständigen, aber kurzen Sätzen zusammen. Formuliere klar und verständlich.
+  3.  **Stil und Sprache:**
+      *   **Sprache:** Die Ausgabe muss immer auf Deutsch sein.
+      *   **Tonalität:** Der Stil muss neutral, sachlich und informativ sein. Übernimm die formelle Tonalität des Originaltextes, aber vermeide Umgangssprache oder subjektive Formulierungen.
+
+  **Was strikt zu vermeiden ist:**
+  *   Externe Informationen, die nicht im Originaltext enthalten sind.
+  *   Persönliche Meinungen, Interpretationen oder Wertungen.
+  *   Spekulationen über Motive oder zukünftige Entwicklungen, die nicht explizit im Text genannt werden.
+  *   Wörtliche Zitate, es sei denn, sie sind für das Verständnis unerlässlich und werden klar als Zitat gekennzeichnet.
 
   **Originaltext:**
   """
@@ -94,7 +102,7 @@ export class StoryAiSummaryState {
       });
 
       const messageWords = yield* aiService.countWords(storyContent.contentText);
-      const message = messageTemplate(storyContent, (messageWords ?? 0) > 400);
+      const message = messageTemplate(storyContent, this.isExtended(messageWords));
 
       const summary = yield* aiService.sendMessage(message, StorySummary);
 
@@ -124,5 +132,9 @@ export class StoryAiSummaryState {
 
     const { cancel } = runEffect(effect);
     this.aiSummaryCancel = cancel;
+  };
+
+  private isExtended = (messageWords: number | undefined): boolean => {
+    return (messageWords ?? 0) > STORY_SUMMARY_EXTENDED_WORD_LIMIT;
   };
 }
