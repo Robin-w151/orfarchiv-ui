@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/utils/focusTrap';
   import { rollFade } from '$lib/utils/transitions';
   import type { Snippet } from 'svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
-  import { focusTrap } from '$lib/utils/focusTrap';
 
   interface Props {
     class?: string;

@@ -118,6 +118,7 @@ export const focusTrap = ({
       }
     };
 
+    node.tabIndex = node.tabIndex ?? -1;
     node.addEventListener('keydown', onKeyDown);
     document.addEventListener('focusin', onFocusIn);
 
