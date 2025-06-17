@@ -57,6 +57,5 @@ export const StorySummary = z.object({
       text: z.string(),
     }),
   ),
-  summary: z.string(),
 });
 export type StorySummary = z.infer<typeof StorySummary>;

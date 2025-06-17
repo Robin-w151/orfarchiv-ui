@@ -67,6 +67,12 @@ class AudioStore implements AudioStoreInterface {
       rate: 1.2,
       volume: this.volume,
     };
+    logger.infoGroup('audio-read', [
+      ['story', newStory],
+      ['text', newText],
+      ['utterance', this.utterance],
+    ]);
+
     EasySpeech.speak(this.utterance);
   };
 
@@ -76,8 +82,14 @@ class AudioStore implements AudioStoreInterface {
     }
 
     this.isPlaying = true;
-
-    console.log('play', this.speechSynthesis?.speaking, this.utterance);
+    logger.infoGroup(
+      'audio-play',
+      [
+        ['story', $state.snapshot(this.story)],
+        ['utterance', this.utterance],
+      ],
+      true,
+    );
 
     if (!this.speechSynthesis?.speaking && this.utterance) {
       EasySpeech.speak(this.utterance);
@@ -96,18 +108,34 @@ class AudioStore implements AudioStoreInterface {
     }
 
     this.isPlaying = true;
+    logger.infoGroup(
+      'audio-play-from-start',
+      [
+        ['story', $state.snapshot(this.story)],
+        ['utterance', this.utterance],
+      ],
+      true,
+    );
+
     EasySpeech.cancel();
     EasySpeech.speak(this.utterance);
   };
 
   pause = (): void => {
-    console.log('pause', this.isAvailable, this.speechSynthesis?.speaking, this.utterance);
-
     if (!this.isAvailable) {
       return;
     }
 
     this.isPlaying = false;
+    logger.infoGroup(
+      'audio-pause',
+      [
+        ['story', $state.snapshot(this.story)],
+        ['utterance', this.utterance],
+      ],
+      true,
+    );
+
     EasySpeech.pause();
   };
 
@@ -118,6 +146,8 @@ class AudioStore implements AudioStoreInterface {
 
     this.story = undefined;
     this.isPlaying = false;
+    logger.infoGroup('audio-end', [['utterance', this.utterance]], true);
+
     EasySpeech.cancel();
     this.utterance = undefined;
   };
@@ -127,6 +157,14 @@ class AudioStore implements AudioStoreInterface {
 
     if (this.utterance) {
       this.utterance.volume = this.volume;
+      logger.infoGroup(
+        'audio-mute',
+        [
+          ['story', $state.snapshot(this.story)],
+          ['utterance', this.utterance],
+        ],
+        true,
+      );
     }
   };
 
@@ -135,6 +173,14 @@ class AudioStore implements AudioStoreInterface {
 
     if (this.utterance) {
       this.utterance.volume = this.volume;
+      logger.infoGroup(
+        'audio-unmute',
+        [
+          ['story', $state.snapshot(this.story)],
+          ['utterance', this.utterance],
+        ],
+        true,
+      );
     }
   };
 

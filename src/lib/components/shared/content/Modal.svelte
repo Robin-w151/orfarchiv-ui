@@ -42,7 +42,6 @@
     document.documentElement.style.overflow = 'hidden';
 
     oldActiveElement = document.activeElement;
-    closeButtonRef?.focus();
   });
 
   onDestroy(() => {
@@ -81,7 +80,11 @@
   <Portal target="body">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class={[...baseBackdropClass, backdropClass]} onclick={handleBackdropClick} {@attach focusTrap()}>
+    <div
+      class={[...baseBackdropClass, backdropClass]}
+      onclick={handleBackdropClick}
+      {@attach focusTrap({ skipInitialFocus: true })}
+    >
       <AccessibleTransition
         class={[...baseModalClass, modalClass]}
         style="max-height: min(100%, 64rem);"

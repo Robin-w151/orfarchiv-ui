@@ -38,6 +38,9 @@ export const STORY_CONTENT_FETCH_RETRIES = 5;
 // StoryImageViewer
 export const PAN_DISTANCE = 50;
 
+// StoryAiSummary
+export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
+
 // AI
 export const aiModelConfigMap: AiModelConfigMap = {
   'gemini-2.0-flash': {

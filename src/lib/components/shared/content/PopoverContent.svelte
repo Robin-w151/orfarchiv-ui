@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { focusTrap } from '$lib/utils/focusTrap';
   import { rollFade } from '$lib/utils/transitions';
   import type { Snippet } from 'svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
@@ -17,6 +18,6 @@
   `);
 </script>
 
-<AccessibleTransition class={contentClass} transition={rollFade}>
+<AccessibleTransition class={contentClass} transition={rollFade} {@attach focusTrap({ skipInitialFocus: true })}>
   {@render children?.()}
 </AccessibleTransition>

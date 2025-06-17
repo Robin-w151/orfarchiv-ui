@@ -12,12 +12,22 @@ export interface FocusTrapOptions {
    * has no focusable children. Defaults to the container itself.
    */
   fallbackFocus?: string | HTMLElement;
+
+  /**
+   * If true, skips focusing any element when the trap is initially set up.
+   * Defaults to false.
+   */
+  skipInitialFocus?: boolean;
 }
 
 /**
  * Svelte attachment which traps Tab/Shift+Tab focus inside its node.
  */
-export const focusTrap = ({ initialFocus, fallbackFocus }: FocusTrapOptions = {}): Attachment<HTMLElement> => {
+export const focusTrap = ({
+  initialFocus,
+  fallbackFocus,
+  skipInitialFocus,
+}: FocusTrapOptions = {}): Attachment<HTMLElement> => {
   return (node) => {
     const getFocusableElements = (): HTMLElement[] => {
       const selector = [
@@ -108,10 +118,13 @@ export const focusTrap = ({ initialFocus, fallbackFocus }: FocusTrapOptions = {}
       }
     };
 
+    node.tabIndex = node.tabIndex ?? -1;
     node.addEventListener('keydown', onKeyDown);
     document.addEventListener('focusin', onFocusIn);
 
-    focusInitial();
+    if (!skipInitialFocus) {
+      focusInitial();
+    }
 
     return () => {
       node.removeEventListener('keydown', onKeyDown);

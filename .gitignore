@@ -6,6 +6,7 @@ node_modules
 .env.local
 .env.*.local
 
+.sonda/
 .vercel/
 /test-results/
 /playwright-report/
