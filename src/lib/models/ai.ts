@@ -11,12 +11,12 @@ export const AiModel = z.enum(AiModels);
 export type AiModel = z.infer<typeof AiModel>;
 
 export interface AiModelConfig {
-  name: string;
-  modelCode: string;
-  ref: string;
-  supportsThinking: boolean;
+  readonly name: string;
+  readonly modelCode: string;
+  readonly ref: string;
+  readonly supportsThinking: boolean;
 }
 
 export type AiModelConfigMap = {
-  [K in AiModel]: AiModelConfig;
+  readonly [K in AiModel]: AiModelConfig;
 };

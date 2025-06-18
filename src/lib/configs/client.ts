@@ -42,8 +42,8 @@ export const PAN_DISTANCE = 50;
 export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 
 // AI
-export const AI_MODEL_DEFAULT: AiModel = 'gemini-2.5-flash';
-export const AI_MODEL_CONFIG_MAP: AiModelConfigMap = {
+export const AI_MODEL_DEFAULT = 'gemini-2.5-flash' satisfies AiModel;
+export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
   'gemini-2.0-flash': {
     name: 'Gemini 2.0 Flash',
     modelCode: 'gemini-2.0-flash',
@@ -68,4 +68,4 @@ export const AI_MODEL_CONFIG_MAP: AiModelConfigMap = {
     ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite',
     supportsThinking: true,
   },
-};
+}) satisfies AiModelConfigMap;

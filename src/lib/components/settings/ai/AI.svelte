@@ -19,7 +19,8 @@
   }
 
   function handleAiModelChange(value?: string): void {
-    settings.setAiModel(AiModel.safeParse(value).success ? (value as AiModel) : AI_MODEL_DEFAULT);
+    const parsed = AiModel.safeParse(value);
+    settings.setAiModel(parsed.success ? parsed.data : AI_MODEL_DEFAULT);
   }
 
   function handleGeminiApiKeyChange(value?: string): void {

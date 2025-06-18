@@ -28,7 +28,7 @@ export class AiService {
           logger.infoGroup(
             'ai-message',
             [
-              ['model', this.model],
+              ['model', modelConfig.modelCode],
               ['reasoning-effort', reasoningEffort],
               ['message', message],
               ['response-schema', schema],
