@@ -89,12 +89,12 @@ test.describe('SettingsPage', () => {
       await checkbox.click();
 
       const model = settingsPage.getListSectionInput(sectionTitle, 'KI-Modell');
-      await expect(model).toHaveValue('gemini-2.0-flash');
+      await expect(model).toHaveValue('gemini-2.5-flash');
 
-      await model.selectOption('gemini-2.0-flash-lite');
+      await model.selectOption('gemini-2.5-flash-lite');
       await settingsPage.visitSite();
 
-      await expect(model).toHaveValue('gemini-2.0-flash-lite');
+      await expect(model).toHaveValue('gemini-2.5-flash-lite');
     });
 
     test('enter api key', async ({ settingsPage }) => {
