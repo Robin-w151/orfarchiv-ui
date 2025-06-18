@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { SETTINGS_STORE_NAME } from '$lib/configs/client';
+import { AI_MODEL_DEFAULT, SETTINGS_STORE_NAME } from '$lib/configs/client';
 import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
@@ -26,7 +26,7 @@ const initialState: Settings = {
   audioEnabled: true,
   audioVoice: undefined,
   aiSummaryEnabled: false,
-  aiModel: 'gemini-2.0-flash',
+  aiModel: AI_MODEL_DEFAULT,
   geminiApiKey: undefined,
 };
 
