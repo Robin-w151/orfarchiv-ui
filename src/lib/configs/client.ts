@@ -1,4 +1,4 @@
-import type { AiModelConfigMap } from '$lib/models/ai';
+import type { AiModel, AiModelConfigMap } from '$lib/models/ai';
 
 // Context keys
 export const CTX_STORE = Symbol('store');
@@ -42,17 +42,30 @@ export const PAN_DISTANCE = 50;
 export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 
 // AI
-export const aiModelConfigMap: AiModelConfigMap = {
+export const AI_MODEL_DEFAULT = 'gemini-2.5-flash' satisfies AiModel;
+export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
   'gemini-2.0-flash': {
+    name: 'Gemini 2.0 Flash',
+    modelCode: 'gemini-2.0-flash',
     ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash',
     supportsThinking: false,
   },
   'gemini-2.0-flash-lite': {
+    name: 'Gemini 2.0 Flash-Lite',
+    modelCode: 'gemini-2.0-flash-lite',
     ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite',
     supportsThinking: false,
   },
-  'gemini-2.5-flash-preview-05-20': {
-    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview',
+  'gemini-2.5-flash': {
+    name: 'Gemini 2.5 Flash',
+    modelCode: 'gemini-2.5-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash',
     supportsThinking: true,
   },
-};
+  'gemini-2.5-flash-lite': {
+    name: 'Gemini 2.5 Flash-Lite',
+    modelCode: 'gemini-2.5-flash-lite-preview-06-17',
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite',
+    supportsThinking: true,
+  },
+}) satisfies AiModelConfigMap;

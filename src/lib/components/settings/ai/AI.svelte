@@ -8,6 +8,7 @@
   import Label from '$lib/components/shared/controls/Label.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
   import Select from '$lib/components/shared/controls/Select.svelte';
+  import { AI_MODEL_CONFIG_MAP, AI_MODEL_DEFAULT } from '$lib/configs/client';
   import { AiModel, AiModels } from '$lib/models/ai';
   import settings from '$lib/stores/settings';
   import { Key } from '@steeze-ui/heroicons';
@@ -18,7 +19,8 @@
   }
 
   function handleAiModelChange(value?: string): void {
-    settings.setAiModel(AiModel.safeParse(value).success ? (value as AiModel) : 'gemini-2.0-flash');
+    const parsed = AiModel.safeParse(value);
+    settings.setAiModel(parsed.success ? parsed.data : AI_MODEL_DEFAULT);
   }
 
   function handleGeminiApiKeyChange(value?: string): void {
@@ -41,7 +43,7 @@
         <Label label="KI-Modell">
           <Select id="ai-model" value={$settings.aiModel} onchange={handleAiModelChange} placeholder="KI-Modell">
             {#each AiModels as model (model)}
-              <option value={model}>{model}</option>
+              <option value={model}>{AI_MODEL_CONFIG_MAP[model].name}</option>
             {/each}
           </Select>
         </Label>
