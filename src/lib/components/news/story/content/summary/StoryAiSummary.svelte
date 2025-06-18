@@ -4,7 +4,7 @@
   import Button from '$lib/components/shared/controls/Button.svelte';
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
-  import { aiModelConfigMap } from '$lib/configs/client';
+  import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
   import { StoryContent } from '$lib/models/story';
   import settings from '$lib/stores/settings';
   import { ArrowPath, ExclamationCircle } from '@steeze-ui/heroicons';
@@ -73,8 +73,8 @@
               <Icon src={ArrowPath} class="h-4 w-4" />
             </Button>
             <span
-              >Erstellt mit KI (Modell: <Link href={aiModelConfigMap[$settings.aiModel].ref} target="_blank"
-                >{$settings.aiModel}</Link
+              >Erstellt mit KI (Modell: <Link href={AI_MODEL_CONFIG_MAP[$settings.aiModel].ref} target="_blank"
+                >{AI_MODEL_CONFIG_MAP[$settings.aiModel].name}</Link
               >)</span
             >
           </p>

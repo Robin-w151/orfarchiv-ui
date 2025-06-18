@@ -1,4 +1,4 @@
-import { aiModelConfigMap } from '$lib/configs/client';
+import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
@@ -22,9 +22,8 @@ export class AiService {
     return Effect.gen(this, function* () {
       const response = yield* Effect.tryPromise({
         try: (abortSignal) => {
-          const reasoningEffort = aiModelConfigMap[this.model].supportsThinking
-            ? ('none' as ReasoningEffort)
-            : undefined;
+          const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
+          const reasoningEffort = modelConfig.supportsThinking ? ('none' as ReasoningEffort) : undefined;
 
           logger.infoGroup(
             'ai-message',
@@ -39,7 +38,7 @@ export class AiService {
 
           return this.ai.chat.completions.create(
             {
-              model: this.model,
+              model: modelConfig.modelCode,
               messages: [{ role: 'user', content: message }],
               response_format: zodResponseFormat(schema, 'json_object'),
               reasoning_effort: reasoningEffort,
