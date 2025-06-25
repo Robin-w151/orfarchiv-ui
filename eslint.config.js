@@ -1,8 +1,9 @@
 import js from '@eslint/js';
-import ts from 'typescript-eslint';
-import svelte from 'eslint-plugin-svelte';
 import prettier from 'eslint-config-prettier';
+import storybook from 'eslint-plugin-storybook';
+import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
+import ts from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
@@ -58,4 +59,5 @@ export default [
       'no-undef': 'off',
     },
   },
+  ...storybook.configs['flat/recommended'],
 ];
