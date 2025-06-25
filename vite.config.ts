@@ -5,6 +5,7 @@ import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import manifest from './src/assets/manifest';
 import { execSync } from 'child_process';
 import Sonda from 'sonda/sveltekit';
+import devtoolsJson from 'vite-plugin-devtools-json';
 
 dotenv.config({ silent: true });
 
@@ -29,6 +30,7 @@ const config = {
       },
     }),
     Sonda(),
+    devtoolsJson(),
   ],
   build: {
     sourcemap: true,
