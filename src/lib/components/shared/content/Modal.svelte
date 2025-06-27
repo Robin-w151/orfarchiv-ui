@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createCloseWatcher } from '$lib/utils/closeWatcher';
   import { focusTrap } from '$lib/utils/focusTrap';
   import { rollFade } from '$lib/utils/transitions';
   import { XMark } from '@steeze-ui/heroicons';
@@ -19,9 +20,12 @@
 
   let { label, backdropClass, modalClass, onClose, children, closeOnBackdropClick = false }: Props = $props();
 
-  let closeButtonRef: Button | undefined = $state();
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
+
+  const closeWatcher = createCloseWatcher({
+    onClose,
+  });
 
   const baseBackdropClass = [
     'flex items-center justify-center',
@@ -42,6 +46,8 @@
     document.documentElement.style.overflow = 'hidden';
 
     oldActiveElement = document.activeElement;
+
+    closeWatcher.setup();
   });
 
   onDestroy(() => {
@@ -50,6 +56,8 @@
     if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
       oldActiveElement.focus();
     }
+
+    closeWatcher.cleanup();
   });
 
   function handleCloseClick(): void {
@@ -68,8 +76,10 @@
 
   function handleKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
-      event.preventDefault();
-      onClose?.();
+      if (!closeWatcher.isActive) {
+        event.preventDefault();
+        onClose?.();
+      }
     }
   }
 </script>
@@ -96,15 +106,7 @@
         onclick={handleModalClick}
       >
         <div class={headerClass}>
-          <Button
-            btnType="secondary"
-            size="large"
-            iconOnly
-            round
-            title="Schließen"
-            bind:this={closeButtonRef}
-            onclick={handleCloseClick}
-          >
+          <Button btnType="secondary" size="large" iconOnly round title="Schließen" onclick={handleCloseClick}>
             <Icon src={XMark} theme="outlined" class="size-6 lg:size-8" />
           </Button>
         </div>

@@ -15,8 +15,9 @@
   import type { Snippet } from 'svelte';
   import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
-  import { isCloseWatcherAvailable } from '$lib/utils/support';
+  import { createCloseWatcher } from '$lib/utils/closeWatcher';
   import { onDestroy } from 'svelte';
+  import { isCloseWatcherAvailable } from '$lib/utils/support';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
@@ -64,7 +65,9 @@
 
   let open = $state(false);
 
-  let closeWatcher: CloseWatcher | undefined;
+  const closeWatcher = createCloseWatcher({
+    onClose: () => updateOpenState(false),
+  });
 
   const floating = useFloating({
     whileElementsMounted: autoUpdate,
@@ -101,7 +104,7 @@
   let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
 
   onDestroy(() => {
-    cleanupCloseWatcher();
+    closeWatcher.cleanup();
   });
 
   export function setOpen(newOpen: boolean): void {
@@ -109,45 +112,21 @@
   }
 
   function handleOpen(): void {
-    setupCloseWatcher();
+    closeWatcher.setup();
     updateOpenState(true);
   }
 
   function handleClose(): void {
-    if (closeWatcher) {
+    if (closeWatcher.isActive) {
       closeWatcher.requestClose();
     } else {
       updateOpenState(false);
     }
   }
 
-  function handleCloseWatcherClose(): void {
-    cleanupCloseWatcher();
-    updateOpenState(false);
-  }
-
   function updateOpenState(newOpen: boolean): void {
     open = newOpen;
     onVisibleChange?.(newOpen);
-  }
-
-  function setupCloseWatcher(): void {
-    cleanupCloseWatcher();
-
-    closeWatcher = getCloseWatcher();
-    closeWatcher?.addEventListener('close', handleCloseWatcherClose);
-  }
-
-  function cleanupCloseWatcher(): void {
-    if (closeWatcher) {
-      closeWatcher.removeEventListener('close', handleCloseWatcherClose);
-      closeWatcher.destroy();
-      closeWatcher = undefined;
-    }
-  }
-
-  function getCloseWatcher(): CloseWatcher | undefined {
-    return isCloseWatcherAvailable() ? new CloseWatcher() : undefined;
   }
 </script>
 
