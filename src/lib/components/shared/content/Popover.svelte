@@ -15,6 +15,8 @@
   import type { Snippet } from 'svelte';
   import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
+  import { isCloseWatcherAvailable } from '$lib/utils/support';
+  import { onDestroy } from 'svelte';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
@@ -62,14 +64,19 @@
 
   let open = $state(false);
 
+  let closeWatcher: CloseWatcher | undefined;
+
   const floating = useFloating({
     whileElementsMounted: autoUpdate,
     get open() {
       return open;
     },
     onOpenChange: (v) => {
-      open = v;
-      onVisibleChange?.(v);
+      if (v) {
+        handleOpen();
+      } else {
+        handleClose();
+      }
     },
     placement,
     get middleware() {
@@ -78,7 +85,7 @@
   });
   const role = useRole(floating.context);
   const click = useClick(floating.context, { keyboardHandlers: openOnKeyboardClick });
-  const dismiss = useDismiss(floating.context);
+  const dismiss = useDismiss(floating.context, { escapeKey: !isCloseWatcherAvailable() });
   const interactions = useInteractions(
     [
       role,
@@ -93,8 +100,54 @@
 
   let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
 
+  onDestroy(() => {
+    cleanupCloseWatcher();
+  });
+
   export function setOpen(newOpen: boolean): void {
     open = newOpen;
+  }
+
+  function handleOpen(): void {
+    setupCloseWatcher();
+    updateOpenState(true);
+  }
+
+  function handleClose(): void {
+    if (closeWatcher) {
+      closeWatcher.requestClose();
+    } else {
+      updateOpenState(false);
+    }
+  }
+
+  function handleCloseWatcherClose(): void {
+    cleanupCloseWatcher();
+    updateOpenState(false);
+  }
+
+  function updateOpenState(newOpen: boolean): void {
+    open = newOpen;
+    onVisibleChange?.(newOpen);
+  }
+
+  function setupCloseWatcher(): void {
+    cleanupCloseWatcher();
+
+    closeWatcher = getCloseWatcher();
+    closeWatcher?.addEventListener('close', handleCloseWatcherClose);
+  }
+
+  function cleanupCloseWatcher(): void {
+    if (closeWatcher) {
+      closeWatcher.removeEventListener('close', handleCloseWatcherClose);
+      closeWatcher.destroy();
+      closeWatcher = undefined;
+    }
+  }
+
+  function getCloseWatcher(): CloseWatcher | undefined {
+    return isCloseWatcherAvailable() ? new CloseWatcher() : undefined;
   }
 </script>
 
