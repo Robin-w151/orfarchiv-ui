@@ -20,22 +20,24 @@ export class AiService {
 
   sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
     return Effect.gen(this, function* () {
+      const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
+      const reasoningEffort = modelConfig.supportsThinking ? ('none' as ReasoningEffort) : undefined;
+
+      yield* Effect.sync(() => {
+        logger.infoGroup(
+          'ai-message',
+          [
+            ['model', modelConfig.modelCode],
+            ['reasoning-effort', reasoningEffort],
+            ['message', message],
+            ['response-schema', schema],
+          ],
+          true,
+        );
+      });
+
       const response = yield* Effect.tryPromise({
         try: (abortSignal) => {
-          const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
-          const reasoningEffort = modelConfig.supportsThinking ? ('none' as ReasoningEffort) : undefined;
-
-          logger.infoGroup(
-            'ai-message',
-            [
-              ['model', modelConfig.modelCode],
-              ['reasoning-effort', reasoningEffort],
-              ['message', message],
-              ['response-schema', schema],
-            ],
-            true,
-          );
-
           return this.ai.chat.completions.create(
             {
               model: modelConfig.modelCode,
