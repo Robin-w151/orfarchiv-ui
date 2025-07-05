@@ -248,6 +248,7 @@
 <div
   class={containerClass}
   role="region"
+  aria-label="Bildanzeige"
   onclick={handleContainerClick}
   onpointerdown={handleContainerPointerDown}
   {@attach focusTrap({ skipInitialFocus: true })}
