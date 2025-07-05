@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Item from '$lib/components/shared/content/Item.svelte';
   import Section from '$lib/components/shared/content/Section.svelte';
   import SectionList from '$lib/components/shared/content/SectionList.svelte';
   import SimpleItem from '$lib/components/shared/content/SimpleItem.svelte';
@@ -30,7 +31,7 @@
       />
     </SimpleItem>
     {#if $settings.audioEnabled}
-      <SimpleItem>
+      <Item>
         <Label label="Stimme für Sprachausgabe">
           <Select id="audio-voice-select" value={audioStore.voice?.voiceURI} onchange={handleVoiceChange}>
             {#each audioStore.voices as voice (voice.voiceURI)}
@@ -38,7 +39,7 @@
             {/each}
           </Select>
         </Label>
-      </SimpleItem>
+      </Item>
     {/if}
   </SectionList>
 </Section>
