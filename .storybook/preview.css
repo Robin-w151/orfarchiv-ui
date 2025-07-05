@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@config '../tailwind.config.ts';
+@plugin '@tailwindcss/forms';
+
+@layer components {
+  body {
+    @apply bg-gray-200 dark:bg-gray-700;
+  }
+}

@@ -10,24 +10,25 @@ interface Variant {
 }
 
 const layout = 'flex justify-center gap-1';
-const miscellaneous = 'disabled:shadow-none hover:shadow-lg focus:shadow-lg transition disabled:cursor-not-allowed';
+const miscellaneous =
+  'disabled:outline-none disabled:shadow-none hover:shadow-lg focus:shadow-lg transition disabled:cursor-not-allowed';
 
 const primary = {
   color: 'text-white bg-blue-700 hover:bg-blue-600 disabled:bg-gray-600',
-  outline: 'focus:outline-none focus:ring-2 ring-offset-2 ring-blue-700 disabled:ring-gray-600',
+  outline: 'focus:outline-[2.5px] outline-offset-2 outline-blue-700',
 } satisfies Variant;
 const secondary = {
   color: 'text-blue-700 disabled:text-gray-600 hover:text-fuchsia-600 disabled:bg-transparent hover:bg-gray-200',
   colorDark:
     'dark:text-blue-500 dark:disabled:text-gray-400 dark:hover:text-fuchsia-400 dark:disabled:bg-transparent dark:hover:bg-gray-700',
   outline:
-    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-none focus:ring-2 ring-blue-700 dark:ring-blue-500',
+    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-[2.5px] outline-blue-700 dark:outline-blue-500',
 } satisfies Variant;
 const monochrome = {
   color: 'text-gray-700 disabled:text-gray-600 hover:text-gray-800 disabled:bg-transparent hover:bg-gray-200',
   colorDark:
     'dark:text-gray-300 dark:disabled:bg-gray-400 dark:hover:text-gray-200 dark:disabled:bg-transparent dark:hover:bg-gray-700',
-  outline: 'focus:outline-none focus:ring-2 ring-blue-700 dark:ring-blue-500',
+  outline: 'focus:outline-[2.5px] outline-blue-700 dark:outline-blue-500',
 } satisfies Variant;
 
 const sizeClass = (size: Size, iconOnly: boolean): string =>
