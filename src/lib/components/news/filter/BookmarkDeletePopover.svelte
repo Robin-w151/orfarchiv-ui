@@ -18,7 +18,7 @@
     p-2
     text-red-700 hover:text-red-600 focus:text-red-600 hover:bg-gray-100 focus:bg-gray-100
     dark:hover:bg-gray-800 dark:focus:bg-gray-800
-    focus:outline-none
+    focus:outline-hidden
     rounded-lg cursor-pointer
     transition
   `;

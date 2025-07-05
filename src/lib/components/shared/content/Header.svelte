@@ -20,7 +20,7 @@
     text-2xl sm:text-3xl
     text-blue-700 bg-white dark:bg-gray-900
   `;
-  const headerTitleClass = 'focus:bg-blue-100 dark:focus:bg-blue-900 outline-none rounded-md';
+  const headerTitleClass = 'focus:bg-blue-100 dark:focus:bg-blue-900 outline-hidden rounded-md';
   const headerActionsClass = 'flex gap-2';
 
   let isNewsPage = $derived(page.url.pathname === '/');

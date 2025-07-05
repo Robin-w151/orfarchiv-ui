@@ -17,7 +17,7 @@
   <div class="dot-3 bg-blue-700 {dotClass}"></div>
 </div>
 
-<style lang="scss">
+<style>
   .loading-indicator {
     .dot-1 {
       animation: jump 1.6s -0.32s linear infinite;

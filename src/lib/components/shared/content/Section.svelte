@@ -25,7 +25,7 @@
     w-full h-12 sm:h-[54px] text-lg
     text-blue-700 dark:text-blue-500 bg-white/80 dark:bg-gray-900/80
     border-solid border-b-2 border-gray-200 dark:border-gray-700
-    backdrop-blur-sm
+    backdrop-blur-xs
   `;
   const contentClass = 'w-full';
 </script>

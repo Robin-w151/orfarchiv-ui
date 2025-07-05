@@ -4,7 +4,7 @@
   const skeletonStore = getSkeletonStore();
 
   const contentSkeletonClass = 'content-skeleton flex flex-col items-start w-full';
-  const contentSkeletonBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';
+  const contentSkeletonBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-xs';
   const skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
 </script>
 
@@ -14,7 +14,7 @@
   {/each}
 </div>
 
-<style lang="scss">
+<style>
   .content-skeleton {
     span {
       height: 16px;

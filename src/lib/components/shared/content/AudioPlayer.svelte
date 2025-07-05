@@ -31,7 +31,7 @@
   const minimizedPlayerClass = [
     'flex gap-2 m-1 p-3',
     'bg-gray-100/90 dark:bg-gray-600/80',
-    'rounded-md shadow-md backdrop-blur-sm',
+    'rounded-md shadow-md backdrop-blur-xs',
   ];
   const windowActionsClass = ['flex justify-end gap-2'];
   const titleClass = ['flex flex-col flex-1 items-start'];

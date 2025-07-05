@@ -35,7 +35,7 @@
     !noGap && 'gap-3',
     !noPadding && defaultPadding,
     'text-gray-800 dark:text-gray-300',
-    'outline-none',
+    'outline-hidden',
     clazz,
   ]);
 

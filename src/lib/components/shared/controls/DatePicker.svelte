@@ -97,7 +97,7 @@
   const baseButtonClass = [
     'flex items-center justify-center p-2 ',
     'hover:text-fuchsia-600 hover:bg-gray-200 dark:hover:text-fuchsia-400 dark:hover:bg-gray-700',
-    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-none focus:ring-2 ring-blue-700 dark:ring-blue-500',
+    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-hidden focus:ring-2 ring-blue-700 dark:ring-blue-500',
     'transition-[background-color] duration-100',
   ];
   const buttonClass = [...baseButtonClass, 'rounded-md'];

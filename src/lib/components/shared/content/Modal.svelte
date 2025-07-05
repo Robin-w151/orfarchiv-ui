@@ -31,13 +31,13 @@
     'flex items-center justify-center',
     'fixed top-0 left-0 right-0 bottom-0 z-50',
     'p-4 sm:p-8',
-    'bg-black bg-opacity-50 backdrop-blur-sm',
+    'bg-black/50 backdrop-blur-xs',
   ];
   const baseModalClass = ['modal', 'max-w-screen-lg', 'bg-white dark:bg-gray-900', 'rounded-xl overflow-auto'];
   const headerClass = [
     'flex justify-end gap-2 sticky top-0',
     'px-4 lg:px-12 pt-4 lg:pt-12 pb-4',
-    'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm',
+    'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs',
   ];
   const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
 

@@ -3,7 +3,7 @@
 
   const skeletonStore = getSkeletonStore();
 
-  const aiSummaryLoadingBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-sm';
+  const aiSummaryLoadingBarClass = 'bg-gray-300 dark:bg-gray-600 rounded-xs';
   const skeletonAnimationClass = $derived(skeletonStore.skeletonAnimationClass);
 </script>
 

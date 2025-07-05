@@ -19,7 +19,7 @@
     ? clazz
     : `
     text-blue-800 dark:text-blue-500 dark:hover:text-blue-700 hover:bg-blue-100
-    focus:bg-blue-100 outline-none
+    focus:bg-blue-100 outline-hidden
     cursor-pointer
     ${clazz}
   `;
