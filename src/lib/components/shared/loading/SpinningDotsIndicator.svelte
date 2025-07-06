@@ -57,7 +57,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class="backdrop flex justify-center items-center fixed top-0 left-0 right-0 bottom-0 z-50 bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm"
+    class="backdrop flex justify-center items-center fixed top-0 left-0 right-0 bottom-0 z-50 bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-xs"
     role="alert"
     tabindex="0"
     bind:this={backdropRef}
@@ -77,7 +77,7 @@
   </div>
 {/if}
 
-<style lang="postcss">
+<style>
   .loading-indicator {
     animation: dot-spin 2s linear infinite;
   }

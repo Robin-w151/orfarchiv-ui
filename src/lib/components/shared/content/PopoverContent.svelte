@@ -12,7 +12,7 @@
   let { class: clazz, children }: Props = $props();
 
   let contentClass: string = $derived(`
-    bg-white dark:bg-gray-900/80 dark:backdrop-blur-sm
+    bg-white dark:bg-gray-900/80 dark:backdrop-blur-xs
     rounded-lg shadow-md dark:shadow-2xl
     ${clazz}
   `);

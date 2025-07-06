@@ -16,7 +16,7 @@
   const headerClass = `
     w-full
     focus:text-blue-700 dark:focus:text-blue-500
-    outline-none
+    outline-hidden
   `;
   const infoClass = `
     flex flex-col flex-1 items-start
@@ -27,7 +27,7 @@
     mt-1 ml-2 px-1 py-px
     text-sm
     bg-blue-700 text-white
-    rounded-sm
+    rounded-xs
   `;
 
   let headerRef: HTMLHeadElement | undefined = $state();

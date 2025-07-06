@@ -12,13 +12,13 @@
 
 <div class="spinner {spinnerClass}"></div>
 
-<style lang="postcss">
+<style>
   .spinner {
     background: conic-gradient(
       transparent 0deg,
-      theme('colors.fuchsia.600') 90deg,
-      theme('colors.violet.600') 180deg,
-      theme('colors.blue.700') 270deg,
+      var(--color-fuchsia-600) 90deg,
+      var(--color-violet-600) 180deg,
+      var(--color-blue-700) 270deg,
       transparent 355deg
     );
   }
@@ -26,9 +26,9 @@
   :global(.dark) .spinner {
     background: conic-gradient(
       transparent 0deg,
-      theme('colors.fuchsia.400') 90deg,
-      theme('colors.violet.500') 180deg,
-      theme('colors.blue.500') 270deg,
+      var(--color-fuchsia-400) 90deg,
+      var(--color-violet-500) 180deg,
+      var(--color-blue-500) 270deg,
       transparent 355deg
     );
   }
