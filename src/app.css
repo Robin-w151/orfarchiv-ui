@@ -6,6 +6,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --oa-outline-width: 2.5px;
+}
+
 @custom-variant hover (&:hover);
 
 @layer base {
