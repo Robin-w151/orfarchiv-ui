@@ -6,6 +6,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+@custom-variant hover (&:hover);
+
 @layer base {
   [type='text'],
   [type='number'],
