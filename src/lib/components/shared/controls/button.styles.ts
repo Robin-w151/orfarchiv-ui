@@ -15,20 +15,21 @@ const miscellaneous =
 
 const primary = {
   color: 'text-white bg-blue-700 hover:bg-blue-600 disabled:bg-gray-600',
-  outline: 'focus:outline-(length:--oa-outline-width) outline-offset-2 outline-blue-700',
+  outline: 'focus:outline-(length:--oa-outline-width) outline-offset-2 outline-(--oa-outline-color-light)',
 } satisfies Variant;
 const secondary = {
   color: 'text-blue-700 disabled:text-gray-600 hover:text-fuchsia-600 disabled:bg-transparent hover:bg-gray-200',
   colorDark:
     'dark:text-blue-500 dark:disabled:text-gray-400 dark:hover:text-fuchsia-400 dark:disabled:bg-transparent dark:hover:bg-gray-700',
   outline:
-    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-(length:--oa-outline-width) outline-blue-700 dark:outline-blue-500',
+    'focus:text-fuchsia-600 dark:focus:text-fuchsia-400 focus:outline-(length:--oa-outline-width) outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark)',
 } satisfies Variant;
 const monochrome = {
   color: 'text-gray-700 disabled:text-gray-600 hover:text-gray-800 disabled:bg-transparent hover:bg-gray-200',
   colorDark:
     'dark:text-gray-300 dark:disabled:bg-gray-400 dark:hover:text-gray-200 dark:disabled:bg-transparent dark:hover:bg-gray-700',
-  outline: 'focus:outline-(length:--oa-outline-width) outline-blue-700 dark:outline-blue-500',
+  outline:
+    'focus:outline-(length:--oa-outline-width) outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark)',
 } satisfies Variant;
 
 const sizeClass = (size: Size, iconOnly: boolean): string =>

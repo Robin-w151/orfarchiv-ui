@@ -7,15 +7,31 @@
 }
 
 :root {
-  --oa-outline-width: 2.5px;
+  --oa-outline-width: 2px;
+  --oa-outline-offset: 0px;
+  --oa-outline-color-light: var(--color-blue-700);
+  --oa-outline-color-dark: var(--color-blue-500);
 }
 
 @custom-variant hover (&:hover);
 
 @layer base {
   [type='text'],
+  input:where(:not([type])),
+  [type='email'],
+  [type='url'],
+  [type='password'],
   [type='number'],
-  [type='date'] {
+  [type='date'],
+  [type='datetime-local'],
+  [type='month'],
+  [type='search'],
+  [type='tel'],
+  [type='time'],
+  [type='week'],
+  [multiple],
+  textarea,
+  select {
     border: none;
   }
 }
@@ -174,5 +190,26 @@
     100% {
       transform: translateX(100%);
     }
+  }
+}
+
+@layer app {
+  [type='text'],
+  input:where(:not([type])),
+  [type='email'],
+  [type='url'],
+  [type='password'],
+  [type='number'],
+  [type='date'],
+  [type='datetime-local'],
+  [type='month'],
+  [type='search'],
+  [type='tel'],
+  [type='time'],
+  [type='week'],
+  [multiple],
+  textarea,
+  select {
+    @apply focus:ring-0 focus:ring-transparent focus:outline-solid focus:outline-(length:--oa-outline-width) outline-offset-(--oa-outline-offset) outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark);
   }
 }
