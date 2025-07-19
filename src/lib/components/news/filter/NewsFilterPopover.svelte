@@ -82,8 +82,8 @@
   {#snippet buttonContent()}
     <Icon src={Funnel} theme="outlined" class="size-6" />
   {/snippet}
-  {#snippet popoverContent(onClose)}
-    <PopoverContent class={menuClass}>
+  {#snippet popoverContent({ onClose, transformOrigin })}
+    <PopoverContent class={menuClass} {transformOrigin}>
       <section class={menuSectionClass}>
         <span class={menuSectionTitleClass}>
           <Icon src={Calendar} theme="outlined" class="size-6" />

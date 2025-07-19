@@ -18,6 +18,7 @@
   import { createCloseWatcher } from '$lib/utils/closeWatcher';
   import { onDestroy } from 'svelte';
   import { isCloseWatcherAvailable } from '$lib/utils/support';
+  import type { TransformOrigin } from '$lib/utils/transitions';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
@@ -39,7 +40,14 @@
     onVisibleChange?: (visible: boolean) => void;
     anchorContent?: Snippet<[Record<string, unknown>]>;
     buttonContent?: Snippet;
-    popoverContent?: Snippet<[() => void]>;
+    popoverContent?: Snippet<
+      [
+        {
+          onClose: () => void;
+          transformOrigin: TransformOrigin;
+        },
+      ]
+    >;
   }
 
   let {
@@ -100,8 +108,22 @@
   );
 
   const popoverContentClass = 'z-40';
+  const popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+  const transformOrigin = $derived.by(() => {
+    const currentPlacement = floating.placement;
+    const placementToOrigin: Record<string, TransformOrigin> = {
+      top: 'bottom center',
+      'top-start': 'bottom left',
+      'top-end': 'bottom right',
+      bottom: 'top center',
+      'bottom-start': 'top left',
+      'bottom-end': 'top right',
+      left: 'right center',
+      right: 'left center',
+    };
 
-  let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+    return placementToOrigin[currentPlacement] || 'top center';
+  });
 
   onDestroy(() => {
     closeWatcher.cleanup();
@@ -138,7 +160,7 @@
     {...interactions.getFloatingProps()}
     bind:this={floating.elements.floating}
   >
-    {@render popoverContent?.(() => (open = false))}
+    {@render popoverContent?.({ onClose: () => (open = false), transformOrigin })}
   </div>
 {/snippet}
 

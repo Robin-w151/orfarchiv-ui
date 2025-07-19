@@ -36,8 +36,8 @@
   {#snippet buttonContent()}
     <Icon src={Trash} theme="outlined" class="size-6" />
   {/snippet}
-  {#snippet popoverContent(onClose)}
-    <PopoverContent class={defaultMenuClass}>
+  {#snippet popoverContent({ onClose, transformOrigin })}
+    <PopoverContent class={defaultMenuClass} {transformOrigin}>
       <Button
         class={menuDeleteItemClass}
         customStyle

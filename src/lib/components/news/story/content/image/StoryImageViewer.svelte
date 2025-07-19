@@ -298,8 +298,8 @@
         <Icon src={QuestionMarkCircle} theme="outlined" class={viewerButtonIconClass} />
       </span>
     {/snippet}
-    {#snippet popoverContent()}
-      <PopoverContent>
+    {#snippet popoverContent({ transformOrigin })}
+      <PopoverContent {transformOrigin}>
         <div class={infoContainerClass}>
           <table>
             <thead>

@@ -392,8 +392,8 @@
       />
     </div>
   {/snippet}
-  {#snippet popoverContent()}
-    <PopoverContent>
+  {#snippet popoverContent({ transformOrigin })}
+    <PopoverContent {transformOrigin}>
       {#if datePickerState === 'datePicker'}
         <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

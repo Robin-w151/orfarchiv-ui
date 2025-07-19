@@ -9,6 +9,7 @@
     transitionProps?: TransitionConfig;
     onlyIn?: boolean;
     class?: string | (string | undefined)[];
+    style?: string;
     children?: Snippet;
     [key: string]: any;
   }
@@ -18,6 +19,7 @@
     transitionProps = transitionDefaults,
     onlyIn = false,
     class: clazz,
+    style,
     children,
     ...restProps
   }: Props = $props();
@@ -29,11 +31,11 @@
 </script>
 
 {#if onlyIn}
-  <div class={clazz} in:usedTransition|global={usedTransitionProps} {...restProps}>
+  <div class={clazz} {style} in:usedTransition|global={usedTransitionProps} {...restProps}>
     {@render children?.()}
   </div>
 {:else}
-  <div class={clazz} transition:usedTransition|global={usedTransitionProps} {...restProps}>
+  <div class={clazz} {style} transition:usedTransition|global={usedTransitionProps} {...restProps}>
     {@render children?.()}
   </div>
 {/if}

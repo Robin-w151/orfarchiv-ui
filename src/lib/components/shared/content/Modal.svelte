@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createCloseWatcher } from '$lib/utils/closeWatcher';
   import { focusTrap } from '$lib/utils/focusTrap';
-  import { rollFade } from '$lib/utils/transitions';
+  import { scaleFade } from '$lib/utils/transitions';
   import { XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount, type Snippet } from 'svelte';
@@ -98,7 +98,7 @@
       <AccessibleTransition
         class={[...baseModalClass, modalClass]}
         style="max-height: min(100%, 64rem);"
-        transition={rollFade}
+        transition={scaleFade}
         role="dialog"
         aria-modal="true"
         aria-label={label}
