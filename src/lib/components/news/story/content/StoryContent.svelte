@@ -24,6 +24,7 @@
   import StoryAiSummary from './summary/StoryAiSummary.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './image/StoryImageViewer.svelte';
+  import { SvelteMap } from 'svelte/reactivity';
 
   interface Props {
     story: Story;
@@ -176,8 +177,8 @@
     audioStore.read(story, storyContent.contentText);
   }
 
-  function findAllImages(ref?: HTMLElement): Map<HTMLImageElement, ImageMeta> {
-    const images = new Map<HTMLImageElement, ImageMeta>();
+  function findAllImages(ref?: HTMLElement): SvelteMap<HTMLImageElement, ImageMeta> {
+    const images = new SvelteMap<HTMLImageElement, ImageMeta>();
     for (const picture of querySelectorAll(ref, 'picture')) {
       const image = picture.querySelector('img');
       if (image) {
