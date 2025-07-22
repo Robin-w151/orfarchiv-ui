@@ -4,8 +4,8 @@ export const Story = z.object({
   id: z.string(),
   title: z.string(),
   category: z.string(),
-  url: z.string().url(),
-  timestamp: z.string().datetime({ offset: true }),
+  url: z.url(),
+  timestamp: z.iso.datetime({ offset: true }),
   source: z.string(),
   // Flags MUST be of type number to allow querying with IndexedDB
   isBookmarked: z.number().optional(),
@@ -25,7 +25,7 @@ export interface StoryEntity {
 
 export const StorySource = z.object({
   name: z.string(),
-  url: z.string().url(),
+  url: z.url(),
 });
 export type StorySource = z.infer<typeof StorySource>;
 
@@ -33,7 +33,7 @@ export const StoryContent = z.object({
   content: z.string(),
   contentText: z.string(),
   id: z.string().optional(),
-  timestamp: z.string().datetime({ offset: true }).optional(),
+  timestamp: z.iso.datetime({ offset: true }).optional(),
   source: StorySource.optional(),
 });
 export type StoryContent = z.infer<typeof StoryContent>;

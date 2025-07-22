@@ -7,7 +7,7 @@ import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import type { TRPCClient } from '@trpc/client';
 import { v4 as uuid } from 'uuid';
-import type { ZodSchema } from 'zod';
+import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
 
 const searchNewsRequest = 'search-news-controller';
@@ -95,7 +95,7 @@ export class NewsApi {
   private async makeRequest<T, I extends RequestId | undefined>(
     request: (abortController: RequestController<I>) => Promise<T>,
     requestId: I,
-    schema: ZodSchema<T>,
+    schema: ZodType<T>,
   ): Promise<T> {
     let abortController: AbortController | undefined;
 

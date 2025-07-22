@@ -34,7 +34,7 @@ const news = {
   content: publicProcedure
     .input(
       z.object({
-        url: z.string().url().refine(isOrfUrl, { message: 'URL is not a valid ORF URL' }),
+        url: z.url().refine(isOrfUrl, { message: 'URL is not a valid ORF URL' }),
         fetchReadMoreContent: z.boolean().optional(),
       }),
     )

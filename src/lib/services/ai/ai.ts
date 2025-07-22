@@ -4,9 +4,9 @@ import type { AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule } from 'effect';
 import OpenAI from 'openai';
-import { zodResponseFormat } from 'openai/helpers/zod';
-import type { ReasoningEffort } from 'openai/resources/shared.mjs';
-import type { ZodSchema } from 'zod';
+import { makeParseableResponseFormat, type AutoParseableResponseFormat } from 'openai/lib/parser';
+import type { ReasoningEffort, ResponseFormatJSONSchema } from 'openai/resources';
+import { z, type ZodType } from 'zod';
 
 export class AiService {
   private ai: OpenAI;
@@ -18,7 +18,7 @@ export class AiService {
     this.ai = this.newClient();
   }
 
-  sendMessage<T>(message: string, schema: ZodSchema<T>): Effect.Effect<T, AiServiceError> {
+  sendMessage<T>(message: string, schema: ZodType<T>): Effect.Effect<T, AiServiceError> {
     return Effect.gen(this, function* () {
       const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
       const reasoningEffort = modelConfig.supportsThinking ? ('none' as ReasoningEffort) : undefined;
@@ -42,7 +42,7 @@ export class AiService {
             {
               model: modelConfig.modelCode,
               messages: [{ role: 'user', content: message }],
-              response_format: zodResponseFormat(schema, 'json_object'),
+              response_format: this.zodResponseFormat(schema, 'json_object'),
               reasoning_effort: reasoningEffort,
             },
             { signal: abortSignal, maxRetries: 0 },
@@ -137,5 +137,24 @@ export class AiService {
         'x-stainless-timeout': null,
       },
     });
+  }
+
+  private zodResponseFormat<ZodInput extends ZodType>(
+    zodObject: ZodInput,
+    name: string,
+    props?: Omit<ResponseFormatJSONSchema.JSONSchema, 'schema' | 'strict' | 'name'>,
+  ): AutoParseableResponseFormat<z.infer<ZodInput>> {
+    return makeParseableResponseFormat(
+      {
+        type: 'json_schema',
+        json_schema: {
+          ...props,
+          name,
+          strict: true,
+          schema: z.toJSONSchema(zodObject, { target: 'draft-7' }),
+        },
+      },
+      (content) => zodObject.parse(JSON.parse(content)),
+    );
   }
 }
