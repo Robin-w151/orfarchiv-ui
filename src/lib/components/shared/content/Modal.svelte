@@ -88,9 +88,7 @@
 
 {#if children}
   <Portal target="body">
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
+    <AccessibleTransition
       class={[...baseBackdropClass, backdropClass]}
       onclick={handleBackdropClick}
       {@attach focusTrap({ skipInitialFocus: true })}
@@ -114,6 +112,6 @@
           {@render children?.()}
         </div>
       </AccessibleTransition>
-    </div>
+    </AccessibleTransition>
   </Portal>
 {/if}
