@@ -15,7 +15,7 @@ export const defaultMenuItemClass = `
   p-2
   text-blue-700 hover:text-fuchsia-600 focus:text-fuchsia-600 hover:bg-gray-100 focus:bg-gray-100
   dark:text-blue-500 dark:hover:text-fuchsia-400 dark:focus:text-fuchsia-400 dark:hover:bg-gray-800 dark:focus:bg-gray-800
-  focus:outline-none
+  focus:outline-hidden
   rounded-lg cursor-pointer
   transition
 `;

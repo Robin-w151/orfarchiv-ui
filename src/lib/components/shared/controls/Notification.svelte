@@ -20,7 +20,7 @@
     w-full max-w-[768px]
     text-gray-900 dark:text-gray-200
     bg-gray-100 dark:bg-gray-800
-    focus:outline-none focus:ring-2 ring-blue-700 dark:ring-blue-500
+    focus:outline-2 outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark)
     rounded-lg shadow-md dark:shadow-2xl
   `;
   const contentClass = `

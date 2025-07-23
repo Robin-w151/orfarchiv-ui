@@ -3,6 +3,7 @@
   import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
   import { PAN_DISTANCE } from '$lib/configs/client';
   import type { StoryImage } from '$lib/models/story';
+  import { focusTrap } from '$lib/utils/focusTrap';
   import { logger } from '$lib/utils/logger';
   import { Panzoom } from '$lib/utils/panzoomModule';
   import { defaultBackground, defaultGap, defaultPadding, defaultText } from '$lib/utils/styles';
@@ -49,7 +50,7 @@
   const imageContainerClass = 'w-full h-full bg-black';
   const imageClass = 'object-scale-down w-full h-full bg-transparent';
   const viewerButtonCircleClass =
-    'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-sm rounded-full transition-all ease-out';
+    'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-xs rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'size-8';
   const infoContainerClass = [
     `flex flex-col ${defaultGap}`,
@@ -244,7 +245,14 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div class={containerClass} role="region" onclick={handleContainerClick} onpointerdown={handleContainerPointerDown}>
+<div
+  class={containerClass}
+  role="region"
+  aria-label="Bildanzeige"
+  onclick={handleContainerClick}
+  onpointerdown={handleContainerPointerDown}
+  {@attach focusTrap({ skipInitialFocus: true })}
+>
   <button
     class="viewer-button z-10 top-2 right-2 {viewerButtonClass}"
     title="Bild schließen"
@@ -290,8 +298,8 @@
         <Icon src={QuestionMarkCircle} theme="outlined" class={viewerButtonIconClass} />
       </span>
     {/snippet}
-    {#snippet popoverContent()}
-      <PopoverContent>
+    {#snippet popoverContent({ transformOrigin })}
+      <PopoverContent {transformOrigin}>
         <div class={infoContainerClass}>
           <table>
             <thead>
@@ -319,6 +327,8 @@
 </div>
 
 <style lang="postcss">
+  @reference 'tailwindcss';
+
   :global(.viewer-button) {
     display: flex;
     justify-content: center;
@@ -326,8 +336,9 @@
     position: absolute;
     width: 3rem;
     height: 3rem;
+    border-radius: 9999px;
 
-    @screen md {
+    @media screen and (width >= theme(--breakpoint-md)) {
       width: 4rem;
       height: 4rem;
     }
@@ -339,7 +350,7 @@
       & > span:hover {
         width: 100%;
         height: 100%;
-        background-color: theme('colors.gray.500');
+        background-color: var(--color-gray-500);
         opacity: 0.9;
       }
     }
@@ -354,7 +365,7 @@
   .viewer-button-center {
     top: calc(50% - 1.5rem);
 
-    @screen md {
+    @media screen and (width >= theme(--breakpoint-md)) {
       top: calc(50% - 2rem);
     }
 

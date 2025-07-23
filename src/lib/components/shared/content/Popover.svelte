@@ -15,6 +15,10 @@
   import type { Snippet } from 'svelte';
   import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
+  import { createCloseWatcher } from '$lib/utils/closeWatcher';
+  import { onDestroy } from 'svelte';
+  import { isCloseWatcherAvailable } from '$lib/utils/support';
+  import type { TransformOrigin } from '$lib/utils/transitions';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
@@ -36,7 +40,14 @@
     onVisibleChange?: (visible: boolean) => void;
     anchorContent?: Snippet<[Record<string, unknown>]>;
     buttonContent?: Snippet;
-    popoverContent?: Snippet<[() => void]>;
+    popoverContent?: Snippet<
+      [
+        {
+          onClose: () => void;
+          transformOrigin: TransformOrigin;
+        },
+      ]
+    >;
   }
 
   let {
@@ -62,14 +73,21 @@
 
   let open = $state(false);
 
+  const closeWatcher = createCloseWatcher({
+    onClose: () => updateOpenState(false),
+  });
+
   const floating = useFloating({
     whileElementsMounted: autoUpdate,
     get open() {
       return open;
     },
     onOpenChange: (v) => {
-      open = v;
-      onVisibleChange?.(v);
+      if (v) {
+        handleOpen();
+      } else {
+        handleClose();
+      }
     },
     placement,
     get middleware() {
@@ -78,7 +96,7 @@
   });
   const role = useRole(floating.context);
   const click = useClick(floating.context, { keyboardHandlers: openOnKeyboardClick });
-  const dismiss = useDismiss(floating.context);
+  const dismiss = useDismiss(floating.context, { escapeKey: !isCloseWatcherAvailable() });
   const interactions = useInteractions(
     [
       role,
@@ -90,11 +108,47 @@
   );
 
   const popoverContentClass = 'z-40';
+  const popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+  const transformOrigin = $derived.by(() => {
+    const currentPlacement = floating.placement;
+    const placementToOrigin: Record<string, TransformOrigin> = {
+      top: 'bottom center',
+      'top-start': 'bottom left',
+      'top-end': 'bottom right',
+      bottom: 'top center',
+      'bottom-start': 'top left',
+      'bottom-end': 'top right',
+      left: 'right center',
+      right: 'left center',
+    };
 
-  let popoverButtonClass = $derived(buttonClassFn({ btnType, size, iconOnly, round }));
+    return placementToOrigin[currentPlacement] || 'top center';
+  });
+
+  onDestroy(() => {
+    closeWatcher.cleanup();
+  });
 
   export function setOpen(newOpen: boolean): void {
     open = newOpen;
+  }
+
+  function handleOpen(): void {
+    closeWatcher.setup();
+    updateOpenState(true);
+  }
+
+  function handleClose(): void {
+    if (closeWatcher.isActive) {
+      closeWatcher.requestClose();
+    } else {
+      updateOpenState(false);
+    }
+  }
+
+  function updateOpenState(newOpen: boolean): void {
+    open = newOpen;
+    onVisibleChange?.(newOpen);
   }
 </script>
 
@@ -106,7 +160,7 @@
     {...interactions.getFloatingProps()}
     bind:this={floating.elements.floating}
   >
-    {@render popoverContent?.(() => (open = false))}
+    {@render popoverContent?.({ onClose: () => (open = false), transformOrigin })}
   </div>
 {/snippet}
 

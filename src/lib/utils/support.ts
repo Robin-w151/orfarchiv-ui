@@ -20,3 +20,7 @@ export function isMacOsPlatform(): boolean {
     /^mac\s*os(?:x)?$/i.test(window.navigator.userAgentData.platform)
   );
 }
+
+export function isCloseWatcherAvailable(): boolean {
+  return browser && typeof CloseWatcher === 'function';
+}

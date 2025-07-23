@@ -21,8 +21,8 @@
   {#snippet buttonContent()}
     <Icon src={EllipsisVertical} theme="outlined" class="size-6" />
   {/snippet}
-  {#snippet popoverContent(onClose)}
-    <PopoverContent class={defaultMenuClass}>
+  {#snippet popoverContent({ onClose, transformOrigin })}
+    <PopoverContent class={defaultMenuClass} {transformOrigin}>
       <OpenArticleButton class={defaultMenuItemClass} {story} {onClose} />
       <BookmarkButton class={defaultMenuItemClass} {story} {onClose} />
       <ShareButton class={defaultMenuItemClass} {story} {onClose} />

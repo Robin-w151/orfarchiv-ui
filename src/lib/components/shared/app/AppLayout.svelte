@@ -8,7 +8,7 @@
   import { defaultScreenSize } from '$lib/utils/styles';
   import { onMount, type Snippet } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
-  import '../../../../app.scss';
+  import '../../../../app.css';
   import AlertBox from '../content/AlertBox.svelte';
   import AudioPlayer from '../content/AudioPlayer.svelte';
   import Header from '../content/Header.svelte';

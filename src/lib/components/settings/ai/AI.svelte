@@ -54,7 +54,7 @@
             id="gemini-api-key"
             value={$settings.geminiApiKey}
             onValueChange={handleGeminiApiKeyChange}
-            placeholder="Gemini API-Key"
+            placeholder="AIza..."
           />
         </Label>
         <div>

@@ -1,10 +1,12 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import dotenv from 'dotenv-flow';
-import type { UserConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
-import manifest from './src/assets/manifest';
 import { execSync } from 'child_process';
+import dotenv from 'dotenv-flow';
 import Sonda from 'sonda/sveltekit';
+import type { UserConfig } from 'vite';
+import devtoolsJson from 'vite-plugin-devtools-json';
+import manifest from './src/assets/manifest';
 
 dotenv.config({ silent: true });
 
@@ -16,6 +18,7 @@ const config = {
     'process.env.NODE_ENV': '"production"',
   },
   plugins: [
+    tailwindcss(),
     sveltekit(),
     SvelteKitPWA({
       strategies: 'injectManifest',
@@ -28,7 +31,8 @@ const config = {
         navigateFallback: '/',
       },
     }),
-    Sonda(),
+    Sonda({ open: false }),
+    devtoolsJson(),
   ],
   build: {
     sourcemap: true,
