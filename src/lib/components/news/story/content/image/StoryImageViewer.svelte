@@ -7,7 +7,7 @@
   import { logger } from '$lib/utils/logger';
   import { Panzoom } from '$lib/utils/panzoomModule';
   import { defaultBackground, defaultGap, defaultPadding, defaultText } from '$lib/utils/styles';
-  import { isMacOsPlatform, isTouchDevice } from '$lib/utils/support';
+  import { isTouchDevice } from '$lib/utils/support';
   import type { PanzoomObject } from '@panzoom/panzoom';
   import { ChevronLeft, ChevronRight, QuestionMarkCircle, XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
@@ -207,13 +207,12 @@
 
   async function setupPanzoom(imageRef: HTMLImageElement): Promise<void> {
     const isTouch = isTouchDevice();
-    const isMacOs = isMacOsPlatform();
 
     try {
       panzoom = (await Panzoom.module)(imageRef, {
         minScale: 1,
         maxScale: 10,
-        step: isTouch ? 1 : isMacOs ? 0.075 : 0.5,
+        step: isTouch ? 1 : 0.5,
         contain: 'outside',
         animate: true,
         handleStartEvent: (event: Event) => {
