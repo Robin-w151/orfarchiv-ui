@@ -11,6 +11,7 @@
   --oa-outline-offset: 0px;
   --oa-outline-color-light: var(--color-blue-700);
   --oa-outline-color-dark: var(--color-blue-500);
+  --oa-view-transition-duration: 100ms;
 }
 
 @custom-variant hover (&:hover);
@@ -194,6 +195,12 @@
 }
 
 @layer app {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--oa-view-transition-duration);
+    animation-timing-function: ease-in-out;
+  }
+
   [type='text'],
   input:where(:not([type])),
   [type='email'],

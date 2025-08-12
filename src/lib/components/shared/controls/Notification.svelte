@@ -7,6 +7,7 @@
   import Button from './Button.svelte';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Check, XMark } from '@steeze-ui/heroicons';
+  import { scaleFade } from '$lib/utils/transitions';
 
   interface Props {
     notification: OANotification;
@@ -61,7 +62,7 @@
   }
 </script>
 
-<AccessibleTransition class={notificationClass} onlyIn>
+<AccessibleTransition class={notificationClass} transition={scaleFade}>
   <div class={contentClass}>
     <strong>{notification.title}</strong>
     <span>{notification.text}</span>

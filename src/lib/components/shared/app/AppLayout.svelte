@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onNavigate } from '$app/navigation';
   import { InfoApi } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
   import { setAudioStore } from '$lib/stores/runes/audio.svelte';
@@ -47,6 +48,19 @@
     checkApiVersion();
   });
 
+  onNavigate((navigation) => {
+    if (!document.startViewTransition) {
+      return;
+    }
+
+    return new Promise((resolve) => {
+      document.startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+    });
+  });
+
   async function checkApiVersion(): Promise<void> {
     try {
       const { apiVersion } = await infoApi.fetchInfo();
@@ -84,3 +98,6 @@
     ></AlertBox>
   {/if}
 </div>
+
+<style>
+</style>
