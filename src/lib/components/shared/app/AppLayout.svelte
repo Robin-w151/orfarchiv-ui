@@ -7,6 +7,7 @@
   import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import { logger } from '$lib/utils/logger';
   import { defaultScreenSize } from '$lib/utils/styles';
+  import { isViewTransitionAvailable } from '$lib/utils/support';
   import { onMount, type Snippet } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
   import '../../../../app.css';
@@ -49,7 +50,7 @@
   });
 
   onNavigate((navigation) => {
-    if (!document.startViewTransition) {
+    if (!isViewTransitionAvailable()) {
       return;
     }
 

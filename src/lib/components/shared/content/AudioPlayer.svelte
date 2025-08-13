@@ -15,6 +15,7 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
+  import { isViewTransitionAvailable } from '$lib/utils/support';
 
   const audioStore = getAudioStore();
 
@@ -39,7 +40,13 @@
   const controlsClass = ['flex justify-center gap-2'];
 
   function handleToggleMinimized(): void {
-    minimized = !minimized;
+    if (isViewTransitionAvailable()) {
+      document.startViewTransition(() => {
+        minimized = !minimized;
+      });
+    } else {
+      minimized = !minimized;
+    }
   }
 
   function handleClose(): void {
@@ -51,7 +58,7 @@
 {#if audioStore.isActive}
   <AccessibleTransition class={wrapperClass}>
     {#if minimized}
-      <div class={minimizedPlayerClass}>
+      <div class={minimizedPlayerClass} style="view-transition-name: audio-player">
         {#if audioStore.isPlaying}
           <Button class="w-fit" btnType="monochrome" iconOnly round title="Pausieren" onclick={audioStore.pause}>
             <Icon src={PauseCircle} theme="outlined" class="size-6" />
@@ -69,7 +76,7 @@
         </Button>
       </div>
     {:else}
-      <section class={playerClass}>
+      <section class={playerClass} style="view-transition-name: audio-player">
         <div class={windowActionsClass}>
           <Button btnType="monochrome" iconOnly round title="Minimieren" onclick={handleToggleMinimized}>
             <Icon src={Minus} theme="outlined" class="size-6" />
@@ -125,3 +132,43 @@
     {/if}
   </AccessibleTransition>
 {/if}
+
+<style>
+  :global(::view-transition-old(audio-player)),
+  :global(::view-transition-new(audio-player)) {
+    animation-duration: var(--oa-view-transition-duration);
+    animation-timing-function: ease-out;
+  }
+
+  :global(::view-transition-old(audio-player)) {
+    animation-name: oa-scale-out;
+    transform-origin: bottom right;
+  }
+
+  :global(::view-transition-new(audio-player)) {
+    animation-name: oa-scale-in;
+    transform-origin: bottom right;
+  }
+
+  @keyframes oa-scale-in {
+    from {
+      transform: scale(0.98);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes oa-scale-out {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.98);
+      opacity: 0;
+    }
+  }
+</style>

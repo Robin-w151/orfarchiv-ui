@@ -11,3 +11,7 @@ export function isTouchDevice(): boolean {
 export function isCloseWatcherAvailable(): boolean {
   return browser && typeof CloseWatcher === 'function';
 }
+
+export function isViewTransitionAvailable(): boolean {
+  return browser && 'startViewTransition' in document;
+}
