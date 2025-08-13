@@ -1,7 +1,9 @@
 <script lang="ts">
   import { getSourceLabel } from '$lib/models/settings';
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import { formatTimestamp } from '$lib/utils/datetime';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import {
     ArrowsPointingOut,
     ArrowUturnLeft,
@@ -15,9 +17,9 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
-  import { isViewTransitionAvailable } from '$lib/utils/support';
 
   const audioStore = getAudioStore();
+  const reducedMotionStore = getReducedMotionStore();
 
   let minimized = $state(false);
   let sourceLabel = $derived(getSourceLabel(audioStore.story?.source));
@@ -40,13 +42,12 @@
   const controlsClass = ['flex justify-center gap-2'];
 
   function handleToggleMinimized(): void {
-    if (isViewTransitionAvailable()) {
-      document.startViewTransition(() => {
+    runViewTransition(
+      () => {
         minimized = !minimized;
-      });
-    } else {
-      minimized = !minimized;
-    }
+      },
+      { useReducedMotion: reducedMotionStore.useReducedMotion },
+    );
   }
 
   function handleClose(): void {
