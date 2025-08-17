@@ -7,7 +7,7 @@
   import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import { logger } from '$lib/utils/logger';
   import { defaultScreenSize } from '$lib/utils/styles';
-  import { isViewTransitionAvailable } from '$lib/utils/support';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import { onMount, type Snippet } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
   import '../../../../app.css';
@@ -27,7 +27,7 @@
 
   let { children }: Props = $props();
 
-  setReducedMotionStore();
+  const reducedMotionStore = setReducedMotionStore();
   setSkeletonStore();
   setAudioStore();
 
@@ -50,15 +50,16 @@
   });
 
   onNavigate((navigation) => {
-    if (!isViewTransitionAvailable()) {
-      return;
-    }
-
     return new Promise((resolve) => {
-      document.startViewTransition(async () => {
-        resolve();
-        await navigation.complete;
-      });
+      runViewTransition(
+        async () => {
+          resolve();
+          await navigation.complete;
+        },
+        {
+          useReducedMotion: reducedMotionStore.useReducedMotion,
+        },
+      );
     });
   });
 

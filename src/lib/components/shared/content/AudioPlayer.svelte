@@ -150,26 +150,4 @@
     animation-name: oa-scale-in;
     transform-origin: bottom right;
   }
-
-  @keyframes oa-scale-in {
-    from {
-      transform: scale(0.98);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes oa-scale-out {
-    from {
-      transform: scale(1);
-      opacity: 1;
-    }
-    to {
-      transform: scale(0.98);
-      opacity: 0;
-    }
-  }
 </style>

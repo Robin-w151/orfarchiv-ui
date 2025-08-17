@@ -3,11 +3,13 @@
   import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
   import { PAN_DISTANCE } from '$lib/configs/client';
   import type { StoryImage } from '$lib/models/story';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import { focusTrap } from '$lib/utils/focusTrap';
   import { logger } from '$lib/utils/logger';
   import { Panzoom } from '$lib/utils/panzoomModule';
   import { defaultBackground, defaultGap, defaultPadding, defaultText } from '$lib/utils/styles';
   import { isTouchDevice } from '$lib/utils/support';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import type { PanzoomObject } from '@panzoom/panzoom';
   import { ChevronLeft, ChevronRight, QuestionMarkCircle, XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
@@ -20,6 +22,8 @@
   }
 
   let { image = $bindable(), images = [], onClose }: Props = $props();
+
+  const reducedMotionStore = getReducedMotionStore();
 
   let showControls = $state(true);
   let closeButtonRef: HTMLButtonElement | undefined = $state();
@@ -79,6 +83,7 @@
 
   $effect(() => {
     if (imageRef) {
+      imageRef.style.viewTransitionClass = 'story-image';
       setupPanzoom(imageRef);
     }
   });
@@ -174,7 +179,14 @@
   }
 
   function closeViewer(): void {
-    onClose?.();
+    runViewTransition(
+      () => {
+        onClose?.();
+      },
+      {
+        useReducedMotion: reducedMotionStore.useReducedMotion,
+      },
+    );
   }
 
   function toggleControls(): void {
@@ -194,14 +206,28 @@
   function gotoNextImage(): void {
     const next = nextImage(image);
     if (next) {
-      image = next;
+      runViewTransition(
+        () => {
+          image = next;
+        },
+        {
+          useReducedMotion: reducedMotionStore.useReducedMotion,
+        },
+      );
     }
   }
 
   function gotoPrevImage(): void {
     const prev = prevImage(image);
     if (prev) {
-      image = prev;
+      runViewTransition(
+        () => {
+          image = prev;
+        },
+        {
+          useReducedMotion: reducedMotionStore.useReducedMotion,
+        },
+      );
     }
   }
 
@@ -325,7 +351,7 @@
   </div>
 </div>
 
-<style lang="postcss">
+<style>
   @reference 'tailwindcss';
 
   :global(.viewer-button) {

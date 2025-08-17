@@ -25,6 +25,8 @@
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './image/StoryImageViewer.svelte';
   import { SvelteMap } from 'svelte/reactivity';
+  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
 
   interface Props {
     story: Story;
@@ -34,6 +36,7 @@
   let { story, onCollapse }: Props = $props();
 
   const audioStore = getAudioStore();
+  const reducedMotionStore = getReducedMotionStore();
   const newsApi = new NewsApi();
 
   const wrapperClass = 'flex flex-col items-center gap-3';
@@ -130,16 +133,25 @@
         src: meta?.source?.srcset ?? image.src,
         alt: image.alt,
       };
+      const openImageViewer = (): void => {
+        runViewTransition(
+          () => {
+            activeStoryImage = storyImage;
+          },
+          {
+            useReducedMotion: reducedMotionStore.useReducedMotion,
+          },
+        );
+      };
 
       image.tabIndex = 0;
-      image.addEventListener('click', () => {
-        activeStoryImage = storyImage;
-      });
+      image.style.viewTransitionClass = 'story-image';
+      image.addEventListener('click', openImageViewer);
       image.addEventListener('keydown', (event) => {
         const { key } = event;
         if (key === 'Enter') {
           event.preventDefault();
-          activeStoryImage = storyImage;
+          openImageViewer();
         }
       });
       return storyImage;

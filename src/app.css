@@ -37,7 +37,7 @@
   }
 }
 
-@layer components {
+@layer app {
   :root {
     overflow-x: hidden;
 
@@ -168,7 +168,7 @@
 
     &::after {
       content: '';
-      animation: skeleton-animation 1.6s infinite;
+      animation: oa-skeleton-animation 1.6s infinite;
       height: 100%;
       left: 0;
       position: absolute;
@@ -182,23 +182,6 @@
         background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
       }
     }
-  }
-
-  @keyframes skeleton-animation {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-}
-
-@layer app {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: var(--oa-view-transition-duration);
-    animation-timing-function: ease-in-out;
   }
 
   [type='text'],
@@ -218,5 +201,58 @@
   textarea,
   select {
     @apply focus:ring-0 focus:ring-transparent focus:outline-solid focus:outline-(length:--oa-outline-width) outline-offset-(--oa-outline-offset) outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark);
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--oa-view-transition-duration);
+    animation-timing-function: ease-out;
+  }
+
+  ::view-transition-old(.story-image),
+  ::view-transition-new(.story-image) {
+    animation-duration: var(--oa-view-transition-duration);
+    animation-timing-function: ease-out;
+  }
+
+  ::view-transition-old(.story-image) {
+    animation-name: oa-scale-out;
+    transform-origin: center;
+  }
+
+  ::view-transition-new(.story-image) {
+    animation-name: oa-scale-in;
+    transform-origin: center;
+  }
+
+  @keyframes oa-skeleton-animation {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes oa-scale-in {
+    from {
+      transform: scale(0.98);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes oa-scale-out {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.98);
+      opacity: 0;
+    }
   }
 }
