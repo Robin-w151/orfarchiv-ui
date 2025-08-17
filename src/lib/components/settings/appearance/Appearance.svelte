@@ -4,12 +4,23 @@
   import Item from '$lib/components/shared/content/Item.svelte';
   import Radio from '$lib/components/shared/controls/Radio.svelte';
   import styles, { type ColorScheme } from '$lib/stores/styles';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { runViewTransition } from '$lib/utils/viewTransition';
+
+  const reducedMotionStore = getReducedMotionStore();
 
   let colorScheme: ColorScheme = $state($styles.colorScheme);
 
   function handleColorSchemeRadioChange(): void {
     if (colorScheme) {
-      styles.setColorScheme(colorScheme);
+      runViewTransition(
+        () => {
+          styles.setColorScheme(colorScheme);
+        },
+        {
+          useReducedMotion: reducedMotionStore.useReducedMotion,
+        },
+      );
     }
   }
 </script>
