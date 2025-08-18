@@ -9,6 +9,8 @@
   import Popover from '$lib/components/shared/content/Popover.svelte';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { EllipsisVertical } from '@steeze-ui/heroicons';
+  import { page } from '$app/state';
+  import MarkReadButton from './MarkReadButton.svelte';
 
   interface Props {
     story: Story;
@@ -25,6 +27,9 @@
     <PopoverContent class={defaultMenuClass} {transformOrigin}>
       <OpenArticleButton class={defaultMenuItemClass} {story} {onClose} />
       <BookmarkButton class={defaultMenuItemClass} {story} {onClose} />
+      {#if page.url.pathname.startsWith('/bookmarks')}
+        <MarkReadButton class={defaultMenuItemClass} {story} {onClose} />
+      {/if}
       <ShareButton class={defaultMenuItemClass} {story} {onClose} />
       <OpenSupportButton class={defaultMenuItemClass} {onClose} />
     </PopoverContent>
