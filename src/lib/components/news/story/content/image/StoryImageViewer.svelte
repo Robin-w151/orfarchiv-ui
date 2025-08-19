@@ -65,7 +65,7 @@
   const infoTableHeaderClass = 'p-2';
   const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
   const captionClass =
-    'absolute bottom-0 left-0 right-0 z-10 p-6 md:p-6 pt-16 pr-32 text-white text-sm bg-gradient-to-t from-black to-transparent transition-all ease-out';
+    'absolute bottom-0 left-0 right-0 z-10 p-6 md:p-6 pt-16 pr-32 text-white text-sm md:text-base bg-gradient-to-t from-black to-transparent transition-all ease-out';
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
