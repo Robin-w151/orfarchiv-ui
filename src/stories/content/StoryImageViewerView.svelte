@@ -6,18 +6,22 @@
     {
       src: 'https://images.pexels.com/photos/28719602/pexels-photo-28719602/free-photo-of-historic-tower-in-italian-city-at-sunset.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       alt: 'Alter Turm',
+      caption: 'Ein historischer Turm in einer italienischen Stadt bei Sonnenuntergang',
     },
     {
       src: 'https://images.pexels.com/photos/28518085/pexels-photo-28518085/free-photo-of-colorful-european-houses-with-tiled-roofs.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       alt: 'Bunte Häuser',
+      caption: 'Bunte europäische Häuser mit Ziegeldächern',
     },
     {
       src: 'https://www.birdzilla.com/wp-content/uploads/2023/03/Elf-Owl-1-gl.jpg',
       alt: 'Eule',
+      caption: 'Eine kleine Eule mit charakteristischen Federohren',
     },
     {
       src: 'https://freepngimg.com/thumb/eagle/1-eagle-png-image-with-transparency-download.png',
       alt: 'Adler',
+      caption: 'Ein majestätischer Adler mit ausgebreiteten Flügeln',
     },
   ];
   let image: StoryImage = images[0];

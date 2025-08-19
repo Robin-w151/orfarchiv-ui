@@ -132,6 +132,7 @@
       const storyImage = {
         src: meta?.source?.srcset ?? image.src,
         alt: image.alt,
+        caption: findCaption(image),
       };
       const openImageViewer = (): void => {
         runViewTransition(
@@ -213,6 +214,10 @@
     }
 
     return sources.toSorted((a, b) => b.width - a.width)[0];
+  }
+
+  function findCaption(image: HTMLImageElement): string | undefined {
+    return image.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || undefined;
   }
 
   function deduplicateStoryImages(images: Array<StoryImage>): Array<StoryImage> {

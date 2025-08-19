@@ -35,7 +35,7 @@
   let prevPanzoomZoom: number | undefined;
 
   let isNavigationEnabled = $derived(images.length > 1);
-  let viewerButtonClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
+  let visibilityClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
   const shortcuts: Array<{ key: string; description: string }> = [
     { key: 'ESC', description: 'Bildansicht beenden' },
@@ -54,7 +54,7 @@
   const imageContainerClass = 'w-full h-full bg-black';
   const imageClass = 'object-scale-down w-full h-full bg-transparent';
   const viewerButtonCircleClass =
-    'relative z-10 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-xs rounded-full transition-all ease-out';
+    'relative z-20 flex justify-center items-center w-12 h-12 md:w-16 md:h-16 text-gray-200 bg-gray-500/30 active:bg-gray-500/90 backdrop-blur-xs rounded-full transition-all ease-out';
   const viewerButtonIconClass = 'size-8';
   const infoContainerClass = [
     `flex flex-col ${defaultGap}`,
@@ -64,6 +64,8 @@
   ];
   const infoTableHeaderClass = 'p-2';
   const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
+  const captionClass =
+    'absolute bottom-0 left-0 right-0 z-10 p-6 md:p-6 pt-16 pr-32 text-white text-sm bg-gradient-to-t from-black to-transparent transition-all ease-out';
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -279,7 +281,7 @@
   {@attach focusTrap({ skipInitialFocus: true })}
 >
   <button
-    class="viewer-button z-10 top-2 right-2 {viewerButtonClass}"
+    class="viewer-button z-10 top-2 right-2 {visibilityClass}"
     title="Bild schließen"
     bind:this={closeButtonRef}
     onclick={handleCloseButtonClick}
@@ -291,7 +293,7 @@
   {#if isNavigationEnabled}
     {#if prevImage(image)}
       <button
-        class="viewer-button viewer-button-center z-10 left-2 {viewerButtonClass}"
+        class="viewer-button viewer-button-center z-20 left-2 {visibilityClass}"
         title="Vorheriges Bild anzeigen"
         onclick={handlePrevImageClick}
       >
@@ -302,7 +304,7 @@
     {/if}
     {#if nextImage(image)}
       <button
-        class="viewer-button viewer-button-center z-10 right-2 {viewerButtonClass}"
+        class="viewer-button viewer-button-center z-20 right-2 {visibilityClass}"
         title="Nächstes Bild anzeigen"
         onclick={handleNextImageClick}
       >
@@ -312,8 +314,13 @@
       </button>
     {/if}
   {/if}
+  {#if image.caption}
+    <div class="{captionClass} {visibilityClass}">
+      <span>{image.caption}</span>
+    </div>
+  {/if}
   <Popover
-    containerClass="viewer-button viewer-button-touch bottom-2 right-2 {viewerButtonClass}"
+    containerClass="viewer-button viewer-button-touch bottom-2 right-2 {visibilityClass}"
     placement="top-end"
     openOnHover
     delay={{ open: 250 }}
