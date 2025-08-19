@@ -208,28 +208,14 @@
   function gotoNextImage(): void {
     const next = nextImage(image);
     if (next) {
-      runViewTransition(
-        () => {
-          image = next;
-        },
-        {
-          useReducedMotion: reducedMotionStore.useReducedMotion,
-        },
-      );
+      image = next;
     }
   }
 
   function gotoPrevImage(): void {
     const prev = prevImage(image);
     if (prev) {
-      runViewTransition(
-        () => {
-          image = prev;
-        },
-        {
-          useReducedMotion: reducedMotionStore.useReducedMotion,
-        },
-      );
+      image = prev;
     }
   }
 
