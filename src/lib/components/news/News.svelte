@@ -64,10 +64,14 @@
   async function fetchNewNews(): Promise<void> {
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = get(searchRequestParameters);
-      const prevKey = get(news).prevKey;
+      const currNews = get(news);
+      logger.debug('fetch-new-news', currNews);
+
+      const prevKey = currNews.prevKey;
       if (!prevKey) {
         return;
       }
+
       const newNews = await newsApi.searchNews(currSearchRequestParameters, prevKey);
       news.addNews(newNews, false);
     });
