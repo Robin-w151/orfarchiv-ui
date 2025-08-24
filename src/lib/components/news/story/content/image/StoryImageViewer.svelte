@@ -14,12 +14,19 @@
   import { ChevronLeft, ChevronRight, QuestionMarkCircle, XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
 
   interface Props {
     image: StoryImage;
     images?: Array<StoryImage>;
     onClose?: () => void;
   }
+
+  type ImageLookup<TCount extends number | undefined = undefined> = TCount extends 1
+    ? StoryImage | undefined
+    : TCount extends undefined
+      ? StoryImage | undefined
+      : Array<StoryImage>;
 
   let { image = $bindable(), images = [], onClose }: Props = $props();
 
@@ -37,6 +44,7 @@
   let isNavigationEnabled = $derived(images.length > 1);
   let visibilityClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
+  const preloadedImages = new SvelteMap<string, boolean>();
   const shortcuts: Array<{ key: string; description: string }> = [
     { key: 'ESC', description: 'Bildansicht beenden' },
     { key: '←', description: 'Vorheriges Bild anzeigen' },
@@ -93,6 +101,7 @@
   $effect(() => {
     if (image) {
       resetPanzoom(false);
+      preloadImages(image);
     }
   });
 
@@ -195,14 +204,28 @@
     showControls = !showControls;
   }
 
-  function nextImage(image: StoryImage): StoryImage {
+  function nextImage<TCount extends number | undefined = undefined>(
+    image: StoryImage,
+    count?: TCount,
+  ): ImageLookup<TCount> {
     const index = images.findIndex(({ src }) => src === image.src);
-    return images[index + 1];
+    if (count === undefined || count === 1) {
+      return images[index + 1] as any;
+    } else {
+      return images.slice(index + 1, Math.min(index + count + 1, images.length)) as any;
+    }
   }
 
-  function prevImage(image: StoryImage): StoryImage {
+  function prevImage<TCount extends number | undefined = undefined>(
+    image: StoryImage,
+    count?: TCount,
+  ): ImageLookup<TCount> {
     const index = images.findIndex(({ src }) => src === image.src);
-    return images[index - 1];
+    if (count === undefined || count === 1) {
+      return images[index - 1] as any;
+    } else {
+      return images.slice(Math.max(index - count, 0), index) as any;
+    }
   }
 
   function gotoNextImage(): void {
@@ -251,6 +274,31 @@
     }
 
     return Math.abs(a - b) < delta;
+  }
+
+  function preloadImages(image: StoryImage): void {
+    preloadedImages.set(image.src, true);
+    const contiguousImages = [...nextImage(image, 3), ...prevImage(image, 3)];
+    contiguousImages.forEach((image) => {
+      if (image && !preloadedImages.has(image.src)) {
+        preloadImage(image).then(() => {
+          preloadedImages.set(image.src, true);
+        });
+      }
+    });
+  }
+
+  function preloadImage(image: StoryImage): Promise<void> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = image.src;
+      img.onload = () => {
+        resolve();
+      };
+      img.onerror = () => {
+        resolve();
+      };
+    });
   }
 </script>
 
