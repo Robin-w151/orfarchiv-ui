@@ -6,6 +6,8 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'monday'
+      time: '02:00'
+      timezone: 'Europe/Vienna'
     commit-message:
       prefix: 'chore(deps)'
     groups:
