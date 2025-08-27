@@ -72,11 +72,14 @@
             <Button btnType="secondary" title="Erneut generieren" iconOnly round onclick={handleAiSummaryRegenerate}>
               <Icon src={ArrowPath} class="h-4 w-4" />
             </Button>
-            <span
-              >Erstellt mit KI (Modell: <Link href={AI_MODEL_CONFIG_MAP[$settings.aiModel].ref} target="_blank"
-                >{AI_MODEL_CONFIG_MAP[$settings.aiModel].name}</Link
-              >)</span
-            >
+            <span>
+              <span>Erstellt mit KI</span>
+              <span class="inline-block">
+                (Modell: <Link href={AI_MODEL_CONFIG_MAP[$settings.aiModel].ref} target="_blank"
+                  >{AI_MODEL_CONFIG_MAP[$settings.aiModel].name}</Link
+                >)
+              </span>
+            </span>
           </p>
         </div>
         <h1>{aiSummaryState.aiSummary.title}</h1>

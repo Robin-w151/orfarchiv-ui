@@ -11,6 +11,7 @@ export interface BookmarksStore extends Readable<Bookmarks>, Partial<Bookmarks> 
   removeAll: () => void;
   removeAllViewed: () => void;
   setIsViewed: (story: Story) => void;
+  setIsNotViewed: (story: Story) => void;
   setTextFilter: (textFilter: string) => void;
   resetAllFilters: () => void;
 }
@@ -60,6 +61,15 @@ function setIsViewed(story: Story): void {
     });
 }
 
+function setIsNotViewed(story: Story): void {
+  db?.stories
+    .where('id')
+    .equals(story.id)
+    .modify((s) => {
+      s.isViewed = 0;
+    });
+}
+
 function setTextFilter(textFilter: string): void {
   update((bookmarks) => ({ ...bookmarks, textFilter, filteredStories: filterStories(textFilter, bookmarks.stories) }));
 }
@@ -96,6 +106,7 @@ export default {
   removeAll,
   removeAllViewed,
   setIsViewed,
+  setIsNotViewed,
   setTextFilter,
   resetAllFilters,
 } as BookmarksStore;

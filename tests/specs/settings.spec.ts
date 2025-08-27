@@ -53,6 +53,7 @@ test.describe('SettingsPage', () => {
       await expect(radioButton).not.toBeChecked();
 
       await radioButton.click();
+      await page.waitForTimeout(250);
       await settingsPage.visitSite();
 
       await expect(radioButton).toBeChecked();
@@ -64,6 +65,7 @@ test.describe('SettingsPage', () => {
       await expect(radioButton).not.toBeChecked();
 
       await radioButton.click();
+      await page.waitForTimeout(250);
       await settingsPage.visitSite();
 
       await expect(radioButton).toBeChecked();

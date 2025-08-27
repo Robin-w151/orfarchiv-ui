@@ -28,8 +28,8 @@ function setNews(news: News, newNews?: News): void {
   }
 
   const { stories, prevKey, nextKey } = news;
-  const { stories: newStories, prevKey: newPrevKey } = newNews ?? {};
-  const combinedStories = combineStories(stories, newStories);
+  const { stories: newStories = [], prevKey: newPrevKey } = newNews ?? {};
+  const combinedStories = newStories.concat(stories);
 
   update((oldNews) => {
     return { ...oldNews, stories: combinedStories, prevKey: newPrevKey ?? prevKey, nextKey };
@@ -43,7 +43,7 @@ function addNews(news: News, append = true): void {
   const { stories, prevKey, nextKey } = news;
 
   update((oldNews) => {
-    const newStories = combineStories(oldNews.stories, stories, append);
+    const newStories = append ? oldNews.stories.concat(stories) : stories.concat(oldNews.stories);
     const newNews = { ...oldNews, stories: newStories };
     if (append) {
       newNews.nextKey = nextKey;
@@ -118,10 +118,6 @@ function createStoryBuckets(stories: Array<Story>): Array<NewsBucket> | undefine
 
   stories.forEach((story) => addToBucket(buckets, story));
   return Array.from(buckets.values()).sort(compareBuckets);
-}
-
-function combineStories(oldStories: Array<Story>, newStories: Array<Story> = [], append = false): Array<Story> {
-  return append ? (oldStories ?? []).concat(newStories) : (newStories ?? []).concat(oldStories);
 }
 
 function setBookmarkStatus(stories: Array<Story>, bookmarkStories: Array<Story>): Array<Story> {

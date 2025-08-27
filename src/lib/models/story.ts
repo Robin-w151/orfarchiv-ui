@@ -41,6 +41,7 @@ export type StoryContent = z.infer<typeof StoryContent>;
 export const StoryImage = z.object({
   src: z.string(),
   alt: z.string(),
+  caption: z.string().optional(),
 });
 export type StoryImage = z.infer<typeof StoryImage>;
 

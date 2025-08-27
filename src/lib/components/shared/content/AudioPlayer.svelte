@@ -1,7 +1,9 @@
 <script lang="ts">
   import { getSourceLabel } from '$lib/models/settings';
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import { formatTimestamp } from '$lib/utils/datetime';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import {
     ArrowsPointingOut,
     ArrowUturnLeft,
@@ -17,6 +19,7 @@
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
   const audioStore = getAudioStore();
+  const reducedMotionStore = getReducedMotionStore();
 
   let minimized = $state(false);
   let sourceLabel = $derived(getSourceLabel(audioStore.story?.source));
@@ -39,7 +42,12 @@
   const controlsClass = ['flex justify-center gap-2'];
 
   function handleToggleMinimized(): void {
-    minimized = !minimized;
+    runViewTransition(
+      () => {
+        minimized = !minimized;
+      },
+      { useReducedMotion: reducedMotionStore.useReducedMotion },
+    );
   }
 
   function handleClose(): void {
@@ -51,7 +59,7 @@
 {#if audioStore.isActive}
   <AccessibleTransition class={wrapperClass}>
     {#if minimized}
-      <div class={minimizedPlayerClass}>
+      <div class={minimizedPlayerClass} style="view-transition-name: audio-player">
         {#if audioStore.isPlaying}
           <Button class="w-fit" btnType="monochrome" iconOnly round title="Pausieren" onclick={audioStore.pause}>
             <Icon src={PauseCircle} theme="outlined" class="size-6" />
@@ -69,7 +77,7 @@
         </Button>
       </div>
     {:else}
-      <section class={playerClass}>
+      <section class={playerClass} style="view-transition-name: audio-player">
         <div class={windowActionsClass}>
           <Button btnType="monochrome" iconOnly round title="Minimieren" onclick={handleToggleMinimized}>
             <Icon src={Minus} theme="outlined" class="size-6" />
@@ -125,3 +133,21 @@
     {/if}
   </AccessibleTransition>
 {/if}
+
+<style>
+  :global(::view-transition-old(audio-player)),
+  :global(::view-transition-new(audio-player)) {
+    animation-duration: var(--oa-view-transition-duration);
+    animation-timing-function: ease-out;
+  }
+
+  :global(::view-transition-old(audio-player)) {
+    animation-name: oa-scale-out;
+    transform-origin: bottom right;
+  }
+
+  :global(::view-transition-new(audio-player)) {
+    animation-name: oa-scale-in;
+    transform-origin: bottom right;
+  }
+</style>
