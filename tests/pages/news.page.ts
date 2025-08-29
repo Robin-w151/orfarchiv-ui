@@ -48,6 +48,10 @@ export class NewsPage {
     return this.page.getByRole('button', { name: 'KI-Zusammenfassung' });
   }
 
+  get aiSummaryNavigateToSettingsButton(): Locator {
+    return this.page.getByRole('link', { name: 'Zu den Einstellungen' });
+  }
+
   get popover(): Locator {
     return this.page.locator('div[data-testid="popover"]');
   }

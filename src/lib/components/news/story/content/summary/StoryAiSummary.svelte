@@ -12,6 +12,7 @@
   import { onDestroy, onMount } from 'svelte';
   import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
   import { StoryAiSummaryState } from './StoryAiSummaryState.svelte';
+  import { goto } from '$app/navigation';
 
   interface Props {
     storyContent: StoryContent;
@@ -43,6 +44,12 @@
   async function handleAiSummaryRegenerate(): Promise<void> {
     await aiSummaryState.generateAiSummary();
   }
+
+  async function handleAiSummarySettings(event: Event): Promise<void> {
+    event.preventDefault();
+    onClose?.();
+    await goto('/settings');
+  }
 </script>
 
 <Modal
@@ -59,7 +66,7 @@
     >
       {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
-        <ButtonLink class="w-max" href="/settings">Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href="/settings" onclick={handleAiSummarySettings}>Zu den Einstellungen</ButtonLink>
       {/snippet}
     </AlertBox>
   {:else if aiSummaryState.aiSummaryLoading}

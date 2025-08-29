@@ -1,6 +1,10 @@
 import type { Page, Locator } from '@playwright/test';
 
 export class SettingsPage {
+  get isPageActive(): Promise<boolean> {
+    return this.page.waitForURL('/settings').then(() => true);
+  }
+
   constructor(private readonly page: Page) {}
 
   getListSection(sectionTitle: string): Locator {
