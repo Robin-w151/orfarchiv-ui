@@ -7,6 +7,7 @@ export interface NotificationsStore extends Readable<Array<OANotification>> {
   notify: (title: string, text: string, options?: OANotificationOptions) => Promise<void>;
   accept: (id: string) => void;
   remove: (id: string) => void;
+  removeAllCategory: (category: symbol) => void;
 }
 
 const notifications = createNotificationsStore();
@@ -73,7 +74,20 @@ function createNotificationsStore(): NotificationsStore {
     );
   }
 
-  return { subscribe, notify, accept, remove };
+  function removeAllCategory(category: symbol): void {
+    update((notifications) =>
+      notifications.filter((notification) => {
+        if (notification.options?.uniqueCategory === category) {
+          notification.options?.onClose?.();
+          return false;
+        } else {
+          return true;
+        }
+      }),
+    );
+  }
+
+  return { subscribe, notify, accept, remove, removeAllCategory };
 }
 
 export default notifications;
