@@ -100,7 +100,6 @@
   },
   "overrides": {
     "conventional-changelog-conventionalcommits": ">=8.0.0",
-    "esbuild": ">=0.25.0",
     "openai": {
       "zod": ">=4.0.0"
     }
