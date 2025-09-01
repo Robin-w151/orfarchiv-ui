@@ -81,16 +81,16 @@
   }
 
   function handleHeaderKeydown(event: KeyboardEvent): void {
-    const { code, ctrlKey } = event;
+    const { code, ctrlKey, metaKey } = event;
     if (code === 'Enter' || code === 'Space') {
       event.preventDefault();
       toggleShowContent();
     }
-    if (code === 'ArrowUp' && ctrlKey) {
+    if (code === 'ArrowUp' && (ctrlKey || metaKey)) {
       event.preventDefault();
       onSelectStory?.({ id: story.id, next: false });
     }
-    if (code === 'ArrowDown' && ctrlKey) {
+    if (code === 'ArrowDown' && (ctrlKey || metaKey)) {
       event.preventDefault();
       onSelectStory?.({ id: story.id, next: true });
     }

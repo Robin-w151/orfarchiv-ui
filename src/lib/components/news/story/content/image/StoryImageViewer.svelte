@@ -126,9 +126,9 @@
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
-    const { key, ctrlKey } = event;
+    const { key, ctrlKey, metaKey } = event;
 
-    if (ctrlKey) {
+    if (ctrlKey || metaKey) {
       switch (key) {
         case '+':
           event.preventDefault();
