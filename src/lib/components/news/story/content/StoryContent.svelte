@@ -9,24 +9,25 @@
   import { NewsApi } from '$lib/api/news';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
+  import { STORY_CONTENT_IS_VIEWED_TIMEOUT } from '$lib/configs/client';
   import type { Request } from '$lib/models/request';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story, StoryContent, StoryImage } from '$lib/models/story';
   import bookmarks from '$lib/stores/bookmarks';
   import contentStore from '$lib/stores/content';
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
   import { get } from 'svelte/store';
-  import StoryAiSummary from './summary/StoryAiSummary.svelte';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './image/StoryImageViewer.svelte';
-  import { SvelteMap } from 'svelte/reactivity';
-  import { runViewTransition } from '$lib/utils/viewTransition';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import StoryAiSummary from './summary/StoryAiSummary.svelte';
 
   interface Props {
     story: Story;
@@ -59,6 +60,7 @@
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
   let isPlaying = $derived(audioStore.story?.id === story.id && audioStore.isPlaying);
+  let isViewedTimout: any | undefined = undefined;
 
   $effect(() => {
     handleContentChange(storyContentRef);
@@ -101,6 +103,11 @@
 
   onDestroy(() => {
     cancelActiveRequest?.();
+
+    if (isViewedTimout) {
+      clearTimeout(isViewedTimout);
+      isViewedTimout = undefined;
+    }
   });
 
   function fetchContent(story: Story): Request<StoryContent> {
@@ -110,7 +117,9 @@
 
   function setIsViewed(story: Story): void {
     if (story.isBookmarked && !story.isViewed) {
-      bookmarks.setIsViewed(story);
+      isViewedTimout = setTimeout(() => {
+        bookmarks.setIsViewed(story);
+      }, STORY_CONTENT_IS_VIEWED_TIMEOUT);
     }
   }
 

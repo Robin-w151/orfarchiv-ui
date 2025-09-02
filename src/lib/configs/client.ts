@@ -35,6 +35,9 @@ export const NEWS_CHECK_UPDATES_INTERVAL_IN_MS = 1_800_000;
 export const DEFAULT_REQUEST_RETRIES = 3;
 export const STORY_CONTENT_FETCH_RETRIES = 5;
 
+// StoryContent
+export const STORY_CONTENT_IS_VIEWED_TIMEOUT = 3_000;
+
 // StoryImageViewer
 export const PAN_DISTANCE = 50;
 
