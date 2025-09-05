@@ -45,6 +45,15 @@ function addNews(news: News, append = true): void {
   update((oldNews) => {
     const newStories = append ? oldNews.stories.concat(stories) : stories.concat(oldNews.stories);
     const newNews = { ...oldNews, stories: newStories };
+
+    const storyIds = new Set<string>();
+    newStories.forEach((story) => {
+      if (storyIds.has(story.id)) {
+        logger.warnGroup('news-store', [['duplicate-story-id', story.id]]);
+      }
+      storyIds.add(story.id);
+    });
+
     if (append) {
       newNews.nextKey = nextKey;
     } else if (prevKey) {

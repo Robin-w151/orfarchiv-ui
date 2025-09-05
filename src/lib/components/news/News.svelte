@@ -65,8 +65,6 @@
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = get(searchRequestParameters);
       const currNews = get(news);
-      logger.debug('fetch-new-news', currNews);
-
       const prevKey = currNews.prevKey;
       if (!prevKey) {
         return;
