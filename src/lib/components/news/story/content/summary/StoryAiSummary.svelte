@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Modal from '$lib/components/shared/content/Modal.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
@@ -12,7 +14,6 @@
   import { onDestroy, onMount } from 'svelte';
   import StoryAiSummarySkeleton from './StoryAiSummarySkeleton.svelte';
   import { StoryAiSummaryState } from './StoryAiSummaryState.svelte';
-  import { goto } from '$app/navigation';
 
   interface Props {
     storyContent: StoryContent;
@@ -48,7 +49,7 @@
   async function handleAiSummarySettings(event: Event): Promise<void> {
     event.preventDefault();
     onClose?.();
-    await goto('/settings');
+    await goto(resolve('/settings'));
   }
 </script>
 
@@ -66,7 +67,9 @@
     >
       {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
-        <ButtonLink class="w-max" href="/settings" onclick={handleAiSummarySettings}>Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href={resolve('/settings')} onclick={handleAiSummarySettings}
+          >Zu den Einstellungen</ButtonLink
+        >
       {/snippet}
     </AlertBox>
   {:else if aiSummaryState.aiSummaryLoading}
