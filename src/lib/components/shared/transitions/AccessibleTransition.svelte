@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
   import { transitionDefaults } from '$lib/utils/transitions';
   import type { Snippet } from 'svelte';
   import { fade, type TransitionConfig } from 'svelte/transition';
@@ -24,10 +24,15 @@
     ...restProps
   }: Props = $props();
 
-  const reducedMotionStore = getReducedMotionStore();
+  const accessibleTransitionStore = new AccessibleTransitionStore(transition, transitionProps);
 
-  let usedTransition = $derived(reducedMotionStore.useReducedMotion ? fade : transition);
-  let usedTransitionProps = $derived(reducedMotionStore.useReducedMotion ? transitionDefaults : transitionProps);
+  $effect(() => {
+    accessibleTransitionStore.transition = transition;
+    accessibleTransitionStore.transitionProps = transitionProps;
+  });
+
+  let usedTransition = $derived(accessibleTransitionStore.accessibleTransition);
+  let usedTransitionProps = $derived(accessibleTransitionStore.accessibleTransitionProps);
 </script>
 
 {#if onlyIn}
