@@ -52,7 +52,7 @@
 
   function scrollIntoView(): void {
     tick()
-      .then(() => wait(transitionDefaults.duration))
+      .then(() => wait(transitionDefaults.duration + 50))
       .then(() => itemRef?.scrollIntoView());
   }
 
