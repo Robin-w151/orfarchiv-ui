@@ -7,8 +7,7 @@
   import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
   import { defaultPadding } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { rollDown, transitionDefaults } from '$lib/utils/transitions';
-  import { wait } from '$lib/utils/wait';
+  import { rollDown } from '$lib/utils/transitions';
   import { onDestroy, onMount, tick } from 'svelte';
 
   interface Props {
@@ -32,15 +31,10 @@
 
   let itemRef: Item | undefined = $state();
   let headerRef: StoryHeader | undefined = $state();
-  let showContentInitial = false;
   let showContent = $state(false);
 
   const storyContentTransitionStore = new AccessibleTransitionStore(rollDown);
   const storyContentTransition = $derived(storyContentTransitionStore.accessibleTransition);
-
-  $effect(() => {
-    handleContentViewCollapse(showContent);
-  });
 
   onMount(() => {
     subscriptions.push(selectStory.subscribe(handleStorySelect));
@@ -51,9 +45,7 @@
   });
 
   function scrollIntoView(): void {
-    tick()
-      .then(() => wait(transitionDefaults.duration + 50))
-      .then(() => itemRef?.scrollIntoView());
+    tick().then(() => itemRef?.scrollIntoView());
   }
 
   function toggleShowContent(): void {
@@ -62,16 +54,6 @@
 
   function handleStoryContentCollapse(): void {
     toggleShowContent();
-  }
-
-  function handleContentViewCollapse(showContent: boolean): void {
-    if (showContentInitial && !showContent) {
-      scrollIntoView();
-    }
-
-    if (!showContentInitial) {
-      showContentInitial = true;
-    }
   }
 
   function handleHeaderWrapperClick(event: MouseEvent): void {
@@ -118,6 +100,7 @@
     <div
       class="content {contentClass}"
       transition:storyContentTransition={storyContentTransitionStore.accessibleTransitionProps}
+      onoutroend={scrollIntoView}
     >
       <StoryContent {story} onCollapse={handleStoryContentCollapse} />
     </div>
