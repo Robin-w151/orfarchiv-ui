@@ -91,7 +91,7 @@ function findReadMoreUrl(originalDocument: Document): string | null {
       if (!text) {
         return false;
       }
-      if (!STORY_CONTENT_READ_MORE_REGEXPS.some((regexp) => !!text.match(regexp))) {
+      if (!STORY_CONTENT_READ_MORE_REGEXPS.some((regexp) => regexp.test(text))) {
         return false;
       }
 
