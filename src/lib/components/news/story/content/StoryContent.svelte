@@ -7,7 +7,9 @@
 
 <script lang="ts">
   import { NewsApi } from '$lib/api/news';
+  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
+  import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import Link from '$lib/components/shared/controls/Link.svelte';
   import { STORY_CONTENT_IS_VIEWED_TIMEOUT } from '$lib/configs/client';
   import type { Request } from '$lib/models/request';
@@ -20,7 +22,7 @@
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { runViewTransition } from '$lib/utils/viewTransition';
-  import { ChevronUp, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
+  import { ChevronUp, ExclamationCircle, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
@@ -277,10 +279,15 @@
       <div class={contentInfoClass}>Quelle: <Link href={sourceUrl}>orf.at</Link></div>
     </article>
   {:else}
-    <p data-testid="story-content-error">
-      Inhalt kann nicht angezeigt werden. Klicken Sie <Link class={errorLinkClass} href={story.url}>hier</Link> um zum Artikel
-      zu gelangen.
-    </p>
+    <AlertBox
+      title="Inhalt nicht verfügbar"
+      message="Es scheint, als ob der Artikelinhalt derzeit nicht geladen werden kann. Bitte überprüfen Sie Ihre Internetverbindung oder versuchen Sie es in wenigen Augenblicken erneut. Falls das Problem weiterhin besteht, können Sie den Artikel direkt über den untenstehenden Link aufrufen."
+      icon={ExclamationCircle}
+    >
+      {#snippet actionsContent()}
+        <ButtonLink class={errorLinkClass} href={story.url} target="_blank">Zum Artikel</ButtonLink>
+      {/snippet}
+    </AlertBox>
   {/if}
   <Button
     class={collapseContentClass}
