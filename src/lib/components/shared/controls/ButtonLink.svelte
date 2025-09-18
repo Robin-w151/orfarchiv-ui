@@ -32,6 +32,8 @@
     onclick,
   }: Props = $props();
 
+  const rel = $derived(target === '_blank' ? 'noopener noreferrer' : undefined);
+
   const buttonClass = buttonClassFn({
     btnType: 'secondary',
     size,
@@ -66,6 +68,7 @@
   class={buttonClass}
   {href}
   {target}
+  {rel}
   {title}
   onclick={handleClick}
   onfocus={handleFocus}

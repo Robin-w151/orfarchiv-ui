@@ -45,17 +45,17 @@
   let visibilityClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
   const preloadedImages = new SvelteMap<string, boolean>();
-  const shortcuts: Array<{ key: string; description: string }> = [
-    { key: 'ESC', description: 'Bildansicht beenden' },
-    { key: '←', description: 'Vorheriges Bild anzeigen' },
-    { key: '→', description: 'Nächstes Bild anzeigen' },
-    { key: 'CTRL +', description: 'Heranzoomen' },
-    { key: 'CTRL -', description: 'Herauszoomen' },
-    { key: 'CTRL 0', description: 'Zoom zurücksetzen' },
-    { key: 'CTRL ←', description: 'Nach links bewegen' },
-    { key: 'CTRL →', description: 'Nach rechts bewegen' },
-    { key: 'CTRL ↑', description: 'Nach oben bewegen' },
-    { key: 'CTRL ↓', description: 'Nach unten bewegen' },
+  const shortcuts: Array<{ keys: Array<string>; description: string }> = [
+    { keys: ['Esc'], description: 'Bildansicht beenden' },
+    { keys: ['←'], description: 'Vorheriges Bild anzeigen' },
+    { keys: ['→'], description: 'Nächstes Bild anzeigen' },
+    { keys: ['Ctrl', '+'], description: 'Heranzoomen' },
+    { keys: ['Ctrl', '-'], description: 'Herauszoomen' },
+    { keys: ['Ctrl', '0'], description: 'Zoom zurücksetzen' },
+    { keys: ['Ctrl', '←'], description: 'Nach links bewegen' },
+    { keys: ['Ctrl', '→'], description: 'Nach rechts bewegen' },
+    { keys: ['Ctrl', '↑'], description: 'Nach oben bewegen' },
+    { keys: ['Ctrl', '↓'], description: 'Nach unten bewegen' },
   ];
 
   const containerClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50';
@@ -72,6 +72,10 @@
   ];
   const infoTableHeaderClass = 'p-2';
   const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
+  const infoTableKeysClass = 'flex items-center gap-1';
+  const infoTableKeyClass =
+    'flex justify-center items-center px-1 py-0.5 min-w-5 text-xs border-1 border-gray-400 dark:border-gray-500 rounded-sm shadow-sm';
+  const infoTableKeySeparatorClass = 'px-1';
   const captionClass =
     'absolute bottom-0 left-0 right-0 z-10 p-6 pt-16 pr-32 text-white text-sm md:text-base bg-gradient-to-t from-black to-transparent transition-all ease-out';
 
@@ -125,10 +129,14 @@
     }
   }
 
-  function handleKeyDown(event: KeyboardEvent): void {
-    const { key, ctrlKey } = event;
+  function handleInfoTableClick(event: Event): void {
+    event.stopPropagation();
+  }
 
-    if (ctrlKey) {
+  function handleKeyDown(event: KeyboardEvent): void {
+    const { key, ctrlKey, metaKey } = event;
+
+    if (ctrlKey || metaKey) {
       switch (key) {
         case '+':
           event.preventDefault();
@@ -357,7 +365,7 @@
     containerClass="viewer-button viewer-button-touch bottom-2 right-2 {visibilityClass}"
     placement="top-end"
     openOnHover
-    delay={{ open: 250 }}
+    delay={250}
   >
     {#snippet anchorContent(props)}
       <span class={viewerButtonCircleClass} {...props} onclick={handleHelpClick}>
@@ -366,7 +374,8 @@
     {/snippet}
     {#snippet popoverContent({ transformOrigin })}
       <PopoverContent {transformOrigin}>
-        <div class={infoContainerClass}>
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class={infoContainerClass} onclick={handleInfoTableClick}>
           <table>
             <thead>
               <tr>
@@ -375,9 +384,18 @@
               </tr>
             </thead>
             <tbody>
-              {#each shortcuts as { key, description } (key)}
+              {#each shortcuts as { keys, description } (description)}
                 <tr>
-                  <td class={infoTableCellClass}>{key}</td>
+                  <td class={infoTableCellClass}>
+                    <span class={infoTableKeysClass}>
+                      {#each keys as key, index (key)}
+                        <kbd class={infoTableKeyClass}>{key}</kbd>
+                        {#if index !== keys.length - 1}
+                          <span class={infoTableKeySeparatorClass}>+</span>
+                        {/if}
+                      {/each}
+                    </span>
+                  </td>
                   <td class={infoTableCellClass}>{description}</td>
                 </tr>
               {/each}

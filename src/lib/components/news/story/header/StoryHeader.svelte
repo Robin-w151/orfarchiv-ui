@@ -2,8 +2,10 @@
   import StoryPopover from '$lib/components/news/story/header/options/StoryPopover.svelte';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story } from '$lib/models/story';
+  import { AccessibleTransitionStore, type TransitionProps } from '$lib/stores/runes/accessibleTransition.svelte';
   import { formatTimestamp } from '$lib/utils/datetime.js';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
+  import { blur } from 'svelte/transition';
 
   interface Props {
     story: Story;
@@ -38,12 +40,20 @@
 
   let showViewedInfo = $derived(story?.isBookmarked && story?.isViewed);
   let sourceLabel = $derived(getSourceLabel(story?.source));
+
+  const accessibleBlurTransition = new AccessibleTransitionStore(blur, {
+    duration: 500,
+    amount: 25,
+  } as TransitionProps);
+  const blurTransition = $derived(accessibleBlurTransition.accessibleTransition);
 </script>
 
 {#if story}
   <header class={headerClass} role="button" tabindex="0" {onclick} {onkeydown} bind:this={headerRef}>
     {#if showViewedInfo}
-      <span class={viewedBadge}>Gelesen</span>
+      <span class={viewedBadge} transition:blurTransition={accessibleBlurTransition.accessibleTransitionProps}
+        >Gelesen</span
+      >
     {/if}
     <div class={infoClass}>
       <h3>

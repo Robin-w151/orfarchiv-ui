@@ -13,7 +13,7 @@
 
   let { href, target = '_blank', customStyle = false, class: clazz, children, onclick }: Props = $props();
 
-  let rel = target === '_blank' ? 'noopener noreferrer' : undefined;
+  const rel = $derived(target === '_blank' ? 'noopener noreferrer' : undefined);
 
   const linkClass = customStyle
     ? clazz

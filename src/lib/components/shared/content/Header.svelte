@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { page } from '$app/state';
   import { NewsApi } from '$lib/api/news';
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
@@ -46,13 +47,13 @@
 
 <header class={headerClass}>
   <h1>
-    <a class={headerTitleClass} href="/" title="Startseite" data-sveltekit-preload-code="hover">
+    <a class={headerTitleClass} href={resolve('/')} title="Startseite" data-sveltekit-preload-code="hover">
       <TextGradient>ORF Archiv</TextGradient>
     </a>
   </h1>
   <nav class={headerActionsClass}>
     {#if isNewsPage}
-      <ButtonLink href="/" title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
+      <ButtonLink href={resolve('/')} title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
         <Icon src={ArrowPath} theme="outlined" class="size-6" />
       </ButtonLink>
       <Button
@@ -64,14 +65,14 @@
         <Icon src={CloudArrowDown} theme="outlined" class="size-6" />
       </Button>
     {:else}
-      <ButtonLink href="/" title="News" iconOnly prefetch>
+      <ButtonLink href={resolve('/')} title="News" iconOnly prefetch>
         <Icon src={Newspaper} theme="outlined" class="size-6" />
       </ButtonLink>
     {/if}
-    <ButtonLink href="/bookmarks" title="Lesezeichen" iconOnly prefetch>
+    <ButtonLink href={resolve('/bookmarks')} title="Lesezeichen" iconOnly prefetch>
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
-    <ButtonLink href="/settings" title="Einstellungen" iconOnly prefetch>
+    <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>

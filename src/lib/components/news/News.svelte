@@ -26,6 +26,7 @@
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
+  import { resolve } from '$app/paths';
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
@@ -65,8 +66,6 @@
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = get(searchRequestParameters);
       const currNews = get(news);
-      logger.debug('fetch-new-news', currNews);
-
       const prevKey = currNews.prevKey;
       if (!prevKey) {
         return;
@@ -182,7 +181,7 @@
       message="Gehen Sie zu den Einstellungen und aktivieren Sie mindestens eine Quelle um Nachrichten zu sehen."
     >
       {#snippet actionsContent()}
-        <ButtonLink class="w-max" href="/settings">Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href={resolve('/settings')}>Zu den Einstellungen</ButtonLink>
       {/snippet}
     </AlertBox>
   {:else if showNewsList}

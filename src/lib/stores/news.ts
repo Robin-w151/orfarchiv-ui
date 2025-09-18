@@ -30,9 +30,10 @@ function setNews(news: News, newNews?: News): void {
   const { stories, prevKey, nextKey } = news;
   const { stories: newStories = [], prevKey: newPrevKey } = newNews ?? {};
   const combinedStories = newStories.concat(stories);
+  const deduplicatedStories = deduplicateStories(combinedStories);
 
   update((oldNews) => {
-    return { ...oldNews, stories: combinedStories, prevKey: newPrevKey ?? prevKey, nextKey };
+    return { ...oldNews, stories: deduplicatedStories, prevKey: newPrevKey ?? prevKey, nextKey };
   });
 }
 
@@ -45,6 +46,10 @@ function addNews(news: News, append = true): void {
   update((oldNews) => {
     const newStories = append ? oldNews.stories.concat(stories) : stories.concat(oldNews.stories);
     const newNews = { ...oldNews, stories: newStories };
+
+    const deduplicatedStories = deduplicateStories(newStories);
+    newNews.stories = deduplicatedStories;
+
     if (append) {
       newNews.nextKey = nextKey;
     } else if (prevKey) {
@@ -123,6 +128,19 @@ function createStoryBuckets(stories: Array<Story>): Array<NewsBucket> | undefine
 function setBookmarkStatus(stories: Array<Story>, bookmarkStories: Array<Story>): Array<Story> {
   const bookmarkIds = bookmarkStories.map((b) => b.id);
   return stories.map((story) => ({ ...story, isBookmarked: +bookmarkIds.includes(story.id) }));
+}
+
+function deduplicateStories(stories: Array<Story>): Array<Story> {
+  const storyIds = new Set<string>();
+  return stories.filter((story) => {
+    if (storyIds.has(story.id)) {
+      logger.warnGroup('news-store', [['duplicate-story-id', story.id]]);
+      return false;
+    }
+
+    storyIds.add(story.id);
+    return true;
+  });
 }
 
 let oldStories: Array<Story>;

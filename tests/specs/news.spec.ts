@@ -248,6 +248,26 @@ test.describe('NewsPage', () => {
       await expect(newsPage.modal).toContainText('Kein API-Key hinterlegt');
       await expect(newsPage.modal).toContainText('Es ist kein API-Key für die AI Zusammenfassung hinterlegt.');
     });
+
+    test('ai summary error navigate to settings', async ({ newsPage, settingsPage }) => {
+      const enableAiSummary = settingsPage.getListSectionInput(
+        'Künstliche Intelligenz',
+        'KI-Zusammenfassung aktivieren',
+      );
+      await expect(enableAiSummary).not.toBeChecked();
+      await enableAiSummary.click();
+
+      await newsPage.visitSite();
+      await newsPage.mockFetchContentApi(contentMock);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+      await newsPage.aiSummaryButton.click();
+
+      await newsPage.aiSummaryNavigateToSettingsButton.click();
+
+      await expect(settingsPage.isPageActive).resolves.toBe(true);
+    });
   });
 });
 

@@ -2,13 +2,12 @@
   import StoryContent from '$lib/components/news/story/content/StoryContent.svelte';
   import StoryHeader from '$lib/components/news/story/header/StoryHeader.svelte';
   import Item from '$lib/components/shared/content/Item.svelte';
-  import AccessibleTransition from '$lib/components/shared/transitions/AccessibleTransition.svelte';
   import type { Story } from '$lib/models/story';
   import { selectStory } from '$lib/stores/newsEvents';
+  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
   import { defaultPadding } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { rollDown } from '$lib/utils/transitions';
-  import clsx from 'clsx';
   import { onDestroy, onMount, tick } from 'svelte';
 
   interface Props {
@@ -22,9 +21,9 @@
 
   const headerClass = `
     flex flex-row items-center gap-3 top-[47px] sm:top-[53px] sticky z-10
-    ${defaultPadding}
-    text-gray-800 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500
-    border-gray-200 dark:border-gray-700
+    mb-[-2px] ${defaultPadding}
+    text-gray-800 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500 bg-white dark:bg-gray-900
+    border-solid border-b-2 border-gray-200 dark:border-gray-700
     cursor-pointer
     transition
   `;
@@ -32,13 +31,10 @@
 
   let itemRef: Item | undefined = $state();
   let headerRef: StoryHeader | undefined = $state();
-  let showContentInitial = false;
   let showContent = $state(false);
-  let headerClassOpen = $derived(clsx([showContent && 'mb-[-2px] border-solid border-b-2 bg-white dark:bg-gray-900']));
 
-  $effect(() => {
-    handleContentViewCollapse(showContent);
-  });
+  const storyContentTransitionStore = new AccessibleTransitionStore(rollDown);
+  const storyContentTransition = $derived(storyContentTransitionStore.accessibleTransition);
 
   onMount(() => {
     subscriptions.push(selectStory.subscribe(handleStorySelect));
@@ -60,16 +56,6 @@
     toggleShowContent();
   }
 
-  function handleContentViewCollapse(showContent: boolean): void {
-    if (showContentInitial && !showContent) {
-      scrollIntoView();
-    }
-
-    if (!showContentInitial) {
-      showContentInitial = true;
-    }
-  }
-
   function handleHeaderWrapperClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
       toggleShowContent();
@@ -81,16 +67,16 @@
   }
 
   function handleHeaderKeydown(event: KeyboardEvent): void {
-    const { code, ctrlKey } = event;
+    const { code, ctrlKey, metaKey } = event;
     if (code === 'Enter' || code === 'Space') {
       event.preventDefault();
       toggleShowContent();
     }
-    if (code === 'ArrowUp' && ctrlKey) {
+    if (code === 'ArrowUp' && (ctrlKey || metaKey)) {
       event.preventDefault();
       onSelectStory?.({ id: story.id, next: false });
     }
-    if (code === 'ArrowDown' && ctrlKey) {
+    if (code === 'ArrowDown' && (ctrlKey || metaKey)) {
       event.preventDefault();
       onSelectStory?.({ id: story.id, next: true });
     }
@@ -107,12 +93,16 @@
 <Item bind:this={itemRef} noGap noPadding>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="header {headerClass} {headerClassOpen}" onclick={handleHeaderWrapperClick}>
+  <div class="header {headerClass}" onclick={handleHeaderWrapperClick}>
     <StoryHeader {story} onclick={handleHeaderClick} onkeydown={handleHeaderKeydown} bind:this={headerRef} />
   </div>
   {#if showContent}
-    <AccessibleTransition class="content {contentClass}" transition={rollDown} onlyIn>
+    <div
+      class="content {contentClass}"
+      transition:storyContentTransition={storyContentTransitionStore.accessibleTransitionProps}
+      onoutroend={scrollIntoView}
+    >
       <StoryContent {story} onCollapse={handleStoryContentCollapse} />
-    </AccessibleTransition>
+    </div>
   {/if}
 </Item>

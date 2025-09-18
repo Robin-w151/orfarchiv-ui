@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
   import Modal from '$lib/components/shared/content/Modal.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
@@ -43,6 +45,12 @@
   async function handleAiSummaryRegenerate(): Promise<void> {
     await aiSummaryState.generateAiSummary();
   }
+
+  async function handleAiSummarySettings(event: Event): Promise<void> {
+    event.preventDefault();
+    onClose?.();
+    await goto(resolve('/settings'));
+  }
 </script>
 
 <Modal
@@ -59,7 +67,9 @@
     >
       {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
-        <ButtonLink class="w-max" href="/settings">Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href={resolve('/settings')} onclick={handleAiSummarySettings}
+          >Zu den Einstellungen</ButtonLink
+        >
       {/snippet}
     </AlertBox>
   {:else if aiSummaryState.aiSummaryLoading}
