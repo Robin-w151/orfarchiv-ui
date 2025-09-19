@@ -146,7 +146,11 @@
     }
 
     .fact {
-      @apply sm:float-start sm:mr-6 my-3 px-4 py-[1px] sm:max-w-[45%] text-sm bg-gray-100 dark:bg-gray-800 rounded-lg;
+      @apply sm:float-start 
+        sm:-ml-3 lg:-ml-6 sm:mr-6 my-3
+        px-4 lg:px-6 py-2 sm:max-w-[45%] 
+        text-sm bg-gray-100 dark:bg-gray-800 
+        rounded-lg sm:rounded-l-none sm:rounded-r-xl;
 
       h2 {
         @apply mt-2 text-base;
