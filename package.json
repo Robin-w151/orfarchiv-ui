@@ -64,7 +64,7 @@
     "eslint-plugin-svelte": "3.12.3",
     "globals": "16.4.0",
     "husky": "9.1.7",
-    "jsdom": "26.1.0",
+    "jsdom": "27.0.0",
     "lint-staged": "16.1.6",
     "lodash.debounce": "4.0.8",
     "lru-cache": "11.2.1",
