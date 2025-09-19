@@ -156,6 +156,10 @@
     .byline {
       @apply text-sm text-gray-600 dark:text-gray-400;
     }
+
+    .story-footer {
+      @apply clear-both;
+    }
   }
 
   .skeleton-animation-pulse {
