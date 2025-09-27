@@ -76,8 +76,14 @@
   const infoTableKeyClass =
     'flex justify-center items-center px-1 py-0.5 min-w-5 text-xs border-1 border-gray-400 dark:border-gray-500 rounded-sm shadow-sm';
   const infoTableKeySeparatorClass = 'px-1';
-  const captionClass =
-    'absolute bottom-0 left-0 right-0 z-10 p-6 pt-16 pr-32 text-white text-sm md:text-base bg-gradient-to-t from-black to-transparent transition-all ease-out';
+  const captionClass = [
+    'absolute bottom-0 left-0 right-0 z-10',
+    'p-6 pt-16 pr-32',
+    'text-white text-sm md:text-base',
+    'bg-gradient-to-t from-black to-transparent',
+    'pointer-events-none',
+    'transition-all ease-out',
+  ];
 
   onMount(() => {
     oldOverflowValue = document.documentElement.style.overflow;
@@ -194,6 +200,10 @@
   }
 
   function handleHelpClick(event: Event): void {
+    event.stopPropagation();
+  }
+
+  function handleCaptionClick(event: Event): void {
     event.stopPropagation();
   }
 
@@ -357,8 +367,9 @@
     {/if}
   {/if}
   {#if image.caption}
-    <div class="{captionClass} {visibilityClass}">
-      <span>{image.caption}</span>
+    <div class={[...captionClass, visibilityClass]}>
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <span class="pointer-events-auto" onclick={handleCaptionClick}>{image.caption}</span>
     </div>
   {/if}
   <Popover
