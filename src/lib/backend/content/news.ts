@@ -85,7 +85,12 @@ function createDom(data: string, url: string): Document {
 }
 
 function findReadMoreUrl(originalDocument: Document): string | null {
-  return [...originalDocument.querySelectorAll('p')]
+  const paragraphs = [...originalDocument.querySelectorAll('p')];
+  if (paragraphs.length > 4) {
+    return null;
+  }
+
+  return paragraphs
     .filter((p) => {
       const text = p.textContent;
       if (!text) {
