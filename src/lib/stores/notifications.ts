@@ -35,6 +35,7 @@ function createNotificationsStore(): NotificationsStore {
     if (!createdSystemNotification) {
       const notification = { id, title, text, options, system: false };
       if (options?.uniqueCategory && options.replaceInCategory && currentNotificationIndex > -1) {
+        notification.id = currentNotifications[currentNotificationIndex].id;
         const newNotifications = [...currentNotifications];
         newNotifications[currentNotificationIndex] = notification;
         set(newNotifications);
