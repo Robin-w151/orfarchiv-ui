@@ -183,7 +183,7 @@ test.describe('NewsPage', () => {
       await shareButton.click();
 
       const expectedClipboardText = newsMock.stories[storyIndex].url;
-      await expect(log).toEqual([`canShare: ${expectedClipboardText}`, `share: ${expectedClipboardText}`]);
+      expect(log).toEqual([`canShare: ${expectedClipboardText}`, `share: ${expectedClipboardText}`]);
     });
 
     test('support link', async ({ newsPage }) => {
