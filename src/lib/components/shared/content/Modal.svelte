@@ -65,8 +65,6 @@
   }
 </script>
 
-<svelte:document />
-
 {#if children}
   <AccessibleTransition
     element="dialog"
