@@ -64,7 +64,8 @@
     onClose?.();
   }
 
-  function handleModalClose(): void {
+  function handleModalCancel(event: Event): void {
+    event.preventDefault();
     onClose?.();
   }
 </script>
@@ -76,7 +77,7 @@
     closedby={closeOnBackdropClick ? 'any' : 'closerequest'}
     transition={scaleFade}
     aria-label={label}
-    onclose={handleModalClose}
+    oncancel={handleModalCancel}
     data-testid="modal"
     bind:elementRef={dialogRef}
     {@attach focusTrap({ skipInitialFocus: true })}
