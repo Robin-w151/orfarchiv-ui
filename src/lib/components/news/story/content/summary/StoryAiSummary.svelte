@@ -54,7 +54,7 @@
 </script>
 
 <Modal
-  modalClass="w-full h-full sm:h-[max(80%,36rem)] lg:h-[max(60%,48rem)]"
+  class="w-full h-full sm:h-[max(80%,36rem)] lg:h-[max(60%,48rem)]"
   label="KI-Zusammenfassung"
   onClose={handleAiSummaryClose}
 >

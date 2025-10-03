@@ -57,7 +57,7 @@ export class NewsPage {
   }
 
   get modal(): Locator {
-    return this.page.locator('div[data-testid="modal"]');
+    return this.page.locator('dialog[data-testid="modal"]');
   }
 
   get modalCloseButton(): Locator {
