@@ -3,22 +3,22 @@
   import { scaleFade } from '$lib/utils/transitions';
   import { XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
-  import { onDestroy, onMount, type Snippet } from 'svelte';
+  import { type Snippet } from 'svelte';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
   interface Props {
     label: string;
     closeOnBackdropClick?: boolean;
-    backdropClass?: string;
-    modalClass?: string;
+    class?: string;
     onClose?: () => void;
     children?: Snippet;
   }
 
-  let { label, backdropClass, modalClass, onClose, children, closeOnBackdropClick = false }: Props = $props();
+  let { label, class: modalClass, onClose, children, closeOnBackdropClick = false }: Props = $props();
 
   let dialogRef = $state<HTMLDialogElement | undefined>(undefined);
+  let modalInitialized = false;
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
 
@@ -37,23 +37,27 @@
   ];
   const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
 
-  onMount(() => {
+  $effect(() => {
+    if (!dialogRef || modalInitialized) {
+      return;
+    }
+    modalInitialized = true;
+
     oldOverflowValue = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
-
     oldActiveElement = document.activeElement;
 
     dialogRef?.showModal();
-  });
 
-  onDestroy(() => {
-    document.documentElement.style.overflow = oldOverflowValue ?? '';
+    return () => {
+      document.documentElement.style.overflow = oldOverflowValue ?? '';
 
-    if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
-      oldActiveElement.focus();
-    }
+      if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
+        oldActiveElement.focus();
+      }
 
-    dialogRef?.close();
+      dialogRef?.close();
+    };
   });
 
   function handleCloseClick(): void {
@@ -68,7 +72,7 @@
 {#if children}
   <AccessibleTransition
     element="dialog"
-    class={[...baseModalClass, ...baseBackdropClass, modalClass, backdropClass]}
+    class={[...baseModalClass, ...baseBackdropClass, modalClass]}
     closedby={closeOnBackdropClick ? 'any' : 'closerequest'}
     transition={scaleFade}
     aria-label={label}
