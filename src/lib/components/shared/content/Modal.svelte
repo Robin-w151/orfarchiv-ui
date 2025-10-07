@@ -3,7 +3,7 @@
   import { scaleFade } from '$lib/utils/transitions';
   import { XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
-  import { type Snippet } from 'svelte';
+  import { tick, type Snippet } from 'svelte';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
@@ -19,17 +19,20 @@
 
   let dialogRef = $state<HTMLDialogElement | undefined>(undefined);
   let modalInitialized = false;
+  let modalDestroyStarted = $state(false);
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
 
-  const baseBackdropClass = ['backdrop:bg-black/50 backdrop:backdrop-blur-xs'];
-  const baseModalClass = [
+  const combinedModalClass = $derived([
     'modal',
+    !modalDestroyStarted && 'open',
     'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
     'max-w-[min(calc(100dvw-2rem),var(--breakpoint-lg))] max-h-[min(100dvh-2rem,64rem)]',
     'bg-white dark:bg-gray-900',
     'rounded-xl overflow-auto',
-  ];
+    'backdrop:bg-black/50 backdrop:backdrop-blur-xs',
+    modalClass,
+  ]);
   const headerClass = [
     'flex justify-end gap-2 sticky top-0',
     'px-4 lg:px-12 pt-4 lg:pt-12 pb-4',
@@ -61,11 +64,17 @@
   });
 
   function handleCloseClick(): void {
-    onClose?.();
+    close();
   }
 
   function handleModalCancel(event: Event): void {
     event.preventDefault();
+    close();
+  }
+
+  async function close(): Promise<void> {
+    modalDestroyStarted = true;
+    await tick();
     onClose?.();
   }
 </script>
@@ -73,7 +82,7 @@
 {#if children}
   <AccessibleTransition
     element="dialog"
-    class={[...baseModalClass, ...baseBackdropClass, modalClass]}
+    class={combinedModalClass}
     closedby={closeOnBackdropClick ? 'any' : 'closerequest'}
     transition={scaleFade}
     aria-label={label}
@@ -92,3 +101,23 @@
     </div>
   </AccessibleTransition>
 {/if}
+
+<style>
+  :global(.modal) {
+    &::backdrop {
+      opacity: 0;
+      transition: opacity var(--oa-transition-duration);
+      transition-behavior: allow-discrete;
+    }
+
+    &.open::backdrop {
+      opacity: 1;
+    }
+
+    @starting-style {
+      &.open::backdrop {
+        opacity: 0;
+      }
+    }
+  }
+</style>
