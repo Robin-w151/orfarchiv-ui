@@ -11,7 +11,8 @@
   --oa-outline-offset: 0px;
   --oa-outline-color-light: var(--color-blue-700);
   --oa-outline-color-dark: var(--color-blue-500);
-  --oa-view-transition-duration: 100ms;
+  --oa-transition-duration: 150ms;
+  --oa-view-transition-duration: var(--oa-transition-duration);
 }
 
 @custom-variant hover (&:hover);

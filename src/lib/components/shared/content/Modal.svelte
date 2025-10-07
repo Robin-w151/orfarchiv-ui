@@ -1,39 +1,38 @@
 <script lang="ts">
-  import { createCloseWatcher } from '$lib/utils/closeWatcher';
   import { focusTrap } from '$lib/utils/focusTrap';
   import { scaleFade } from '$lib/utils/transitions';
   import { XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
-  import { onDestroy, onMount, type Snippet } from 'svelte';
-  import Portal from 'svelte-portal';
+  import { tick, type Snippet } from 'svelte';
   import Button from '../controls/Button.svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 
   interface Props {
     label: string;
     closeOnBackdropClick?: boolean;
-    backdropClass?: string;
-    modalClass?: string;
+    class?: string;
     onClose?: () => void;
     children?: Snippet;
   }
 
-  let { label, backdropClass, modalClass, onClose, children, closeOnBackdropClick = false }: Props = $props();
+  let { label, class: modalClass, onClose, children, closeOnBackdropClick = false }: Props = $props();
 
+  let dialogRef = $state<HTMLDialogElement | undefined>(undefined);
+  let modalInitialized = false;
+  let modalDestroyStarted = $state(false);
   let oldOverflowValue: string | undefined;
   let oldActiveElement: Element | null;
 
-  const closeWatcher = createCloseWatcher({
-    onClose,
-  });
-
-  const baseBackdropClass = [
-    'flex items-center justify-center',
-    'fixed top-0 left-0 right-0 bottom-0 z-50',
-    'p-4 sm:p-8',
-    'bg-black/50 backdrop-blur-xs',
-  ];
-  const baseModalClass = ['modal', 'max-w-screen-lg', 'bg-white dark:bg-gray-900', 'rounded-xl overflow-auto'];
+  const combinedModalClass = $derived([
+    'modal',
+    !modalDestroyStarted && 'open',
+    'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+    'max-w-[min(calc(100dvw-2rem),var(--breakpoint-lg))] max-h-[min(100dvh-2rem,64rem)]',
+    'bg-white dark:bg-gray-900',
+    'rounded-xl overflow-auto',
+    'backdrop:bg-black/50 backdrop:backdrop-blur-xs',
+    modalClass,
+  ]);
   const headerClass = [
     'flex justify-end gap-2 sticky top-0',
     'px-4 lg:px-12 pt-4 lg:pt-12 pb-4',
@@ -41,77 +40,84 @@
   ];
   const contentClass = ['px-4 pb-4 lg:px-12 lg:pb-12 max-w-full max-h-full'];
 
-  onMount(() => {
+  $effect(() => {
+    if (!dialogRef || modalInitialized) {
+      return;
+    }
+    modalInitialized = true;
+
     oldOverflowValue = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
-
     oldActiveElement = document.activeElement;
 
-    closeWatcher.setup();
-  });
+    dialogRef?.showModal();
 
-  onDestroy(() => {
-    document.documentElement.style.overflow = oldOverflowValue ?? '';
+    return () => {
+      document.documentElement.style.overflow = oldOverflowValue ?? '';
 
-    if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
-      oldActiveElement.focus();
-    }
+      if (oldActiveElement && 'focus' in oldActiveElement && typeof oldActiveElement.focus === 'function') {
+        oldActiveElement.focus();
+      }
 
-    closeWatcher.cleanup();
+      dialogRef?.close();
+    };
   });
 
   function handleCloseClick(): void {
+    close();
+  }
+
+  function handleModalCancel(event: Event): void {
+    event.preventDefault();
+    close();
+  }
+
+  async function close(): Promise<void> {
+    modalDestroyStarted = true;
+    await tick();
     onClose?.();
-  }
-
-  function handleBackdropClick(): void {
-    if (closeOnBackdropClick) {
-      onClose?.();
-    }
-  }
-
-  function handleModalClick(event: MouseEvent): void {
-    event.stopPropagation();
-  }
-
-  function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      if (!closeWatcher.isActive) {
-        event.preventDefault();
-        onClose?.();
-      }
-    }
   }
 </script>
 
-<svelte:document on:keydown={handleKeyDown} />
-
 {#if children}
-  <Portal target="body">
-    <AccessibleTransition
-      class={[...baseBackdropClass, backdropClass]}
-      onclick={handleBackdropClick}
-      {@attach focusTrap({ skipInitialFocus: true })}
-    >
-      <AccessibleTransition
-        class={[...baseModalClass, modalClass]}
-        style="max-height: min(100%, 64rem);"
-        transition={scaleFade}
-        role="dialog"
-        aria-modal="true"
-        aria-label={label}
-        data-testid="modal"
-        onclick={handleModalClick}
-      >
-        <div class={headerClass}>
-          <Button btnType="secondary" size="large" iconOnly round title="Schließen" onclick={handleCloseClick}>
-            <Icon src={XMark} theme="outlined" class="size-6 lg:size-8" />
-          </Button>
-        </div>
-        <div class={contentClass}>
-          {@render children?.()}
-        </div>
-      </AccessibleTransition>
-    </AccessibleTransition>
-  </Portal>
+  <AccessibleTransition
+    element="dialog"
+    class={combinedModalClass}
+    closedby={closeOnBackdropClick ? 'any' : 'closerequest'}
+    transition={scaleFade}
+    aria-label={label}
+    oncancel={handleModalCancel}
+    data-testid="modal"
+    bind:elementRef={dialogRef}
+    {@attach focusTrap({ skipInitialFocus: true })}
+  >
+    <div class={headerClass}>
+      <Button btnType="secondary" size="large" iconOnly round title="Schließen" onclick={handleCloseClick}>
+        <Icon src={XMark} theme="outlined" class="size-6 lg:size-8" />
+      </Button>
+    </div>
+    <div class={contentClass}>
+      {@render children?.()}
+    </div>
+  </AccessibleTransition>
 {/if}
+
+<style>
+  :global(.modal) {
+    &::backdrop {
+      opacity: 0;
+      transition: opacity var(--oa-transition-duration);
+      transition-behavior: allow-discrete;
+    }
+
+    &.open::backdrop {
+      opacity: 1;
+    }
+
+    @starting-style {
+      &.open::backdrop {
+        opacity: 0;
+      }
+    }
+  }
+</style>
