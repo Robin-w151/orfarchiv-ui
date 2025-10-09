@@ -6,11 +6,23 @@
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { onDestroy, onMount } from 'svelte';
   import BookmarkDeletePopover from '$lib/components/news/filter/BookmarkDeletePopover.svelte';
+  import { browser } from '$app/environment';
+  import { isTouchDevice } from '$lib/utils/support';
+  import { isMac } from '$lib/utils/platform';
+
+  const subscriptions: Array<Subscription> = [];
 
   const filterClass = `flex gap-2 ${defaultPadding} w-full ${defaultBackground}`;
 
-  let subscriptions: Array<Subscription> = [];
   let textFilterInputRef: Input | null = $state(null);
+
+  const shortcutKeys = $derived.by(() => {
+    if (!browser || isTouchDevice()) {
+      return undefined;
+    }
+
+    return [isMac() ? '⌘' : 'Ctrl', 'K'];
+  });
 
   onMount(() => {
     subscriptions.push(startSearch.onUpdate(handleStartSearch));
@@ -42,8 +54,9 @@
     id="text-filter-input"
     value={$bookmarks.textFilter}
     onValueChange={handleTextFilterChange}
-    bind:this={textFilterInputRef}
     placeholder="Suche"
+    {shortcutKeys}
+    bind:this={textFilterInputRef}
   />
   <BookmarkDeletePopover
     onRemoveAllBookmarks={handleDeleteAllBookmarks}
