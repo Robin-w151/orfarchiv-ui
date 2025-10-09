@@ -2,19 +2,33 @@
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from './Button.svelte';
   import { XMark } from '@steeze-ui/heroicons';
+  import KeyboardKey from '../content/KeyboardKey.svelte';
 
   interface Props {
     id: string;
     value?: string;
     placeholder?: string;
+    shortcutKeys?: Array<string>;
     onValueChange?: (value?: string) => void;
     onchange?: (value: string | undefined, event: Event) => void;
     onclear?: () => void;
+    onfocus?: (event: Event) => void;
     onblur?: (event: Event) => void;
     onkeydown?: (event: KeyboardEvent) => void;
   }
 
-  let { id, value = $bindable(''), placeholder, onValueChange, onchange, onclear, onblur, onkeydown }: Props = $props();
+  let {
+    id,
+    value = $bindable(''),
+    placeholder,
+    shortcutKeys,
+    onValueChange,
+    onchange,
+    onclear,
+    onfocus,
+    onblur,
+    onkeydown,
+  }: Props = $props();
 
   const wrapperClass = 'flex items-center relative w-full flex-1';
   const inputClass = [
@@ -24,9 +38,11 @@
     'transition',
   ];
   const clearButtonClass = 'absolute right-2';
+  const shortcutKeysClass = 'absolute right-2 flex gap-1';
 
   let inputRef: HTMLInputElement | undefined = $state();
   let showClearButton = $derived(!!value);
+  let isFocused = $state(false);
 
   $effect(() => {
     onValueChange?.(value);
@@ -50,6 +66,16 @@
 
     onkeydown?.(event);
   }
+
+  function handleFocus(event: Event): void {
+    isFocused = true;
+    onfocus?.(event);
+  }
+
+  function handleBlur(event: Event): void {
+    isFocused = false;
+    onblur?.(event);
+  }
 </script>
 
 <div class={wrapperClass}>
@@ -63,8 +89,16 @@
     maxlength="256"
     onkeydown={handleKeydown}
     onchange={(event) => onchange?.(value, event)}
-    {onblur}
+    onfocus={handleFocus}
+    onblur={handleBlur}
   />
+  {#if shortcutKeys && shortcutKeys.length > 0 && !value && !isFocused}
+    <div class={shortcutKeysClass}>
+      {#each shortcutKeys as key (key)}
+        <KeyboardKey {key} />
+      {/each}
+    </div>
+  {/if}
   {#if showClearButton}
     <Button
       class={clearButtonClass}

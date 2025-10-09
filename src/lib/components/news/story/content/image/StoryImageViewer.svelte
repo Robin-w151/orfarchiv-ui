@@ -1,4 +1,5 @@
 <script lang="ts">
+  import KeyboardKey from '$lib/components/shared/content/KeyboardKey.svelte';
   import Popover from '$lib/components/shared/content/Popover.svelte';
   import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
   import { PAN_DISTANCE } from '$lib/configs/client';
@@ -7,6 +8,7 @@
   import { focusTrap } from '$lib/utils/focusTrap';
   import { logger } from '$lib/utils/logger';
   import { Panzoom } from '$lib/utils/panzoomModule';
+  import { isMac } from '$lib/utils/platform';
   import { defaultBackground, defaultGap, defaultPadding, defaultText } from '$lib/utils/styles';
   import { isTouchDevice } from '$lib/utils/support';
   import { runViewTransition } from '$lib/utils/viewTransition';
@@ -49,13 +51,13 @@
     { keys: ['Esc'], description: 'Bildansicht beenden' },
     { keys: ['←'], description: 'Vorheriges Bild anzeigen' },
     { keys: ['→'], description: 'Nächstes Bild anzeigen' },
-    { keys: ['Ctrl', '+'], description: 'Heranzoomen' },
-    { keys: ['Ctrl', '-'], description: 'Herauszoomen' },
-    { keys: ['Ctrl', '0'], description: 'Zoom zurücksetzen' },
-    { keys: ['Ctrl', '←'], description: 'Nach links bewegen' },
-    { keys: ['Ctrl', '→'], description: 'Nach rechts bewegen' },
-    { keys: ['Ctrl', '↑'], description: 'Nach oben bewegen' },
-    { keys: ['Ctrl', '↓'], description: 'Nach unten bewegen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '+'], description: 'Heranzoomen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '-'], description: 'Herauszoomen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '0'], description: 'Zoom zurücksetzen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '←'], description: 'Nach links bewegen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '→'], description: 'Nach rechts bewegen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '↑'], description: 'Nach oben bewegen' },
+    { keys: [isMac() ? '⌘' : 'Ctrl', '↓'], description: 'Nach unten bewegen' },
   ];
 
   const containerClass = 'flex justify-center items-center fixed top-0 bottom-0 left-0 right-0 z-50';
@@ -73,8 +75,6 @@
   const infoTableHeaderClass = 'p-2';
   const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
   const infoTableKeysClass = 'flex items-center gap-1';
-  const infoTableKeyClass =
-    'flex justify-center items-center px-1 py-0.5 min-w-5 text-xs border-1 border-gray-400 dark:border-gray-500 rounded-sm shadow-sm';
   const infoTableKeySeparatorClass = 'px-1';
   const captionClass = [
     'absolute bottom-0 left-0 right-0 z-10',
@@ -400,7 +400,7 @@
                   <td class={infoTableCellClass}>
                     <span class={infoTableKeysClass}>
                       {#each keys as key, index (key)}
-                        <kbd class={infoTableKeyClass}>{key}</kbd>
+                        <KeyboardKey {key} />
                         {#if index !== keys.length - 1}
                           <span class={infoTableKeySeparatorClass}>+</span>
                         {/if}

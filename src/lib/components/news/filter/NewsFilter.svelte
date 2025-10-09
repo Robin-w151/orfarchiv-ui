@@ -1,17 +1,28 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
+  import NewsFilterPopover from '$lib/components/news/filter/NewsFilterPopover.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import { startSearch } from '$lib/stores/newsEvents';
   import searchFilter from '$lib/stores/searchFilter';
+  import { isMac } from '$lib/utils/platform';
   import { defaultBackground, defaultPadding } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
+  import { isTouchDevice } from '$lib/utils/support';
   import { onDestroy, onMount } from 'svelte';
-  import NewsFilterPopover from '$lib/components/news/filter/NewsFilterPopover.svelte';
 
   const subscriptions: Array<Subscription> = [];
 
   const filterClass = `flex gap-2 ${defaultPadding} w-full ${defaultBackground}`;
 
   let textFilterInputRef: Input | null = $state(null);
+
+  const shortcutKeys = $derived.by(() => {
+    if (!browser || isTouchDevice()) {
+      return undefined;
+    }
+
+    return [isMac() ? '⌘' : 'Ctrl', 'K'];
+  });
 
   onMount(() => {
     subscriptions.push(startSearch.onUpdate(handleStartSearch));
@@ -43,8 +54,9 @@
     id="text-filter-input"
     value={$searchFilter.textFilter}
     onValueChange={handleTextFilterChange}
-    bind:this={textFilterInputRef}
     placeholder="Suche"
+    {shortcutKeys}
+    bind:this={textFilterInputRef}
   />
   <NewsFilterPopover
     from={$searchFilter.tempDateFilter?.from}
