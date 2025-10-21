@@ -20,9 +20,13 @@ jobs:
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version-file: package.json
-      - name: Setup Storybook
-        uses: bitovi/github-actions-storybook-to-github-pages@f1b2d572f2d40ff3391d967538564111944cdbc0 # latest
+      - name: Build Storybook
+        run: npm run storybook:build
+      - name: Upload Storybook artifacts
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
-          build_command: npm run storybook:build
           path: storybook-static
-          checkout: false
+      - name: Deploy Storybook to GitHub Pages
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        with:
+          token: ${{ github.token }}
