@@ -19,8 +19,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
-          node-version: ${{ vars.NODE_VERSION }}
-      - uses: bitovi/github-actions-storybook-to-github-pages@f1b2d572f2d40ff3391d967538564111944cdbc0 # v1.0.3
+          node-version-file: package.json
+      - name: Setup Storybook
+        uses: bitovi/github-actions-storybook-to-github-pages@f1b2d572f2d40ff3391d967538564111944cdbc0 # v1.0.3
         with:
           build_command: npm run storybook:build
           path: storybook-static
