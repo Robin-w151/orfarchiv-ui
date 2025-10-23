@@ -1,8 +1,8 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
-import { execSync } from 'child_process';
 import dotenv from 'dotenv-flow';
+import { execSync } from 'node:child_process';
 import Sonda from 'sonda/sveltekit';
 import type { UserConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
