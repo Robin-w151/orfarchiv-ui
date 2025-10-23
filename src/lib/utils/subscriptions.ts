@@ -6,7 +6,11 @@ export type Subscribable<T> = { subscribe: Readable<T>['subscribe'] | Observable
 export type Subscription = Unsubscriber | RxSubscription;
 
 export function unsubscribeAll(subscriptions: Array<Subscription>): void {
-  subscriptions?.forEach((subscription) =>
-    'unsubscribe' in subscription ? subscription.unsubscribe() : subscription(),
-  );
+  for (const subscription of subscriptions) {
+    if ('unsubscribe' in subscription && typeof subscription.unsubscribe === 'function') {
+      subscription.unsubscribe();
+    } else if (typeof subscription === 'function') {
+      subscription();
+    }
+  }
 }
