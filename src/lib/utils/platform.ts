@@ -1,5 +1,5 @@
 export function isMac(): boolean {
-  if (typeof window === 'undefined') {
+  if (typeof globalThis === 'undefined') {
     return false;
   }
 
