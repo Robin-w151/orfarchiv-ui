@@ -1,18 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
-import crypto from 'node:crypto';
+import { webcrypto } from 'node:crypto';
 
 const INPUT_FILE = 'src/app.html';
 const OUTPUT_FILE = 'csp-script-hashes.js';
 const ENCODING = 'utf-8';
 const HASH_ALGORITHM = 'SHA-256';
 
-try {
-  await main();
-} catch (error) {
-  console.error(error);
-  process.exit(1);
-}
+await main();
 
 async function main() {
   try {
@@ -64,7 +59,7 @@ async function calculateScriptHash(scriptText) {
   try {
     const textEncoder = new TextEncoder();
     const encoded = textEncoder.encode(scriptText);
-    const hashBuffer = await crypto.subtle.digest(HASH_ALGORITHM, encoded);
+    const hashBuffer = await webcrypto.subtle.digest(HASH_ALGORITHM, encoded);
     const hashString = Buffer.from(hashBuffer).toString('base64');
 
     return `sha256-${hashString}`;
