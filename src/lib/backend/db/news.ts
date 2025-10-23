@@ -111,7 +111,11 @@ function generatePaginationQuery(query: any, pageKey?: PageKey): PaginatedQuery 
       return null;
     }
 
-    const story = stories[stories.length - 2];
+    const story = stories.at(-2);
+    if (!story) {
+      return null;
+    }
+
     return { id: story.id, timestamp: story.timestamp.toISOString(), type: 'next' };
   }
 
@@ -204,7 +208,7 @@ function parseDate(date: string | null | undefined): Date | undefined {
   }
 
   const dateObject = new Date(date);
-  if (isNaN(dateObject.getTime())) {
+  if (Number.isNaN(dateObject.getTime())) {
     return undefined;
   }
 
