@@ -59,7 +59,7 @@ export async function createSystemNotification(
 }
 
 function isNotificationAvailable(): boolean {
-  return browser && 'Notification' in window;
+  return browser && 'Notification' in globalThis;
 }
 
 function isNotificationEnabled(): boolean {
