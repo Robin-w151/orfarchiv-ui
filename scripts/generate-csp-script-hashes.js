@@ -1,13 +1,18 @@
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 const INPUT_FILE = 'src/app.html';
 const OUTPUT_FILE = 'csp-script-hashes.js';
 const ENCODING = 'utf-8';
 const HASH_ALGORITHM = 'SHA-256';
 
-main().catch(console.error);
+try {
+  await main();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
 
 async function main() {
   try {
