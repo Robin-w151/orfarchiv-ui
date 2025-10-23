@@ -11,7 +11,7 @@ export async function listenForUpdates(callback: (actions: UpdateActions) => voi
     }
 
     isRefreshing = true;
-    window.location.reload();
+    globalThis.location.reload();
   });
 
   const registration = await navigator.serviceWorker.ready;
