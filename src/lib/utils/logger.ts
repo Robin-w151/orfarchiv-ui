@@ -50,7 +50,9 @@ class Logger {
     const logGroupFn = collapse ? console.groupCollapsed : console.group;
 
     logGroupFn('%corf-archiv', this.getStyles(level).join(';'), title);
-    logs.forEach((args) => logFn(...args));
+    for (const args of logs) {
+      logFn(...args);
+    }
     console.groupEnd();
   }
 

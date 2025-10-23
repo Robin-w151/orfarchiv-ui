@@ -51,7 +51,7 @@ export default [
           caughtErrors: 'all',
           caughtErrorsIgnorePattern: '^_',
           destructuredArrayIgnorePattern: '^_',
-          varsIgnorePattern: '^(_|\\$\\$)',
+          varsIgnorePattern: '^_',
           ignoreRestSiblings: true,
         },
       ],

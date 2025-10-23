@@ -19,7 +19,7 @@ test.describe('NewsPage', () => {
     const logCall = (message: string): void => log.push(message);
     await page.exposeFunction('logCall', logCall);
     await page.addInitScript(() => {
-      const navigator = window.navigator;
+      const navigator = globalThis.navigator;
 
       navigator.canShare = (data) => {
         logCall(`canShare: ${data?.text}`);

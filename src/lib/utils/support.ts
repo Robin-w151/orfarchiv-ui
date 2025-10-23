@@ -1,11 +1,11 @@
 import { browser } from '$app/environment';
 
 export function isMediaSessionAvailable(): boolean {
-  return browser && 'MediaSession' in window;
+  return browser && 'MediaSession' in globalThis;
 }
 
 export function isTouchDevice(): boolean {
-  return browser && 'matchMedia' in window && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  return browser && 'matchMedia' in globalThis && globalThis.matchMedia?.('(pointer: coarse)')?.matches;
 }
 
 export function isCloseWatcherAvailable(): boolean {

@@ -31,7 +31,9 @@ function setupCacheAndRoutes(): void {
   }
 
   const routeConfig = generateRouteConfig();
-  routeConfig.forEach(({ capture, handler }) => registerRoute(capture, handler));
+  for (const { capture, handler } of routeConfig) {
+    registerRoute(capture, handler);
+  }
 }
 
 function setupNotifications(): void {
@@ -110,7 +112,9 @@ async function notifyClientsAndFocus(id: string, type: string, path?: string): P
     await focusClient(clients, path);
   }
 
-  clients?.forEach((client) => client.postMessage({ type, payload: { id } }));
+  for (const client of clients) {
+    client.postMessage({ type, payload: { id } });
+  }
 }
 
 async function handleNotificationClick(event: NotificationEvent): Promise<void> {
