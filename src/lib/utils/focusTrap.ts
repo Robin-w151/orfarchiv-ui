@@ -89,7 +89,7 @@ export const focusTrap = ({
       }
 
       const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+      const last = focusable.at(-1)!;
       const active = document.activeElement as HTMLElement;
 
       if (!node.contains(active)) {
@@ -103,11 +103,9 @@ export const focusTrap = ({
           event.preventDefault();
           last.focus();
         }
-      } else {
-        if (active === last) {
-          event.preventDefault();
-          first.focus();
-        }
+      } else if (active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
