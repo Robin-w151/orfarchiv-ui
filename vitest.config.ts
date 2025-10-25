@@ -5,5 +5,7 @@ export default defineConfig({
   ...viteConfig,
   test: {
     include: ['src/**/*.spec.ts'],
+    env: { NODE_ENV: 'test' },
+    environment: 'node',
   },
 });
