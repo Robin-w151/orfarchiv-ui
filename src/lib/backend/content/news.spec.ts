@@ -117,6 +117,36 @@ describe('News content', () => {
       );
     });
 
+    test('table without header', async () => {
+      mockArticle(`
+        <table>
+          <tbody>
+            <tr>
+              <td>Data 1</td>
+              <td>Data 2</td>
+              <td>Data 3</td>
+            </tr>
+          </tbody>
+        </table>
+      `);
+
+      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <table>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td>Data 3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `);
+    });
+
     test('table with empty column', async () => {
       mockArticle(`
         <table>
@@ -241,6 +271,69 @@ describe('News content', () => {
               <td>Data 5</td>
               <td>Data 6</td>
               <td>Data 7</td>
+            </tr>
+          </tbody>
+        </table>
+      `);
+
+      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+
+      await expect(content).toBeHtml(`<div id="readability-page-1" class="page"><p>Hello World</p></div>`);
+    });
+
+    test('table with col span', async () => {
+      mockArticle(`
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Column 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="2">Data 1</td>
+            </tr>
+          </tbody>
+        </table>
+      `);
+
+      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+
+      await expect(content).toBeHtml(
+        `
+          <div id="readability-page-1" class="page"><table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Column 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="2">Data 1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+      );
+    });
+
+    test('table with col span and invalid structure', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Column 1</th>
+              <th>Column 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data 1</td>
+              <td colspan="2">Data 2</td>
             </tr>
           </tbody>
         </table>

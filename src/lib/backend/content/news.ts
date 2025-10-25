@@ -267,27 +267,48 @@ function adjustTable(table: HTMLTableElement): void {
 }
 
 function checkTableValidity(table: HTMLTableElement): { isValid: boolean; columnHasContent: Array<boolean> } {
-  const tableColumns = table.tHead?.rows[0]?.cells.length ?? 0;
+  const tableColumns = calculateTableColumns(table);
   if (tableColumns === 0) {
     return { isValid: false, columnHasContent: [] };
   }
 
-  const columnHasContent: Array<boolean> = new Array(tableColumns).fill(false);
+  const columnHasContent = new Array<boolean>(tableColumns).fill(false);
   let isValid = true;
 
   for (const tableRow of table.rows) {
-    for (const [index, tableCell] of [...tableRow.children].entries()) {
-      if (index < columnHasContent.length) {
+    let rowIndexOffset = 0;
+    for (const [index, tableCell] of ([...tableRow.children] as Array<HTMLTableCellElement>).entries()) {
+      const colSpan = tableCell.colSpan ?? 1;
+      const additionalColumns = colSpan - 1;
+      const adjustedIndex = index + rowIndexOffset;
+
+      if (adjustedIndex + additionalColumns < columnHasContent.length) {
         if (tableCell.innerHTML) {
-          columnHasContent[index] = true;
+          for (let i = 0; i < colSpan; i++) {
+            columnHasContent[adjustedIndex + i] = true;
+          }
         }
       } else {
         isValid = false;
       }
+
+      rowIndexOffset += additionalColumns;
     }
   }
 
   return { isValid, columnHasContent };
+}
+
+function calculateTableColumns(table: HTMLTableElement): number {
+  const firstRow = table.rows[0];
+  if (!firstRow) {
+    return 0;
+  }
+
+  return ([...firstRow.children] as Array<HTMLTableCellElement>).reduce(
+    (count, cell) => count + (cell.colSpan ?? 1),
+    0,
+  );
 }
 
 function sanitizeContent(html: string): string {
