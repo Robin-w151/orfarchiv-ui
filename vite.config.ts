@@ -4,13 +4,13 @@ import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
 import Sonda from 'sonda/sveltekit';
-import type { UserConfig } from 'vite';
+import { defineConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import manifest from './src/assets/manifest';
 
 dotenv.config({ silent: true });
 
-const config = {
+export default defineConfig({
   define: {
     'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID),
     'import.meta.env.APP_VERSION': JSON.stringify(process.env.npm_package_version),
@@ -43,9 +43,7 @@ const config = {
   preview: {
     port: 3301,
   },
-} satisfies UserConfig;
-
-export default config;
+});
 
 function getCommitHash(): string | undefined {
   try {

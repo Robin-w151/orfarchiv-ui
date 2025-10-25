@@ -47,12 +47,12 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   removeMoreToReadSection(document);
   await removeCharts(document, currentUrl);
   const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
-  if (!optimizedContent) {
+  if (!optimizedContent?.content) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
     throw new OptimizedContentIsEmptyError(`Optimized content from url='${currentUrl}' is empty`);
   }
 
-  const optimizedDocument = createDom(optimizedContent.content ?? '', currentUrl);
+  const optimizedDocument = createDom(optimizedContent.content, currentUrl);
   removeSiteNavigation(optimizedDocument);
   removeSiteAnchors(optimizedDocument);
   injectSlideShowImages(optimizedDocument, originalDocument);
@@ -246,41 +246,48 @@ function adjustLists(optimizedDocument: Document): void {
 
 function adjustTables(optimizedDocument: Document): void {
   for (const table of optimizedDocument.querySelectorAll('table')) {
-    const tableColumns = table.tHead?.rows[0]?.cells.length ?? 0;
+    adjustTable(table);
+  }
+}
 
-    if (tableColumns === 0) {
-      table.remove();
-      return;
-    }
+function adjustTable(table: HTMLTableElement): void {
+  const { isValid, columnHasContent } = checkTableValidity(table);
+  if (!isValid) {
+    table.remove();
+    return;
+  }
 
-    const columnHasContent: Array<boolean> = new Array(tableColumns).fill(false);
-    let isTableValid = true;
-
-    for (const tableRow of table.rows) {
-      for (const [index, tableCell] of [...tableRow.children].entries()) {
-        if (index < columnHasContent.length) {
-          if (tableCell.innerHTML) {
-            columnHasContent[index] = true;
-          }
-        } else {
-          isTableValid = false;
-        }
-      }
-    }
-
-    if (!isTableValid) {
-      table.remove();
-      return;
-    }
-
-    for (const tableRow of table.rows) {
-      for (const [index, tableCell] of [...tableRow.cells].entries()) {
-        if (!columnHasContent[index]) {
-          tableCell.remove();
-        }
+  for (const tableRow of table.rows) {
+    for (const [index, tableCell] of [...tableRow.cells].entries()) {
+      if (!columnHasContent[index]) {
+        tableCell.remove();
       }
     }
   }
+}
+
+function checkTableValidity(table: HTMLTableElement): { isValid: boolean; columnHasContent: Array<boolean> } {
+  const tableColumns = table.tHead?.rows[0]?.cells.length ?? 0;
+  if (tableColumns === 0) {
+    return { isValid: false, columnHasContent: [] };
+  }
+
+  const columnHasContent: Array<boolean> = new Array(tableColumns).fill(false);
+  let isValid = true;
+
+  for (const tableRow of table.rows) {
+    for (const [index, tableCell] of [...tableRow.children].entries()) {
+      if (index < columnHasContent.length) {
+        if (tableCell.innerHTML) {
+          columnHasContent[index] = true;
+        }
+      } else {
+        isValid = false;
+      }
+    }
+  }
+
+  return { isValid, columnHasContent };
 }
 
 function sanitizeContent(html: string): string {
