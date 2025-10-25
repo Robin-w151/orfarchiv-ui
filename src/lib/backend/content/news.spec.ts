@@ -320,6 +320,45 @@ describe('News content', () => {
       );
     });
 
+    test('table with header using col span', async () => {
+      mockArticle(`
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">Column 1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data 1</td>
+              <td>Data 2</td>
+            </tr>
+          </tbody>
+        </table>
+      `);
+
+      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+
+      await expect(content).toBeHtml(
+        `
+          <div id="readability-page-1" class="page"><table>
+            <thead>
+              <tr>
+                <th colspan="2">Column 1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+      );
+    });
+
     test('table with col span and invalid structure', async () => {
       mockArticle(`
         <p>Hello World</p>
