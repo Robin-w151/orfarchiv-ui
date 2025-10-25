@@ -12,45 +12,41 @@ declare module 'vitest' {
   interface Matchers<T = any> extends CustomMatchers<T> {}
 }
 
-describe('News content', () => {
-  const { mockedFetch, mockedSearchStory } = vi.hoisted(() => {
+const { mockedFetch, mockedSearchStory } = vi.hoisted(() => {
+  return {
+    mockedFetch: vi.fn(),
+    mockedSearchStory: vi.fn().mockResolvedValue({
+      id: '1234567890',
+      title: 'Hello World',
+      timestamp: new Date('2025-01-01T00:00:00.000Z'),
+      source: 'news',
+      category: 'News',
+      url: 'https://www.orf.at/stories/1234567890',
+    }),
+  };
+});
+
+vi.mock('$lib/backend/db/news', () => {
+  return {
+    searchStory: mockedSearchStory,
+  };
+});
+
+expect.extend({
+  async toBeHtml(actual: string, expected: string) {
+    const { isNot } = this;
+    const formattedActual = await formatHtml(actual);
+    const formattedExpected = await formatHtml(expected);
     return {
-      mockedFetch: vi.fn(),
-      mockedSearchStory: vi.fn().mockResolvedValue({
-        id: '1234567890',
-        title: 'Hello World',
-        timestamp: new Date('2025-01-01T00:00:00.000Z'),
-        source: 'news',
-        category: 'News',
-        url: 'https://www.orf.at/stories/1234567890',
-      }),
+      message: () => `Expected '${formattedActual}' ${isNot ? 'not ' : ''}to be equal to '${formattedExpected}'`,
+      pass: formattedActual === formattedExpected,
     };
-  });
+  },
+});
 
-  function mockArticle(html: string): void {
-    mockedFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve(html) });
-  }
-
-  expect.extend({
-    async toBeHtml(actual: string, expected: string) {
-      const { isNot } = this;
-      const formattedActual = await formatHtml(actual);
-      const formattedExpected = await formatHtml(expected);
-      return {
-        message: () => `Expected '${formattedActual}' ${isNot ? 'not ' : ''}to be equal to '${formattedExpected}'`,
-        pass: formattedActual === formattedExpected,
-      };
-    },
-  });
-
+describe('News content', () => {
   beforeEach(() => {
     globalThis.fetch = mockedFetch;
-
-    vi.mock('$lib/backend/db/news', () => {
-      return {
-        searchStory: mockedSearchStory,
-      };
-    });
   });
 
   describe('General', () => {
@@ -256,6 +252,10 @@ describe('News content', () => {
     });
   });
 });
+
+function mockArticle(html: string): void {
+  mockedFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve(html) });
+}
 
 function formatHtml(html: string): Promise<string> {
   return prettier.format(html, { parser: 'html' });
