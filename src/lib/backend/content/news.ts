@@ -257,9 +257,15 @@ function adjustTable(table: HTMLTableElement): void {
     return;
   }
 
-  for (const { columnIndex, tableCell } of tableIterator(table)) {
-    if (!columnHasContent[columnIndex]) {
+  for (const { columnIndex, colSpan, tableCell } of tableIterator(table)) {
+    const columnsWithContent = new Array(colSpan)
+      .fill(null)
+      .reduce((count, _, i) => count + (columnHasContent[columnIndex + i] ? 1 : 0), 0);
+
+    if (columnsWithContent === 0) {
       tableCell.remove();
+    } else if (columnsWithContent < colSpan) {
+      tableCell.colSpan = columnsWithContent;
     }
   }
 }

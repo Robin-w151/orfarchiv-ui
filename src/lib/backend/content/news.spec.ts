@@ -733,6 +733,41 @@ describe('News content', () => {
           </div>
         `,
       },
+      {
+        title: 'table with row span and some empty cells',
+        article: `
+          <table>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Data 4</td>
+                <td colspan="2"></td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <table>
+              <tbody>
+                <tr>
+                  <td>Data 1</td>
+                  <td>Data 2</td>
+
+                </tr>
+                <tr>
+                  <td>Data 4</td>
+                  <td colspan="1"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `,
+      },
     ])('$title', async ({ article, expected }) => {
       mockArticle(article);
 
