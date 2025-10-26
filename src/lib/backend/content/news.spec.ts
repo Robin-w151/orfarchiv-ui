@@ -218,7 +218,7 @@ describe('News content', () => {
         article: `
           <p>Hello World</p>
           <p></p>
-          <p>Mehr in <a href="${mockReadMoreArticleUrl}">hier</a><p/>
+          <p>Mehr in <a href="${mockReadMoreArticleUrl}">hier</a></p>
         `,
         readMoreArticle: `
           <p>Goodbye World</p>
