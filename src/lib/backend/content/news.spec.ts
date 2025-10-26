@@ -356,6 +356,160 @@ describe('News content', () => {
         `,
         expected: `<div id="readability-page-1" class="page"><p>Hello World</p></div>`,
       },
+      {
+        title: 'table with row and col span',
+        article: `
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2" rowspan="2">Column 1</th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+              </tr>
+              <tr>
+                <th>Column 4</th>
+                <th>Column 5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td colspan="2" rowspan="2">Data 3</td>
+              </tr>
+              <tr>
+                <td>Data 5</td>
+                <td>Data 6</td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <table>
+              <thead>
+                <tr>
+                  <th colspan="2" rowspan="2">Column 1</th>
+                  <th>Column 2</th>
+                  <th>Column 3</th>
+                </tr>
+                <tr>
+                  <th>Column 4</th>
+                  <th>Column 5</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Data 1</td>
+                  <td>Data 2</td>
+                  <td colspan="2" rowspan="2">Data 3</td>
+                </tr>
+                <tr>
+                  <td>Data 5</td>
+                  <td>Data 6</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `,
+      },
+      {
+        title: 'table with row and col span and invalid structure',
+        article: `
+          <p>Hello World</p>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2" rowspan="2">Column 1</th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+              </tr>
+              <tr>
+                <th>Column 4</th>
+                <th>Column 5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td colspan="2" rowspan="2">Data 3</td>
+              </tr>
+              <tr>
+                <td>Data 5</td>
+                <td>Data 6</td>
+                <td>Data 7</td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        expected: `<div id="readability-page-1" class="page"><p>Hello World</p></div>`,
+      },
+      {
+        title: 'table with row and col span and empty column',
+        article: `
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2" rowspan="2">Column 1</th>
+                <th></th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+              </tr>
+              <tr>
+                <th></th>
+                <th>Column 4</th>
+                <th>Column 5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td></td>
+                <td colspan="2" rowspan="2">Data 3</td>
+              </tr>
+              <tr>
+                <td>Data 5</td>
+                <td>Data 6</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <table>
+              <thead>
+                <tr>
+                  <th colspan="2" rowspan="2">Column 1</th>
+
+                  <th>Column 2</th>
+                  <th>Column 3</th>
+                </tr>
+                <tr>
+
+                  <th>Column 4</th>
+                  <th>Column 5</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Data 1</td>
+                  <td>Data 2</td>
+
+                  <td colspan="2" rowspan="2">Data 3</td>
+                </tr>
+                <tr>
+                  <td>Data 5</td>
+                  <td>Data 6</td>
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `,
+      },
     ])('$title', async ({ article, expected }) => {
       mockArticle(article);
 

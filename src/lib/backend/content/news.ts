@@ -257,42 +257,32 @@ function adjustTable(table: HTMLTableElement): void {
     return;
   }
 
-  for (const tableRow of table.rows) {
-    for (const [index, tableCell] of [...tableRow.cells].entries()) {
-      if (!columnHasContent[index]) {
-        tableCell.remove();
-      }
+  for (const { columnIndex, tableCell } of tableIterator(table)) {
+    if (!columnHasContent[columnIndex]) {
+      tableCell.remove();
     }
   }
 }
 
 function checkTableValidity(table: HTMLTableElement): { isValid: boolean; columnHasContent: Array<boolean> } {
   const tableColumns = calculateTableColumns(table);
-  if (tableColumns === 0) {
+  const tableRows = table.rows.length;
+  if (tableColumns === 0 || tableRows === 0) {
     return { isValid: false, columnHasContent: [] };
   }
 
   const columnHasContent = new Array<boolean>(tableColumns).fill(false);
   let isValid = true;
 
-  for (const tableRow of table.rows) {
-    let rowIndexOffset = 0;
-    for (const [index, tableCell] of ([...tableRow.children] as Array<HTMLTableCellElement>).entries()) {
-      const colSpan = tableCell.colSpan ?? 1;
-      const additionalColumns = colSpan - 1;
-      const adjustedIndex = index + rowIndexOffset;
-
-      if (adjustedIndex + additionalColumns < columnHasContent.length) {
-        if (tableCell.innerHTML) {
-          for (let i = 0; i < colSpan; i++) {
-            columnHasContent[adjustedIndex + i] = true;
-          }
+  for (const { columnIndex, colSpan, tableCell } of tableIterator(table)) {
+    if (columnIndex + colSpan - 1 < columnHasContent.length) {
+      if (tableCell.innerHTML) {
+        for (let i = 0; i < colSpan; i++) {
+          columnHasContent[columnIndex + i] = true;
         }
-      } else {
-        isValid = false;
       }
-
-      rowIndexOffset += additionalColumns;
+    } else {
+      isValid = false;
     }
   }
 
@@ -309,6 +299,52 @@ function calculateTableColumns(table: HTMLTableElement): number {
     (count, cell) => count + (cell.colSpan ?? 1),
     0,
   );
+}
+
+function* tableIterator(table: HTMLTableElement): Generator<{
+  rowIndex: number;
+  rowSpan: number;
+  columnIndex: number;
+  colSpan: number;
+  tableCell: HTMLTableCellElement;
+}> {
+  const tableRows = table.rows.length;
+  const rowSpanOffsetMap = new Map<number, Map<number, number>>(
+    Array.from({ length: tableRows }, () => new Map()).map((rowMap, row) => [row, rowMap]),
+  );
+
+  for (const [tableRowIndex, tableRow] of [...table.rows].entries()) {
+    let rowIndexOffset = 0;
+    for (const [tableColumnIndex, tableCell] of [...tableRow.cells].entries()) {
+      const colSpan = tableCell.colSpan ?? 1;
+      const rowSpan = tableCell.rowSpan ?? 1;
+      const additionalColumns = colSpan - 1;
+      const adjustedColumnIndex = tableColumnIndex + rowIndexOffset;
+      const additionalColumnsFromPreviousRowSpans =
+        rowSpanOffsetMap
+          .get(tableRowIndex)
+          ?.entries()
+          .filter(([c]) => c <= adjustedColumnIndex)
+          .reduce((offset, [, span]) => offset + span, 0) ?? 0;
+      const adjustedColumnIndexWithRowSpans = adjustedColumnIndex + additionalColumnsFromPreviousRowSpans;
+
+      if (rowSpan > 1) {
+        for (let i = 1; i < rowSpan; i++) {
+          rowSpanOffsetMap.get(tableRowIndex + i)?.set(adjustedColumnIndexWithRowSpans, colSpan);
+        }
+      }
+
+      yield {
+        rowIndex: tableRowIndex,
+        rowSpan,
+        columnIndex: adjustedColumnIndexWithRowSpans,
+        colSpan,
+        tableCell,
+      };
+
+      rowIndexOffset += additionalColumns;
+    }
+  }
 }
 
 function sanitizeContent(html: string): string {
