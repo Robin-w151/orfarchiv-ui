@@ -12,16 +12,52 @@ declare module 'vitest' {
   interface Matchers<T = any> extends CustomMatchers<T> {}
 }
 
-const { mockedFetch, mockedSearchStory } = vi.hoisted(() => {
+const {
+  mockArticleUrl,
+  mockReadMoreArticleId,
+  mockReadMoreArticleUrl,
+  mockReadMoreArticleSource,
+  mockedFetch,
+  mockedSearchStory,
+} = vi.hoisted(() => {
+  const articleId = '1234567890';
+  const articleUrl = `https://www.orf.at/stories/${articleId}`;
+  const articleSource = 'news';
+  const readMoreArticleId = '1234567891';
+  const readMoreArticleUrl = `https://www.orf.at/stories/${readMoreArticleId}`;
+  const readMoreArticleSource = 'sport';
+
+  const story = {
+    id: articleId,
+    title: 'Hello World',
+    timestamp: new Date('2025-01-01T00:00:00.000Z'),
+    source: articleSource,
+    category: 'News',
+    url: articleUrl,
+  };
+  const readMoreStory = {
+    id: readMoreArticleId,
+    title: 'Goodbye World',
+    timestamp: new Date('2025-01-02T00:00:00.000Z'),
+    source: readMoreArticleSource,
+    category: 'Sport',
+    url: readMoreArticleUrl,
+  };
+
   return {
+    mockArticleId: articleId,
+    mockArticleUrl: articleUrl,
+    mockArticleSource: articleSource,
+    mockReadMoreArticleId: readMoreArticleId,
+    mockReadMoreArticleUrl: readMoreArticleUrl,
+    mockReadMoreArticleSource: readMoreArticleSource,
     mockedFetch: vi.fn(),
-    mockedSearchStory: vi.fn().mockResolvedValue({
-      id: '1234567890',
-      title: 'Hello World',
-      timestamp: new Date('2025-01-01T00:00:00.000Z'),
-      source: 'news',
-      category: 'News',
-      url: 'https://www.orf.at/stories/1234567890',
+    mockedSearchStory: vi.fn().mockImplementation((url) => {
+      if (url === readMoreArticleUrl) {
+        return readMoreStory;
+      } else {
+        return story;
+      }
     }),
   };
 });
@@ -40,6 +76,8 @@ expect.extend({
     return {
       message: () => `Expected '${formattedActual}' ${isNot ? 'not ' : ''}to be equal to '${formattedExpected}'`,
       pass: formattedActual === formattedExpected,
+      actual: formattedActual,
+      expected: formattedExpected,
     };
   },
 });
@@ -53,7 +91,7 @@ describe('News content', () => {
     test('simple article', async () => {
       mockArticle('<p>Hello World</p>');
 
-      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+      const { content } = await fetchStoryContent(mockArticleUrl);
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -61,17 +99,202 @@ describe('News content', () => {
     test('empty article', async () => {
       mockArticle('');
 
-      await expect(fetchStoryContent('https://www.orf.at/stories/1234567890')).rejects.toThrowError(
-        OptimizedContentIsEmptyError,
-      );
+      await expect(fetchStoryContent(mockArticleUrl)).rejects.toThrowError(OptimizedContentIsEmptyError);
     });
 
     test('content not found', async () => {
       mockedFetch.mockResolvedValue({ ok: false, text: () => Promise.reject(new Error('Content not found')) });
 
-      await expect(fetchStoryContent('https://www.orf.at/stories/1234567890')).rejects.toThrowError(
-        ContentNotFoundError,
+      await expect(fetchStoryContent(mockArticleUrl)).rejects.toThrowError(ContentNotFoundError);
+    });
+
+    test('adjust list with empty items', async () => {
+      mockArticle(`
+        <ul>
+          <li>Item 1</li>
+          <li></li>
+          <li>Item 3</li>
+        </ul>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <ul>
+            <li>Item 1</li>
+
+            <li>Item 3</li>
+          </ul>
+        </div>
+      `);
+    });
+
+    test('sanitize content', async () => {
+      mockArticle(`
+        <p tabindex="0">Hello World</p>
+        <a href="https://example.com" target="_blank">Example</a>
+        <script>alert('Hello World');</script>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="https://example.com/" target="_blank" rel="noopener noreferrer">Example</a>
+        </div>
+      `);
+    });
+  });
+
+  describe('Remove elements', () => {
+    test('remove print warning', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <p class="print-warning">Print warning<p/>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
+    });
+
+    test('remove video', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <section class="stripe">
+          <video src="https://www.youtube.com/watch?v=dQw4w9WgXcQ"></video>
+        </section>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
+    });
+
+    test('remove more to read section', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <div id="more-to-read">
+          <p>More to read</p>
+        </div>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
+    });
+
+    test('remove site navigation', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <nav>
+          <a href="https://www.orf.at/">Home</a>
+        </nav>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
+    });
+
+    test('remove site anchors', async () => {
+      mockArticle(`
+        <p>Hello World</p>
+        <a href="https://www.orf.at/#/article/1234567890">Article</a>
+      `);
+
+      const { content } = await fetchStoryContent(mockArticleUrl);
+
+      await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
+    });
+  });
+
+  describe('Read more', () => {
+    test.each([
+      {
+        title: 'article with read more url',
+        article: `
+          <p>Hello World</p>
+          <p></p>
+          <p>Mehr in <a href="${mockReadMoreArticleUrl}">hier</a><p/>
+        `,
+        readMoreArticle: `
+          <p>Goodbye World</p>
+        `,
+        expected: `<div id="readability-page-1" class="page"><p>Goodbye World</p></div>`,
+        expectedId: mockReadMoreArticleId,
+        expectedSource: mockReadMoreArticleSource,
+      },
+      {
+        title: 'article with invalid read more url',
+        article: `
+          <p>Hello World</p>
+          <p>Mehr in <a href="https://asdf.com/">hier</a></p>
+        `,
+        readMoreArticle: `
+          <p>Goodbye World</p>
+        `,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <p>Hello World</p>
+            <p>Mehr in <a href="https://asdf.com/" target="_blank" rel="noopener noreferrer">hier</a></p>
+          </div>
+        `,
+      },
+      {
+        title: 'article with read more url and fetchReadMore disabled',
+        article: `
+          <p>Hello World</p>
+          <p>Mehr in <a href="${mockReadMoreArticleUrl}">hier</a></p>
+        `,
+        readMoreArticle: `
+          <p>Goodbye World</p>
+        `,
+        fetchReadMore: false,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <p>Hello World</p>
+            <p>Mehr in <a href="${mockReadMoreArticleUrl}" target="_blank" rel="noopener noreferrer">hier</a></p>
+          </div>
+        `,
+      },
+      {
+        title: 'article with read more url and too many paragraphs',
+        article: `
+          <p>Hello World</p>
+          <p>Lorem ipsum</p>
+          <p>Lorem ipsum</p>
+          <p>Lorem ipsum</p>
+          <p>Mehr in <a href="${mockReadMoreArticleUrl}">hier</a></p>
+        `,
+        readMoreArticle: `
+          <p>Goodbye World</p>
+        `,
+        expected: `
+          <div id="readability-page-1" class="page">
+            <p>Hello World</p>
+            <p>Lorem ipsum</p>
+            <p>Lorem ipsum</p>
+            <p>Lorem ipsum</p>
+            <p>Mehr in <a href="${mockReadMoreArticleUrl}" target="_blank" rel="noopener noreferrer">hier</a></p>
+          </div>
+        `,
+      },
+    ])('$title', async ({ article, readMoreArticle, fetchReadMore = true, expected, expectedId, expectedSource }) => {
+      mockArticle(
+        new Map([
+          [mockArticleUrl, article],
+          [mockReadMoreArticleUrl, readMoreArticle],
+        ]),
       );
+
+      const { content, id, source } = await fetchStoryContent(mockArticleUrl, fetchReadMore);
+
+      await expect(content).toBeHtml(expected);
+      expect(id).toBe(expectedId);
+      expect(source?.name).toBe(expectedSource);
     });
   });
 
@@ -513,17 +736,19 @@ describe('News content', () => {
     ])('$title', async ({ article, expected }) => {
       mockArticle(article);
 
-      const { content } = await fetchStoryContent('https://www.orf.at/stories/1234567890');
+      const { content } = await fetchStoryContent(mockArticleUrl);
 
       await expect(content).toBeHtml(expected);
     });
   });
 });
 
-function mockArticle(html: string): void {
-  mockedFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve(html) });
+function mockArticle(html: string | Map<string, string>): void {
+  mockedFetch.mockImplementation((url) => {
+    return Promise.resolve({ ok: true, text: () => Promise.resolve(typeof html === 'object' ? html.get(url) : html) });
+  });
 }
 
 function formatHtml(html: string): Promise<string> {
-  return prettier.format(html, { parser: 'html', printWidth: 80 });
+  return prettier.format(html, { parser: 'html', printWidth: 80, objectWrap: 'collapse', bracketSameLine: true });
 }
