@@ -152,7 +152,7 @@ describe('News content', () => {
     test('remove print warning', async () => {
       mockArticle(`
         <p>Hello World</p>
-        <p class="print-warning">Print warning<p/>
+        <p class="print-warning">Print warning</p>
       `);
 
       const { content } = await fetchStoryContent(mockArticleUrl);
