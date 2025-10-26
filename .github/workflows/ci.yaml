@@ -31,6 +31,8 @@ jobs:
         run: npm run lint
       - name: Run type checking
         run: npm run check
+      - name: Run unit tests
+        run: npm run test:unit
       - name: Verify CSP hashes
         run: |
           npm run generate:csp-script-hashes
