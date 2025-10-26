@@ -785,5 +785,5 @@ function mockArticle(html: string | Map<string, string>): void {
 }
 
 function formatHtml(html: string): Promise<string> {
-  return prettier.format(html, { parser: 'html', printWidth: 80, objectWrap: 'collapse', bracketSameLine: true });
+  return prettier.format(html, { parser: 'html', printWidth: 80, bracketSameLine: true });
 }
