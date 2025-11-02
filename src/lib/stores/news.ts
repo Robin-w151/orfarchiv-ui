@@ -121,13 +121,15 @@ function createStoryBuckets(stories: Array<Story>): Array<NewsBucket> | undefine
     return b2.date.localeCompare(b1.date);
   }
 
-  stories.forEach((story) => addToBucket(buckets, story));
+  for (const story of stories) {
+    addToBucket(buckets, story);
+  }
   return Array.from(buckets.values()).sort(compareBuckets);
 }
 
 function setBookmarkStatus(stories: Array<Story>, bookmarkStories: Array<Story>): Array<Story> {
-  const bookmarkIds = bookmarkStories.map((b) => b.id);
-  return stories.map((story) => ({ ...story, isBookmarked: +bookmarkIds.includes(story.id) }));
+  const bookmarkIds = new Set(bookmarkStories.map((b) => b.id));
+  return stories.map((story) => ({ ...story, isBookmarked: +bookmarkIds.has(story.id) }));
 }
 
 function deduplicateStories(stories: Array<Story>): Array<Story> {

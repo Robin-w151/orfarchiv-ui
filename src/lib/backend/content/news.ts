@@ -47,12 +47,12 @@ export async function fetchStoryContent(url: string, fetchReadMoreContent = fals
   removeMoreToReadSection(document);
   await removeCharts(document, currentUrl);
   const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
-  if (!optimizedContent) {
+  if (!optimizedContent?.content) {
     logger.warn(`Error transforming content with url='${currentUrl}'`);
     throw new OptimizedContentIsEmptyError(`Optimized content from url='${currentUrl}' is empty`);
   }
 
-  const optimizedDocument = createDom(optimizedContent.content ?? '', currentUrl);
+  const optimizedDocument = createDom(optimizedContent.content, currentUrl);
   removeSiteNavigation(optimizedDocument);
   removeSiteAnchors(optimizedDocument);
   injectSlideShowImages(optimizedDocument, originalDocument);
@@ -111,30 +111,31 @@ function findSourceFromUrl(url: string): string | undefined {
 }
 
 function removePrintWarnings(document: Document): void {
-  document.querySelectorAll('.print-warning').forEach((element) => {
+  for (const element of document.querySelectorAll('.print-warning')) {
     element.remove();
-  });
+  }
 }
 
 function removeVideo(document: Document): void {
-  document.querySelectorAll('p.caption.stripe-credits').forEach((stripeCredits) => {
+  for (const stripeCredits of document.querySelectorAll('p.caption.stripe-credits')) {
     stripeCredits.remove();
-  });
-  document.querySelectorAll('section.stripe').forEach((stripe) => {
+  }
+
+  for (const stripe of document.querySelectorAll('section.stripe')) {
     stripe.remove();
-  });
+  }
 }
 
 function removeMoreToReadSection(document: Document): void {
-  document.querySelectorAll('#more-to-read').forEach((element) => {
+  for (const element of document.querySelectorAll('#more-to-read')) {
     element.remove();
-  });
+  }
 }
 
 async function removeCharts(document: Document, url: string): Promise<void> {
   const charts: Array<[Element, any]> = await Promise.all(
     [...document.querySelectorAll('div.embed.migsys')].map((chart) => {
-      const dataMigUrl = chart.querySelector('div.migsys')?.getAttribute('data-mig-url');
+      const dataMigUrl = chart.querySelector<HTMLDivElement>('div.migsys')?.dataset.migUrl;
       return (async () => {
         if (!dataMigUrl) {
           return [chart, undefined];
@@ -156,27 +157,27 @@ async function removeCharts(document: Document, url: string): Promise<void> {
     }),
   );
 
-  charts.forEach(([chart, data]) => {
+  for (const [chart, data] of charts) {
     const placeholderAnchor = document.createElement('a');
     placeholderAnchor.href = url;
     placeholderAnchor.textContent = `Grafik zu „${data?.title?.trim() ?? 'unbekannt'}“`;
 
     chart.replaceWith(placeholderAnchor);
-  });
+  }
 }
 
 function removeSiteNavigation(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('nav').forEach((navigation) => {
+  for (const navigation of optimizedDocument.querySelectorAll('nav')) {
     navigation.remove();
-  });
+  }
 }
 
 function removeSiteAnchors(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('a').forEach((anchor) => {
-    if (RegExp(/orf\.at.*#/i).exec(anchor.href)) {
+  for (const anchor of optimizedDocument.querySelectorAll('a')) {
+    if (new RegExp(/orf\.at.*#/i).exec(anchor.href)) {
       anchor.remove();
     }
-  });
+  }
 }
 
 function injectSlideShowImages(optimizedDocument: Document, originalDocument: Document): void {
@@ -203,18 +204,17 @@ function injectSlideShowImages(optimizedDocument: Document, originalDocument: Do
     slideShowList?.setAttribute('class', 'slideshow');
 
     const footers = [...slideShowSection.querySelectorAll('figure > footer')];
-    footers.forEach((footer) => {
-      footer.parentElement?.removeChild(footer);
-    });
+    for (const footer of footers) {
+      footer.remove();
+    }
 
     const images = [...slideShowSection.querySelectorAll('img')];
-    images.forEach((image) => {
-      image.src = image.getAttribute('data-src') ?? '';
-      image.srcset = image.getAttribute('data-srcset') ?? '';
+    for (const image of images) {
+      image.src = image.dataset.src ?? '';
+      image.srcset = image.dataset.srcset ?? '';
       image.removeAttribute('class');
       image.setAttribute('loading', 'lazy');
-      return image;
-    });
+    }
 
     if (slideShowList) {
       slideShowHeader.after(slideShowList);
@@ -230,57 +230,127 @@ function injectStoryFooter(optimizedDocument: Document, originalDocument: Docume
 }
 
 function adjustAnchorTags(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('a').forEach((anchor) => {
+  for (const anchor of optimizedDocument.querySelectorAll('a')) {
     anchor.target = '_blank';
     anchor.rel = 'noopener noreferrer';
-  });
+  }
 }
 
 function adjustLists(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('li').forEach((li) => {
+  for (const li of optimizedDocument.querySelectorAll('li')) {
     if (!li.innerHTML) {
       li.remove();
     }
-  });
+  }
 }
 
 function adjustTables(optimizedDocument: Document): void {
-  optimizedDocument.querySelectorAll('table').forEach((table) => {
-    const tableColumns = table.tHead?.rows[0]?.cells.length ?? 0;
+  for (const table of optimizedDocument.querySelectorAll('table')) {
+    adjustTable(table);
+  }
+}
 
-    if (tableColumns === 0) {
-      table.remove();
-      return;
+function adjustTable(table: HTMLTableElement): void {
+  const { isValid, columnHasContent } = checkTableValidity(table);
+  if (!isValid) {
+    table.remove();
+    return;
+  }
+
+  for (const { columnIndex, colSpan, tableCell } of tableIterator(table)) {
+    const columnsWithContent = new Array(colSpan)
+      .fill(null)
+      .reduce((count, _, i) => count + (columnHasContent[columnIndex + i] ? 1 : 0), 0);
+
+    if (columnsWithContent === 0) {
+      tableCell.remove();
+    } else if (columnsWithContent < colSpan) {
+      tableCell.colSpan = columnsWithContent;
     }
+  }
+}
 
-    const columnHasContent: Array<boolean> = Array(tableColumns).fill(false);
-    let isTableValid = true;
+function checkTableValidity(table: HTMLTableElement): { isValid: boolean; columnHasContent: Array<boolean> } {
+  const tableColumns = calculateTableColumns(table);
+  const tableRows = table.rows.length;
+  if (tableColumns === 0 || tableRows === 0) {
+    return { isValid: false, columnHasContent: [] };
+  }
 
-    [...table.rows].forEach((tableRow) => {
-      [...tableRow.children].forEach((tableCell, index) => {
-        if (index < columnHasContent.length) {
-          if (tableCell.innerHTML) {
-            columnHasContent[index] = true;
-          }
-        } else {
-          isTableValid = false;
+  const columnHasContent = new Array<boolean>(tableColumns).fill(false);
+  let isValid = true;
+
+  for (const { columnIndex, colSpan, tableCell } of tableIterator(table)) {
+    if (columnIndex + colSpan - 1 < columnHasContent.length) {
+      if (tableCell.innerHTML) {
+        for (let i = 0; i < colSpan; i++) {
+          columnHasContent[columnIndex + i] = true;
         }
-      });
-    });
-
-    if (!isTableValid) {
-      table.remove();
-      return;
+      }
+    } else {
+      isValid = false;
     }
+  }
 
-    [...table.rows].forEach((tableRow) => {
-      [...tableRow.cells].forEach((tableCell, index) => {
-        if (!columnHasContent[index]) {
-          tableCell.remove();
+  return { isValid, columnHasContent };
+}
+
+function calculateTableColumns(table: HTMLTableElement): number {
+  const firstRow = table.rows[0];
+  if (!firstRow) {
+    return 0;
+  }
+
+  return ([...firstRow.children] as Array<HTMLTableCellElement>).reduce(
+    (count, cell) => count + (cell.colSpan ?? 1),
+    0,
+  );
+}
+
+function* tableIterator(table: HTMLTableElement): Generator<{
+  rowIndex: number;
+  rowSpan: number;
+  columnIndex: number;
+  colSpan: number;
+  tableCell: HTMLTableCellElement;
+}> {
+  const tableRows = table.rows.length;
+  const rowSpanOffsetMap = new Map<number, Map<number, number>>(
+    Array.from({ length: tableRows }, () => new Map()).map((rowMap, row) => [row, rowMap]),
+  );
+
+  for (const [tableRowIndex, tableRow] of [...table.rows].entries()) {
+    let rowIndexOffset = 0;
+    for (const [tableColumnIndex, tableCell] of [...tableRow.cells].entries()) {
+      const colSpan = tableCell.colSpan ?? 1;
+      const rowSpan = tableCell.rowSpan ?? 1;
+      const additionalColumns = colSpan - 1;
+      const adjustedColumnIndex = tableColumnIndex + rowIndexOffset;
+      const additionalColumnsFromPreviousRowSpans =
+        rowSpanOffsetMap
+          .get(tableRowIndex)
+          ?.entries()
+          .filter(([c]) => c <= adjustedColumnIndex)
+          .reduce((offset, [, span]) => offset + span, 0) ?? 0;
+      const adjustedColumnIndexWithRowSpans = adjustedColumnIndex + additionalColumnsFromPreviousRowSpans;
+
+      if (rowSpan > 1) {
+        for (let i = 1; i < rowSpan; i++) {
+          rowSpanOffsetMap.get(tableRowIndex + i)?.set(adjustedColumnIndexWithRowSpans, colSpan);
         }
-      });
-    });
-  });
+      }
+
+      yield {
+        rowIndex: tableRowIndex,
+        rowSpan,
+        columnIndex: adjustedColumnIndexWithRowSpans,
+        colSpan,
+        tableCell,
+      };
+
+      rowIndexOffset += additionalColumns;
+    }
+  }
 }
 
 function sanitizeContent(html: string): string {
@@ -300,31 +370,31 @@ function extractTextForSpeechSynthesis(optimizedDocument: Document, originalDocu
   }
 
   const document = optimizedDocument.cloneNode(true) as Document;
-  document.querySelectorAll('p').forEach((element) => {
+  for (const element of document.querySelectorAll('p')) {
     const text = element.textContent?.trim() ?? '';
     if (unwantetPatterns.some((pattern) => pattern.test(text))) {
       element.remove();
     }
-  });
+  }
 
-  document.querySelectorAll('.slideshow').forEach((element) => {
+  for (const element of document.querySelectorAll('.slideshow')) {
     element.parentElement?.remove();
-  });
+  }
 
-  document.querySelectorAll('figcaption').forEach((element) => {
+  for (const element of document.querySelectorAll('figcaption')) {
     element.remove();
-  });
+  }
 
-  document.querySelectorAll('.story-footer').forEach((element) => {
+  for (const element of document.querySelectorAll('.story-footer')) {
     element.remove();
-  });
+  }
 
-  document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header) => {
+  for (const header of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
     const text = header.textContent?.trim() ?? '';
     if (text && !text.endsWith('.')) {
       header.textContent = `${text}.`;
     }
-  });
+  }
 
-  return document.body.textContent?.replace(/\s+/g, ' ')?.trim() ?? '';
+  return document.body.textContent?.replaceAll(/\s+/g, ' ')?.trim() ?? '';
 }

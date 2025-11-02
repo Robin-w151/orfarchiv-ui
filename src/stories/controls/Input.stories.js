@@ -4,6 +4,7 @@ const args = {
   id: 'input',
   value: '',
   placeholder: 'Enter text here',
+  shortcutKeys: ['Ctrl', 'K'],
 };
 
 export default {
@@ -25,6 +26,11 @@ export default {
       type: 'string',
       description: 'Placeholder text of the input control',
       control: 'text',
+    },
+    shortcutKeys: {
+      type: 'array',
+      description: 'Shortcut keys of the input control',
+      control: 'array',
     },
     onchange: {
       action: 'change',

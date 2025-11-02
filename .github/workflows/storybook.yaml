@@ -1,0 +1,36 @@
+name: Storybook
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  storybook:
+    name: storybook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version-file: package.json
+      - name: Setup Aikido safe-chain
+        run: npm i -g @aikidosec/safe-chain
+      - name: Install dependencies
+        run: aikido-npm ci --ignore-scripts
+      - name: Build Storybook
+        run: npm run storybook:build
+      - name: Upload Storybook artifacts
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: storybook-static
+      - name: Deploy Storybook to GitHub Pages
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        with:
+          token: ${{ github.token }}

@@ -22,7 +22,7 @@
 <Button onclick={handleModalOpen}>Open Modal</Button>
 {#if isVisible}
   <Modal
-    modalClass="w-full h-full sm:h-[max(60%,36rem)]"
+    class="w-full h-full sm:h-[max(60%,36rem)]"
     label="Modal Label"
     {closeOnBackdropClick}
     onClose={handleModalClose}
