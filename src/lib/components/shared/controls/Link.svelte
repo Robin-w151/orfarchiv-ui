@@ -25,6 +25,7 @@
   `;
 </script>
 
+<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a class={linkClass} {href} {target} {rel} {onclick}>
   {@render children?.()}
 </a>
