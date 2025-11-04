@@ -67,10 +67,10 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_SIGNING_KEY" > ~/.ssh/signing_key
-          chmod 600 ~/.ssh/signing_key
-          ssh-add ~/.ssh/signing_key || true
+          echo "$SSH_SIGNING_KEY_PUBLIC" > ~/.ssh/signing_key.pub
+          chmod 600 ~/.ssh/signing_key ~/.ssh/signing_key.pub
           git config --global gpg.format ssh
-          git config --global user.signingkey "$SSH_SIGNING_KEY_PUBLIC"
+          git config --global user.signingkey ~/.ssh/signing_key.pub
           git config --global commit.gpgsign true
           git config --global tag.gpgsign true
         env:
