@@ -66,13 +66,16 @@ jobs:
       - name: Configure commit signing
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/signing_key
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/signing_key
           chmod 600 ~/.ssh/signing_key
           ssh-add ~/.ssh/signing_key || true
           git config --global gpg.format ssh
-          git config --global user.signingkey "${{ secrets.SSH_SIGNING_KEY_PUBLIC }}"
+          git config --global user.signingkey "$SSH_SIGNING_KEY_PUBLIC"
           git config --global commit.gpgsign true
           git config --global tag.gpgsign true
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+          SSH_SIGNING_KEY_PUBLIC: ${{ secrets.SSH_SIGNING_KEY_PUBLIC }}
       - name: Create release
         run: npx semantic-release
         env:
