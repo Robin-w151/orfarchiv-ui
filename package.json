@@ -106,6 +106,6 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=22.x"
+    "node": "22.x"
   }
 }
