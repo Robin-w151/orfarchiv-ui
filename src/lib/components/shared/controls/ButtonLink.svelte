@@ -64,6 +64,7 @@
   }
 </script>
 
+<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a
   class={buttonClass}
   {href}
