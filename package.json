@@ -102,7 +102,8 @@
     "zod": "4.1.13"
   },
   "overrides": {
-    "conventional-changelog-conventionalcommits": ">=8.0.0"
+    "conventional-changelog-conventionalcommits": ">=8.0.0",
+    "glob": ">=10.5.0"
   },
   "type": "module",
   "engines": {
