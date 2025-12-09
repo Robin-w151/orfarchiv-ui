@@ -72,7 +72,7 @@
     `${defaultText} ${defaultBackground}`,
     'rounded-lg overflow-auto',
   ];
-  const infoTableHeaderClass = 'p-2';
+  const infoTableHeaderClass = 'p-2 text-left';
   const infoTableCellClass = 'px-2 py-1 whitespace-nowrap';
   const infoTableKeysClass = 'flex items-center gap-1';
   const infoTableKeySeparatorClass = 'px-1';
