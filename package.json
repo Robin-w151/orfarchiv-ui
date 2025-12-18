@@ -71,7 +71,7 @@
     "lodash.debounce": "4.0.8",
     "lru-cache": "11.2.4",
     "luxon": "3.7.2",
-    "mongodb": "6.21.0",
+    "mongodb": "7.0.0",
     "openai": "6.10.0",
     "prettier": "3.7.4",
     "prettier-plugin-svelte": "3.4.1",
