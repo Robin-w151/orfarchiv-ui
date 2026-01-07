@@ -6,6 +6,7 @@
   const notificationsClass = `
     flex flex-col items-center ${defaultGap}
     fixed z-40 left-8 right-8 bottom-4 lg:bottom-8
+    pointer-events-none
   `;
 
   let appNotifications = $derived($notifications.filter((notification) => !notification.system));

@@ -23,6 +23,7 @@
     bg-gray-100 dark:bg-gray-800
     focus:outline-2 outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark)
     rounded-lg shadow-md dark:shadow-2xl
+    pointer-events-auto
   `;
   const contentClass = `
     flex flex-col ${defaultGap}
