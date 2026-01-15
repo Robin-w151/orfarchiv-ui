@@ -79,7 +79,7 @@
     "semantic-release": "25.0.2",
     "sonda": "0.10.1",
     "storybook": "10.1.11",
-    "svelte": "5.46.1",
+    "svelte": "5.46.4",
     "svelte-check": "4.3.5",
     "svelte-loader": "3.2.4",
     "svelte-persisted-store": "0.12.0",
