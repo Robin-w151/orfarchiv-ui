@@ -35,10 +35,6 @@ class AudioStore implements AudioStoreInterface {
   private speechSynthesis: SpeechSynthesis | undefined;
   private utterance: { text: string; voice?: SpeechSynthesisVoice; rate: number; volume: number } | undefined;
 
-  constructor() {
-    this.init();
-  }
-
   read = (newStory: Story, newText: string): void => {
     if (!this.isAvailable) {
       return;
@@ -184,12 +180,12 @@ class AudioStore implements AudioStoreInterface {
     }
   };
 
-  private async init(): Promise<void> {
+  async init(): Promise<void> {
     if (!browser) {
       return;
     }
 
-    const { speechSynthesis, speechSynthesisUtterance } = await EasySpeech.detect();
+    const { speechSynthesis, speechSynthesisUtterance } = EasySpeech.detect();
     if (speechSynthesis && speechSynthesisUtterance) {
       try {
         await EasySpeech.init({ maxTimeout: 5000, interval: 250 });
@@ -248,5 +244,6 @@ export function getAudioStore(key: string = DEFAULT_KEY): AudioStoreInterface {
 
 export function setAudioStore(key: string = DEFAULT_KEY): AudioStoreInterface {
   const audioStore = new AudioStore();
+  audioStore.init();
   return setContext(key, audioStore);
 }

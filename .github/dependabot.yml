@@ -20,5 +20,3 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@mozilla/readability'
         versions: '>0.5.0'
-      - dependency-name: 'jsdom'
-        versions: '>27.0.0'
