@@ -15,14 +15,16 @@
 
   const rel = $derived(target === '_blank' ? 'noopener noreferrer' : undefined);
 
-  const linkClass = customStyle
-    ? clazz
-    : `
-    text-blue-800 dark:text-blue-500 dark:hover:text-blue-700 hover:bg-blue-100
-    focus:bg-blue-100 outline-hidden
-    cursor-pointer
-    ${clazz}
-  `;
+  const linkClass = $derived(
+    customStyle
+      ? clazz
+      : `
+        text-blue-800 dark:text-blue-500 dark:hover:text-blue-700 hover:bg-blue-100
+        focus:bg-blue-100 outline-hidden
+        cursor-pointer
+        ${clazz}
+      `,
+  );
 </script>
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
