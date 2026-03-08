@@ -223,9 +223,17 @@ function injectSlideShowImages(optimizedDocument: Document, originalDocument: Do
 }
 
 function injectStoryFooter(optimizedDocument: Document, originalDocument: Document): void {
-  const storyFooter = originalDocument.querySelector('.story-footer');
-  if (storyFooter) {
-    optimizedDocument.body.appendChild(storyFooter);
+  const originalStoryFooter = originalDocument.querySelector('.story-footer');
+
+  const storyFooterCandidates = optimizedDocument.querySelectorAll('div > div > p');
+  for (const storyFooterCandidate of storyFooterCandidates) {
+    if (storyFooterCandidate.textContent.trim() === originalStoryFooter?.textContent?.trim()) {
+      storyFooterCandidate.remove();
+    }
+  }
+
+  if (originalStoryFooter) {
+    optimizedDocument.body.appendChild(originalStoryFooter);
   }
 }
 
