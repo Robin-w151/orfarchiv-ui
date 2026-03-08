@@ -162,6 +162,10 @@
       @apply text-sm text-gray-600 dark:text-gray-400;
     }
 
+    .tv-notice {
+      @apply italic text-gray-600 dark:text-gray-400;
+    }
+
     .story-footer {
       @apply clear-both;
     }
