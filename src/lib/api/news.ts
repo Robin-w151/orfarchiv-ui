@@ -118,7 +118,7 @@ export class NewsApi {
     } catch (error) {
       if (requestId && this.cancels.get(requestId)) {
         this.cancels.delete(requestId);
-        throw new Error('Request was cancelled!');
+        throw new Error('Request was cancelled!', { cause: error });
       } else {
         throw error;
       }
