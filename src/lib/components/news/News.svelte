@@ -31,7 +31,7 @@
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
 
-  let checkUpdatesTimeout: any;
+  let checkUpdatesTimeout: ReturnType<typeof setTimeout> | undefined;
   let showNewsList = $derived(hasNews($news as News));
   let anySourcesEnabled = $derived(hasAnySourcesEnabled($settings as Settings));
   let loadMoreButtonDisabled = $derived($news.nextKey === null);
