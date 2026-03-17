@@ -421,7 +421,7 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   @reference 'tailwindcss';
 
   :global(.viewer-button) {

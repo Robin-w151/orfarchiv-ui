@@ -14,13 +14,13 @@
 
   let { title, message, icon = InformationCircle, boxPadding, actionsContent }: Props = $props();
 
-  const alertBoxClass = [
+  const alertBoxClass = $derived([
     'flex flex-col items-center gap-8 sm:gap-16',
     boxPadding ?? 'p-8 sm:p-32',
     'w-full',
     defaultText,
     defaultBackground,
-  ];
+  ]);
   const alertBoxText = `flex flex-col gap-4 sm:gap-8`;
   const alertBoxTitle = `text-center text-xl sm:text-2xl`;
   const alertBoxMessage = `text-center`;

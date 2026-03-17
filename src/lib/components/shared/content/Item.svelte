@@ -29,15 +29,17 @@
 
   let itemRef: HTMLLIElement | undefined = $state();
 
-  const itemClass = clsx([
-    !noFlex && 'flex',
-    noColumn ? 'flex-row items-center justify-between' : 'flex-col',
-    !noGap && 'gap-3',
-    !noPadding && defaultPadding,
-    'text-gray-800 dark:text-gray-300',
-    'outline-hidden',
-    clazz,
-  ]);
+  const itemClass = $derived(
+    clsx([
+      !noFlex && 'flex',
+      noColumn ? 'flex-row items-center justify-between' : 'flex-col',
+      !noGap && 'gap-3',
+      !noPadding && defaultPadding,
+      'text-gray-800 dark:text-gray-300',
+      'outline-hidden',
+      clazz,
+    ]),
+  );
 
   export function scrollIntoView(): void {
     if (itemRef) {

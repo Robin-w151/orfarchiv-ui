@@ -5,6 +5,7 @@ export default {
   component: ThreeDotsLoadingIndicator,
 };
 
-export const ThreeDots = () => ({
+export const ThreeDots = (args) => ({
   Component: ThreeDotsLoadingIndicator,
+  props: args,
 });

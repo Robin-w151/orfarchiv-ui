@@ -7,8 +7,8 @@
 
   let { class: clazz }: Props = $props();
 
-  const loadingIndicatorClass = clsx(['flex justify-center items-center gap-2', 'w-fit', clazz]);
-  const dotClass = clsx(['w-2 h-2', 'rounded-full']);
+  const loadingIndicatorClass = $derived(clsx(['flex justify-center items-center gap-2', 'w-fit', clazz]));
+  const dotClass = $derived(clsx(['w-2 h-2', 'rounded-full']));
 </script>
 
 <div class="loading-indicator {loadingIndicatorClass}">

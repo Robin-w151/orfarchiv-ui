@@ -22,6 +22,7 @@
 
   let { storyContent, onClose }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   const aiSummaryState = new StoryAiSummaryState(storyContent);
 
   onMount(async () => {
