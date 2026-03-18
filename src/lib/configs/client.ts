@@ -62,13 +62,13 @@ export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
   'gemini-2.5-flash': {
     name: 'Gemini 2.5 Flash',
     modelCode: 'gemini-2.5-flash',
-    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini_25_flash',
     supportsThinking: true,
   },
   'gemini-2.5-flash-lite': {
     name: 'Gemini 2.5 Flash-Lite',
     modelCode: 'gemini-2.5-flash-lite',
-    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite',
+    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini_25_flash-lite',
     supportsThinking: true,
   },
 }) satisfies AiModelConfigMap;
