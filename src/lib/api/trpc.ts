@@ -1,5 +1,6 @@
 import type { AppRouter } from '$lib/backend/trpc/router';
 import { DEFAULT_REQUEST_RETRIES, STORY_CONTENT_FETCH_RETRIES } from '$lib/configs/client';
+import { is4xxError } from '$lib/utils/http';
 import {
   createTRPCClient,
   httpLink,
@@ -69,10 +70,6 @@ function shouldRetry({
   }
 
   return true;
-}
-
-function is4xxError(code?: number | undefined): boolean {
-  return code !== undefined && code >= 400 && code < 500;
 }
 
 function calculateRetryDelay(attempts: number): number {

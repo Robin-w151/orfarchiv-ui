@@ -5,6 +5,8 @@ import {
 } from '$lib/configs/server';
 import { API_VERSION } from '$lib/configs/shared';
 import { SearchRequest } from '$lib/models/searchRequest';
+import { TRPCError } from '@trpc/server';
+import { Either } from 'effect';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { isOrfUrl } from '../../utils/urls';
@@ -41,11 +43,30 @@ const news = {
     .query(async ({ input, ctx }) => {
       const { url, fetchReadMoreContent } = input;
       const content = await fetchStoryContent(url, fetchReadMoreContent);
-      const maxage = getMaxAge(content.timestamp);
+      if (Either.isLeft(content)) {
+        switch (content.left._tag) {
+          case 'MetaDataNotFoundError':
+          case 'ContentNotFoundError': {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: content.left.message,
+            });
+          }
+          default: {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Unknown error',
+              cause: content.left,
+            });
+          }
+        }
+      }
+
+      const maxage = getMaxAge(content.right.timestamp);
       ctx.event.setHeaders({
         'Cache-Control': `max-age=0, s-maxage=${maxage}`,
       });
-      return content;
+      return content.right;
     }),
 };
 
