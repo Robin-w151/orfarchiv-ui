@@ -234,7 +234,12 @@ function fetchChartData(url: string | undefined): Effect.Effect<ChartData | unde
 
     const parsedData = ChartData.safeParse(data);
     return parsedData.data;
-  }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+  }).pipe(
+    Effect.tapError((error) =>
+      Effect.sync(() => logger.warn(`Failed to fetch chart data: url='${error.url}' error='${error}'`)),
+    ),
+    Effect.catchAll(() => Effect.succeed(undefined)),
+  );
 }
 
 function removeSiteNavigation(optimizedDocument: Document): void {
