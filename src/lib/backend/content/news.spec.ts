@@ -814,6 +814,107 @@ describe('News content', () => {
       await expect(content).toBeHtml(expected);
     });
   });
+
+  describe('Charts', () => {
+    test('replace chart with titled placeholder anchor', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-1';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve({ title: '  Wahl 2026  ' }) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „Wahl 2026“</a>
+        </div>
+      `);
+    });
+
+    test('replace chart with unknown placeholder anchor when chart data has no title', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-2';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „unbekannt“</a>
+        </div>
+      `);
+    });
+
+    test('replace chart with unknown placeholder anchor when chart request fails', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-3';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „unbekannt“</a>
+        </div>
+      `);
+    });
+  });
 });
 
 function mockArticle(html: string | Map<string, string>): void {
