@@ -1,5 +1,13 @@
 import { Data } from 'effect';
 
+// Error Tags
+export type Tags = Array<Tag>;
+export type Tag = [string, string];
+
+export function formatTags(tags: Tags): string {
+  return tags.map(([key, value]) => `${key}='${value}'`).join(', ');
+}
+
 // Story content
 export type FetchStoryContentError =
   | FetchError
@@ -7,16 +15,21 @@ export type FetchStoryContentError =
   | MetaDataNotFoundError
   | ContentNotFoundError
   | OptimizedContentIsEmptyError;
-export class FetchError extends Data.TaggedError('FetchError')<{ url: string; cause?: unknown }> {}
-export class ParseError extends Data.TaggedError('ParseError')<{ url: string; cause?: unknown }> {}
+export class FetchError extends Data.TaggedError('FetchError')<{ url: string; tags: Tags; cause?: unknown }> {}
+export class ParseError extends Data.TaggedError('ParseError')<{ url: string; tags: Tags; cause?: unknown }> {}
 export class MetaDataNotFoundError extends Data.TaggedError('MetaDataNotFoundError')<{
   url: string;
-  message: string;
+  tags: Tags;
   cause?: unknown;
 }> {}
-export class ContentNotFoundError extends Data.TaggedError('ContentNotFoundError')<{ url: string; message: string }> {}
+export class ContentNotFoundError extends Data.TaggedError('ContentNotFoundError')<{
+  url: string;
+  tags: Tags;
+  message: string;
+}> {}
 export class OptimizedContentIsEmptyError extends Data.TaggedError('OptimizedContentIsEmptyError')<{
   url: string;
+  tags: Tags;
   message: string;
 }> {}
 

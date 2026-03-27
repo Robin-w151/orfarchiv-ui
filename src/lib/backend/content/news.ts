@@ -3,6 +3,7 @@ import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
 import {
   ContentNotFoundError,
   FetchError,
+  formatTags,
   MetaDataNotFoundError,
   OptimizedContentIsEmptyError,
   ParseError,
@@ -69,6 +70,7 @@ export function fetchStoryContent(
       logger.warn(`Error transforming content with url='${currentUrl}'`);
       return yield* new OptimizedContentIsEmptyError({
         url: currentUrl,
+        tags: [['url', currentUrl]],
         message: `Optimized content from url='${currentUrl}' is empty`,
       });
     }
@@ -94,9 +96,7 @@ export function fetchStoryContent(
   });
 
   return program.pipe(
-    Effect.tapError((error) =>
-      Effect.sync(() => logger.warn(`Failed to fetch content: url='${error.url}' error='${error}'`)),
-    ),
+    Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch content: ${formatTags(error.tags)}`))),
     Effect.either,
     Effect.runPromise,
   );
@@ -108,34 +108,49 @@ function fetchStoryMetadata(
 ): Effect.Effect<Story, MetaDataNotFoundError> {
   return Effect.tryPromise({
     try: () => searchStory(url, { includeOesterreichSource }),
-    catch: (cause) =>
-      new MetaDataNotFoundError({ url, message: `Metadata for story with url='${url}' not found`, cause }),
-  }).pipe(
-    Effect.filterOrFail(
-      Predicate.isNotNullable,
-      () => new MetaDataNotFoundError({ url, message: `Metadata for story with url='${url}' not found` }),
-    ),
-  );
+    catch: (cause) => new MetaDataNotFoundError({ url, tags: [['url', url]], cause }),
+  }).pipe(Effect.filterOrFail(Predicate.isNotNullable, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
 }
 
 function fetchSiteHtmlText(url: string): Effect.Effect<string, FetchError | ParseError | ContentNotFoundError> {
   return Effect.gen(function* () {
     const response = yield* Effect.tryPromise({
       try: () => fetch(url),
-      catch: (cause) => new FetchError({ url, cause }),
+      catch: (cause) =>
+        new FetchError({
+          url,
+          tags: [
+            ['url', url],
+            ['cause', (cause as Error).message],
+          ],
+          cause,
+        }),
     });
 
     if (!response.ok) {
       if (response.status === 404) {
-        return yield* new ContentNotFoundError({ url, message: `Content from url='${url}' cannot be loaded` });
+        return yield* new ContentNotFoundError({
+          url,
+          tags: [
+            ['url', url],
+            ['status', response.status.toString()],
+          ],
+          message: `Content from url='${url}' cannot be loaded`,
+        });
       } else {
-        return yield* new FetchError({ url });
+        return yield* new FetchError({
+          url,
+          tags: [
+            ['url', url],
+            ['status', response.status.toString()],
+          ],
+        });
       }
     }
 
     const text = yield* Effect.tryPromise({
       try: () => response.text(),
-      catch: (cause) => new ParseError({ url, cause }),
+      catch: (cause) => new ParseError({ url, tags: [['url', url]], cause }),
     });
 
     return text;
@@ -220,24 +235,36 @@ function fetchChartData(url: string | undefined): Effect.Effect<ChartData | unde
 
     const response = yield* Effect.tryPromise({
       try: () => fetch(`${url}/config.json`),
-      catch: (cause) => new FetchError({ url, cause }),
+      catch: (cause) =>
+        new FetchError({
+          url,
+          tags: [
+            ['url', url],
+            ['cause', (cause as Error).message],
+          ],
+          cause,
+        }),
     });
 
     if (!response.ok) {
-      return yield* new FetchError({ url });
+      return yield* new FetchError({
+        url,
+        tags: [
+          ['url', url],
+          ['status', response.status.toString()],
+        ],
+      });
     }
 
     const data = yield* Effect.tryPromise({
       try: () => response.json(),
-      catch: (cause) => new ParseError({ url, cause }),
+      catch: (cause) => new ParseError({ url, tags: [['url', url]], cause }),
     });
 
     const parsedData = ChartData.safeParse(data);
     return parsedData.data;
   }).pipe(
-    Effect.tapError((error) =>
-      Effect.sync(() => logger.warn(`Failed to fetch chart data: url='${error.url}' error='${error}'`)),
-    ),
+    Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch chart data: ${formatTags(error.tags)}`))),
     Effect.catchAll(() => Effect.succeed(undefined)),
   );
 }

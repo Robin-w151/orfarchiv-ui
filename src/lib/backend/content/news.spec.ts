@@ -1,4 +1,4 @@
-import { FetchError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
+import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
 import { Either } from 'effect';
 import prettier from 'prettier';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -107,20 +107,30 @@ describe('News content', () => {
       expect(error).toEqual(
         new OptimizedContentIsEmptyError({
           url: mockArticleUrl,
+          tags: [['url', mockArticleUrl]],
           message: "Optimized content from url='https://www.orf.at/stories/1234567890' is empty",
         }),
       );
     });
 
     test('content not found', async () => {
-      mockedFetch.mockResolvedValue({ ok: false, text: () => Promise.reject(new Error('Content not found')) });
+      mockedFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        text: () => Promise.reject(new Error('Content not found')),
+      });
 
       const result = await fetchStoryContent(mockArticleUrl);
       const error = Either.isLeft(result) ? result.left : undefined;
 
       expect(error).toEqual(
-        new FetchError({
+        new ContentNotFoundError({
           url: mockArticleUrl,
+          tags: [
+            ['url', mockArticleUrl],
+            ['status', '404'],
+          ],
+          message: `Content from url='https://www.orf.at/stories/1234567890' cannot be loaded`,
         }),
       );
     });
