@@ -1,7 +1,8 @@
+import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
+import { Either } from 'effect';
+import prettier from 'prettier';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { fetchStoryContent } from './news';
-import prettier from 'prettier';
-import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
 
 interface CustomMatchers<R = unknown> {
   toBeHtml: (expected: string) => Promise<R>;
@@ -52,7 +53,7 @@ const {
     mockReadMoreArticleUrl: readMoreArticleUrl,
     mockReadMoreArticleSource: readMoreArticleSource,
     mockedFetch: vi.fn(),
-    mockedSearchStory: vi.fn().mockImplementation((url) => {
+    mockedSearchStory: vi.fn().mockImplementation(async (url) => {
       if (url === readMoreArticleUrl) {
         return readMoreStory;
       } else {
@@ -91,7 +92,8 @@ describe('News content', () => {
     test('simple article', async () => {
       mockArticle('<p>Hello World</p>');
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -99,13 +101,38 @@ describe('News content', () => {
     test('empty article', async () => {
       mockArticle('');
 
-      await expect(fetchStoryContent(mockArticleUrl)).rejects.toThrowError(OptimizedContentIsEmptyError);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const error = Either.isLeft(result) ? result.left : undefined;
+
+      expect(error).toEqual(
+        new OptimizedContentIsEmptyError({
+          url: mockArticleUrl,
+          tags: [['url', mockArticleUrl]],
+          message: "Optimized content from url='https://www.orf.at/stories/1234567890' is empty",
+        }),
+      );
     });
 
     test('content not found', async () => {
-      mockedFetch.mockResolvedValue({ ok: false, text: () => Promise.reject(new Error('Content not found')) });
+      mockedFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        text: () => Promise.reject(new Error('Content not found')),
+      });
 
-      await expect(fetchStoryContent(mockArticleUrl)).rejects.toThrowError(ContentNotFoundError);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const error = Either.isLeft(result) ? result.left : undefined;
+
+      expect(error).toEqual(
+        new ContentNotFoundError({
+          url: mockArticleUrl,
+          tags: [
+            ['url', mockArticleUrl],
+            ['status', '404'],
+          ],
+          message: `Content from url='https://www.orf.at/stories/1234567890' cannot be loaded`,
+        }),
+      );
     });
 
     test('adjust list with empty items', async () => {
@@ -117,7 +144,8 @@ describe('News content', () => {
         </ul>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -137,7 +165,8 @@ describe('News content', () => {
         <script>alert('Hello World');</script>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -155,7 +184,8 @@ describe('News content', () => {
         <p class="print-warning">Print warning</p>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -168,7 +198,8 @@ describe('News content', () => {
         </section>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -181,7 +212,8 @@ describe('News content', () => {
         </div>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -194,7 +226,8 @@ describe('News content', () => {
         </nav>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -205,7 +238,8 @@ describe('News content', () => {
         <a href="https://www.orf.at/#/article/1234567890">Article</a>
       `);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -290,7 +324,10 @@ describe('News content', () => {
         ]),
       );
 
-      const { content, id, source } = await fetchStoryContent(mockArticleUrl, fetchReadMore);
+      const result = await fetchStoryContent(mockArticleUrl, fetchReadMore);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+      const id = Either.isRight(result) ? result.right.id : undefined;
+      const source = Either.isRight(result) ? result.right.source : undefined;
 
       await expect(content).toBeHtml(expected);
       expect(id).toBe(expectedId);
@@ -771,9 +808,111 @@ describe('News content', () => {
     ])('$title', async ({ article, expected }) => {
       mockArticle(article);
 
-      const { content } = await fetchStoryContent(mockArticleUrl);
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
 
       await expect(content).toBeHtml(expected);
+    });
+  });
+
+  describe('Charts', () => {
+    test('replace chart with titled placeholder anchor', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-1';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve({ title: '  Wahl 2026  ' }) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „Wahl 2026“</a>
+        </div>
+      `);
+    });
+
+    test('replace chart with unknown placeholder anchor when chart data has no title', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-2';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „unbekannt“</a>
+        </div>
+      `);
+    });
+
+    test('replace chart with unknown placeholder anchor when chart request fails', async () => {
+      const chartUrl = 'https://charts.orf.at/chart-3';
+      const article = `
+        <p>Hello World</p>
+        <div class="embed migsys">
+          <div class="migsys" data-mig-url="${chartUrl}"></div>
+        </div>
+      `;
+
+      mockedFetch.mockImplementation((url) => {
+        const requestedUrl = String(url);
+
+        if (requestedUrl === mockArticleUrl) {
+          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+        }
+        if (requestedUrl === `${chartUrl}/config.json`) {
+          return Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) });
+        }
+
+        return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
+      });
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`
+        <div id="readability-page-1" class="page">
+          <p>Hello World</p>
+          <a href="${mockArticleUrl}" target="_blank" rel="noopener noreferrer">Grafik zu „unbekannt“</a>
+        </div>
+      `);
     });
   });
 });
