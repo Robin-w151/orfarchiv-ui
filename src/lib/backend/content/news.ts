@@ -55,7 +55,7 @@ export function fetchStoryContent(
           source = story?.source ?? findSourceFromUrl(currentUrl);
           originalDocument = createDom(currentData, currentUrl);
         } else {
-          logger.warn(`Fetch content from readMore url not possible!`);
+          logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.left.tags)}`);
         }
       }
     }
