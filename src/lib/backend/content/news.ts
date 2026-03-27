@@ -32,8 +32,8 @@ export function fetchStoryContent(
       fetchSiteHtmlText(currentUrl),
     ]);
 
-    let id;
-    let source;
+    let id: string | undefined = undefined;
+    let source: string | undefined = undefined;
     let originalDocument = createDom(currentData, currentUrl);
 
     if (fetchReadMoreContent) {
