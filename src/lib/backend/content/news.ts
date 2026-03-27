@@ -108,7 +108,15 @@ function fetchStoryMetadata(
 ): Effect.Effect<Story, MetaDataNotFoundError> {
   return Effect.tryPromise({
     try: () => searchStory(url, { includeOesterreichSource }),
-    catch: (cause) => new MetaDataNotFoundError({ url, tags: [['url', url]], cause }),
+    catch: (cause) =>
+      new MetaDataNotFoundError({
+        url,
+        tags: [
+          ['url', url],
+          ['cause', (cause as Error).message],
+        ],
+        cause,
+      }),
   }).pipe(Effect.filterOrFail(Predicate.isNotNullable, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
 }
 
