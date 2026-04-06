@@ -88,8 +88,19 @@ test.describe('NewsPage', () => {
       await expect(newsPage.newsListItems).toHaveCount(expectedCount);
     });
 
+    test('add tag filter', async ({ page, newsPage }) => {
+      await newsPage.mockSearchNewsApi(newsMockWithFilter, { filter: 'Wissenschaft' });
+
+      await newsPage.newsFilterTagMenuButton.click();
+      await newsPage.popover.getByText('Wissenschaft').click();
+      await page.waitForTimeout(250);
+
+      await expect(newsPage.popover).not.toBeVisible();
+      await expect(newsPage.textFilterInput).toHaveValue('Wissenschaft');
+    });
+
     test('date filter is changeable', async ({ newsPage }) => {
-      await newsPage.newsFilterMenuButton.click();
+      await newsPage.newsFilterOtherMenuButton.click();
       await expect(newsPage.getDateFilterInput('Von')).toBeEditable();
       await expect(newsPage.getDateFilterInput('Bis')).toBeEditable();
     });

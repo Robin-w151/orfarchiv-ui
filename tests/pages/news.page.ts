@@ -18,8 +18,12 @@ export class NewsPage {
     return this.page.locator('#news #news-filter');
   }
 
-  get newsFilterMenuButton(): Locator {
-    return this.newsFilter.locator('div + div > button');
+  get newsFilterTagMenuButton(): Locator {
+    return this.newsFilter.getByTitle('Schlagwörter');
+  }
+
+  get newsFilterOtherMenuButton(): Locator {
+    return this.newsFilter.getByTitle('Weitere Filter-Optionen');
   }
 
   get textFilterInput(): Locator {
