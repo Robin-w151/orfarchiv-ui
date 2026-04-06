@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import NewsFilterPopover from '$lib/components/news/filter/NewsFilterPopover.svelte';
+  import NewsFilterOtherPopover from '$lib/components/news/filter/NewsFilterOtherPopover.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import { startSearch } from '$lib/stores/newsEvents';
   import searchFilter from '$lib/stores/searchFilter';
@@ -9,6 +9,7 @@
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { isTouchDevice } from '$lib/utils/support';
   import { onDestroy, onMount } from 'svelte';
+  import NewsFilterTagPopover from './NewsFilterTagPopover.svelte';
 
   const subscriptions: Array<Subscription> = [];
 
@@ -36,6 +37,11 @@
     textFilterInputRef?.focus();
   }
 
+  function handleSelectTag(tag: string): void {
+    const textFilter = ($searchFilter.textFilter ?? '').trimEnd();
+    searchFilter.setTextFilter(textFilter ? `${textFilter} ${tag}` : tag);
+  }
+
   function handleTextFilterChange(textFilter?: string): void {
     searchFilter.setTextFilter(textFilter);
   }
@@ -58,7 +64,8 @@
     {shortcutKeys}
     bind:this={textFilterInputRef}
   />
-  <NewsFilterPopover
+  <NewsFilterTagPopover onSelectTag={handleSelectTag} />
+  <NewsFilterOtherPopover
     from={$searchFilter.tempDateFilter?.from}
     to={$searchFilter.tempDateFilter?.to}
     onFromChange={handleDateFilterFromChange}
