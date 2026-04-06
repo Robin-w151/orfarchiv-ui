@@ -88,12 +88,11 @@ test.describe('NewsPage', () => {
       await expect(newsPage.newsListItems).toHaveCount(expectedCount);
     });
 
-    test('add tag filter', async ({ page, newsPage }) => {
+    test('add tag filter', async ({ newsPage }) => {
       await newsPage.mockSearchNewsApi(newsMockWithFilter, { filter: 'Wissenschaft' });
 
       await newsPage.newsFilterTagMenuButton.click();
       await newsPage.popover.getByText('Wissenschaft').click();
-      await page.waitForTimeout(250);
 
       await expect(newsPage.popover).not.toBeVisible();
       await expect(newsPage.textFilterInput).toHaveValue('Wissenschaft');
