@@ -1,32 +1,37 @@
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
-import { derived, type Readable } from 'svelte/store';
+import { BehaviorSubject, combineLatestWith, distinctUntilChanged, map } from 'rxjs';
 import searchFilter, { type SearchFilterStoreProps } from './searchFilter';
 import settings from './settings';
-import { distinctUntilChanged } from './utils';
 
-export type SearchRequestParametersStore = Readable<SearchRequestParameters>;
-
-function searchFilterStorePropsNotEqual(p1?: SearchFilterStoreProps, p2?: SearchFilterStoreProps): boolean {
+function searchFilterStorePropsEqual(p1?: SearchFilterStoreProps, p2?: SearchFilterStoreProps): boolean {
   return (
-    p1?.textFilter !== p2?.textFilter ||
-    p1?.dateFilter?.from !== p2?.dateFilter?.from ||
-    p1?.dateFilter?.to !== p2?.dateFilter?.to
+    p1?.textFilter === p2?.textFilter &&
+    p1?.tag === p2?.tag &&
+    p1?.dateFilter?.from === p2?.dateFilter?.from &&
+    p1?.dateFilter?.to === p2?.dateFilter?.to
   );
 }
 
-const searchFilterChanged = distinctUntilChanged(searchFilter, searchFilterStorePropsNotEqual);
+const initialState = {};
+const subject = new BehaviorSubject<SearchRequestParameters>(initialState);
 
-const searchRequestParameters = derived([searchFilterChanged, settings], ([$searchFilterStoreProps, $settings]) => {
-  const { textFilter, dateFilter } = $searchFilterStoreProps;
-  const { sources } = $settings;
-  return {
-    textFilter,
-    dateFilter: {
-      from: dateFilter?.from?.toISO() ?? undefined,
-      to: dateFilter?.to?.toISO() ?? undefined,
-    },
-    sources,
-  } satisfies SearchRequestParameters;
-}) as SearchRequestParametersStore;
+searchFilter.observable
+  .pipe(
+    distinctUntilChanged(searchFilterStorePropsEqual),
+    combineLatestWith(settings.observable),
+    map(([searchFilter, settings]) => {
+      const { textFilter, tag, dateFilter } = searchFilter ?? {};
+      const { sources } = settings;
+      return {
+        textFilter: [textFilter, tag].filter((t) => !!t).join(' '),
+        dateFilter: {
+          from: dateFilter?.from?.toISO() ?? undefined,
+          to: dateFilter?.to?.toISO() ?? undefined,
+        },
+        sources,
+      };
+    }),
+  )
+  .subscribe((searchRequestParameters) => subject.next(searchRequestParameters));
 
-export default searchRequestParameters;
+export default subject;

@@ -1,7 +1,7 @@
 import type { SearchFilter } from '$lib/models/searchRequest';
-import debounce from 'lodash.debounce';
 import { DateTime, type DurationLike } from 'luxon';
-import { writable, type Readable } from 'svelte/store';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { type Readable, type Subscriber } from 'svelte/store';
 
 export type InternalDateFilter = {
   from?: DateTime;
@@ -9,12 +9,16 @@ export type InternalDateFilter = {
 };
 
 export interface SearchFilterStoreProps extends Omit<SearchFilter, 'dateFilter'> {
+  tag?: string;
   dateFilter?: InternalDateFilter;
   tempDateFilter?: InternalDateFilter;
 }
 
-export interface SearchFilterStore extends Readable<SearchFilterStoreProps>, Partial<SearchFilterStoreProps> {
+export interface SearchFilterStore extends Readable<SearchFilterStoreProps> {
+  get observable(): Observable<SearchFilterStoreProps>;
   setTextFilter: (textFilter: string | undefined) => void;
+  setTag: (tag: string) => void;
+  resetTag: () => void;
   setFrom: (fromDate: string | undefined) => void;
   setTo: (toDate: string | undefined) => void;
   applyTempSearchFilter: () => void;
@@ -37,11 +41,28 @@ const initialState = (): SearchFilterStoreProps => ({
     to: undefined,
   },
 });
-const { subscribe, update } = writable<SearchFilterStoreProps>(initialState());
-const debouncedUpdate = debounce(update, 250, { leading: false, trailing: true });
+
+const subject = new BehaviorSubject<SearchFilterStoreProps>(initialState());
+
+const subscribe = (run: Subscriber<SearchFilterStoreProps>) => {
+  const subscription = subject.subscribe(run);
+  return () => subscription.unsubscribe();
+};
+
+const update = (updater: (searchFilter: SearchFilterStoreProps) => SearchFilterStoreProps): void => {
+  subject.next(updater(subject.value));
+};
 
 function setTextFilter(textFilter?: string): void {
-  debouncedUpdate((searchFilter) => ({ ...searchFilter, textFilter }));
+  update((searchFilter) => ({ ...searchFilter, textFilter }));
+}
+
+function setTag(tag: string): void {
+  update((searchFilter) => ({ ...searchFilter, tag }));
+}
+
+function resetTag(): void {
+  update((searchFilter) => ({ ...searchFilter, tag: undefined }));
 }
 
 function setFrom(from?: string): void {
@@ -118,8 +139,13 @@ function dateRangeFromNow(duration: DurationLike): [DateTime, DateTime] {
 }
 
 export default {
+  get observable(): Observable<SearchFilterStoreProps> {
+    return subject.asObservable();
+  },
   subscribe,
   setTextFilter,
+  setTag,
+  resetTag,
   setFrom,
   setTo,
   applyTempSearchFilter,

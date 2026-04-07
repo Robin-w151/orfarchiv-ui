@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import { type BtnType, buttonClassFn, type Size } from './button.styles';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
+  import clsx from 'clsx';
 
   let buttonRef: HTMLButtonElement | undefined = $state();
 
@@ -13,7 +14,7 @@
     round?: boolean;
     disabled?: boolean;
     title?: string;
-    class?: string;
+    class?: string | Array<string>;
     customStyle?: boolean;
     children?: Snippet;
     onclick?: MouseEventHandler<HTMLButtonElement>;
@@ -41,7 +42,7 @@
       size,
       iconOnly,
       round,
-      clazz,
+      clazz: clsx(clazz),
       customStyle,
     }),
   );

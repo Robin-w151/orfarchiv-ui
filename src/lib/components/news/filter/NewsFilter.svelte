@@ -38,8 +38,11 @@
   }
 
   function handleSelectTag(tag: string): void {
-    const textFilter = ($searchFilter.textFilter ?? '').trimEnd();
-    searchFilter.setTextFilter(textFilter ? `${textFilter} ${tag}` : tag);
+    searchFilter.setTag(tag);
+  }
+
+  function handleRemoveTag(): void {
+    searchFilter.resetTag();
   }
 
   function handleTextFilterChange(textFilter?: string): void {
@@ -59,7 +62,9 @@
   <Input
     id="text-filter-input"
     value={$searchFilter.textFilter}
+    tag={$searchFilter.tag}
     onValueChange={handleTextFilterChange}
+    onTagRemove={handleRemoveTag}
     placeholder="Suche"
     {shortcutKeys}
     bind:this={textFilterInputRef}

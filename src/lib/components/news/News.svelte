@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { NewsApi } from '$lib/api/news';
   import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
@@ -19,6 +20,7 @@
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
+  import { debounceTime } from 'rxjs';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import AlertBox from '../shared/content/AlertBox.svelte';
@@ -26,7 +28,6 @@
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
-  import { resolve } from '$app/paths';
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
@@ -39,7 +40,7 @@
   onMount(async () => {
     subscriptions.push(refreshNews.onUpdate(fetchNewNews));
     subscriptions.push(loadMoreNews.onUpdate(fetchMoreNews));
-    subscriptions.push(searchRequestParameters.subscribe(fetchNews));
+    subscriptions.push(searchRequestParameters.pipe(debounceTime(250)).subscribe(fetchNews));
   });
 
   onDestroy(() => {
@@ -64,7 +65,7 @@
 
   async function fetchNewNews(): Promise<void> {
     await news.taskWithLoading(async () => {
-      const currSearchRequestParameters = get(searchRequestParameters);
+      const currSearchRequestParameters = searchRequestParameters.value;
       const currNews = get(news);
       const prevKey = currNews.prevKey;
       if (!prevKey) {
@@ -80,7 +81,7 @@
 
   async function fetchMoreNews(): Promise<void> {
     await news.taskWithLoading(async () => {
-      const currSearchRequestParameters = get(searchRequestParameters);
+      const currSearchRequestParameters = searchRequestParameters.value;
       const nextKey = get(news).nextKey;
       if (nextKey === null) {
         return;
@@ -91,7 +92,7 @@
   }
 
   async function fetchNewsUpdates(): Promise<void> {
-    const currSearchRequestParameters = get(searchRequestParameters);
+    const currSearchRequestParameters = searchRequestParameters.value;
     const prevKey = get(news).prevKey;
     if (!prevKey) {
       return;
@@ -154,7 +155,7 @@
   }
 
   function handleTryAgainClick(): void {
-    fetchNews(get(searchRequestParameters));
+    fetchNews(searchRequestParameters.value);
   }
 
   function handleResetFilterClick(): void {
