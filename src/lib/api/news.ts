@@ -120,7 +120,7 @@ export class NewsApi {
       if (requestId && this.cancels.get(requestId)) {
         this.cancels.delete(requestId);
         throw new NewsApiError('Request was cancelled!', 'cancelled', { cause: error });
-      } else if (((error as Error).cause as Error)?.name === 'AbortError') {
+      } else if (abortController?.signal.aborted) {
         throw new NewsApiError('Request was cancelled!', 'cancelled', { cause: error });
       } else {
         throw new NewsApiError('Failed to make request', 'error', { cause: error });
