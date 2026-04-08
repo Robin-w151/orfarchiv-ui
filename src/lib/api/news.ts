@@ -1,4 +1,5 @@
 import type { AppRouter } from '$lib/backend/trpc/router';
+import { NewsApiError } from '$lib/errors/errors';
 import { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { Request } from '$lib/models/request';
@@ -9,7 +10,6 @@ import type { TRPCClient } from '@trpc/client';
 import { v4 as uuid } from 'uuid';
 import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
-import { NewsApiError } from '$lib/errors/errors';
 
 const searchNewsRequest = 'search-news-controller';
 const checkNewsUpdatesRequest = 'check-news-updates-controller';
@@ -119,6 +119,8 @@ export class NewsApi {
     } catch (error) {
       if (requestId && this.cancels.get(requestId)) {
         this.cancels.delete(requestId);
+        throw new NewsApiError('Request was cancelled!', 'cancelled', { cause: error });
+      } else if (((error as Error).cause as Error)?.name === 'AbortError') {
         throw new NewsApiError('Request was cancelled!', 'cancelled', { cause: error });
       } else {
         throw new NewsApiError('Failed to make request', 'error', { cause: error });
