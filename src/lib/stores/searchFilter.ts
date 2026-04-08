@@ -32,6 +32,7 @@ export interface SearchFilterStore extends Readable<SearchFilterStoreProps> {
 
 const initialState = (): SearchFilterStoreProps => ({
   textFilter: '',
+  tag: undefined,
   dateFilter: {
     from: undefined,
     to: undefined,
@@ -96,7 +97,7 @@ function resetDateFilter(): void {
 }
 
 function resetAll(): void {
-  update((searchFilter) => ({ ...searchFilter, ...initialState() }));
+  update(() => initialState());
 }
 
 function selectDateFilterToday(): void {
