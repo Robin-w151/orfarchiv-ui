@@ -38,6 +38,7 @@
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
+  import { NewsApiError } from '$lib/errors/errors';
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
@@ -76,7 +77,10 @@
           ['new-news', newNews],
         ]);
 
-        news.setNews(foundNews, newNews);
+        if (foundNews) {
+          news.setNews(foundNews, newNews);
+        }
+
         news.setIsLoading(false);
         lastSearchRequestParameters = searchRequestParameters;
         setCheckUpdatesTimeout(true);
@@ -84,7 +88,9 @@
     );
   }
 
-  async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<[News, News | undefined]> {
+  async function fetchNews(
+    searchRequestParameters: SearchRequestParameters,
+  ): Promise<[News | undefined, News | undefined]> {
     try {
       const foundNews = await newsApi.searchNews(searchRequestParameters);
       if (!foundNews?.prevKey) {
@@ -94,8 +100,13 @@
       const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
       return [foundNews, newNews];
     } catch (error) {
-      logger.error('Failed to fetch news', error);
-      return [{ stories: [] }, undefined];
+      if (error instanceof NewsApiError && error.type === 'cancelled') {
+        logger.info('Fetch news request was cancelled', error);
+        return [undefined, undefined];
+      } else {
+        logger.error('Failed to fetch news', error);
+        return [{ stories: [] }, undefined];
+      }
     }
   }
 

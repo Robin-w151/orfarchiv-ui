@@ -8,6 +8,18 @@ export function formatTags(tags: Tags): string {
   return tags.map(([key, value]) => `${key}='${value}'`).join(', ');
 }
 
+// News API
+export class NewsApiError extends Error {
+  type: NewsApiErrorType;
+
+  constructor(message: string, type: NewsApiErrorType, options?: ErrorOptions) {
+    super(message, options);
+    this.type = type;
+  }
+}
+
+export type NewsApiErrorType = 'error' | 'cancelled';
+
 // Story content
 export type FetchStoryContentError =
   | FetchError

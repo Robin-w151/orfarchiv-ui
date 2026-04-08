@@ -9,6 +9,7 @@ import type { TRPCClient } from '@trpc/client';
 import { v4 as uuid } from 'uuid';
 import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
+import { NewsApiError } from '$lib/errors/errors';
 
 const searchNewsRequest = 'search-news-controller';
 const checkNewsUpdatesRequest = 'check-news-updates-controller';
@@ -111,16 +112,16 @@ export class NewsApi {
 
       const validationResult = await schema.safeParseAsync(response);
       if (validationResult.error) {
-        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+        throw new NewsApiError(`Invalid response from server: ${validationResult.error.message}`, 'error');
       }
 
       return response;
     } catch (error) {
       if (requestId && this.cancels.get(requestId)) {
         this.cancels.delete(requestId);
-        throw new Error('Request was cancelled!', { cause: error });
+        throw new NewsApiError('Request was cancelled!', 'cancelled', { cause: error });
       } else {
-        throw error;
+        throw new NewsApiError('Failed to make request', 'error', { cause: error });
       }
     } finally {
       if (requestId) {
