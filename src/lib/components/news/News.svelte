@@ -85,13 +85,18 @@
   }
 
   async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<[News, News | undefined]> {
-    const foundNews = await newsApi.searchNews(searchRequestParameters);
-    if (!foundNews?.prevKey) {
-      return [foundNews, undefined];
-    }
+    try {
+      const foundNews = await newsApi.searchNews(searchRequestParameters);
+      if (!foundNews?.prevKey) {
+        return [foundNews, undefined];
+      }
 
-    const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
-    return [foundNews, newNews];
+      const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
+      return [foundNews, newNews];
+    } catch (error) {
+      logger.error('Failed to fetch news', error);
+      return [{ stories: [] }, undefined];
+    }
   }
 
   async function fetchNewNews(): Promise<void> {
