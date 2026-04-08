@@ -13,14 +13,20 @@ function searchFilterStorePropsEqual(p1?: SearchFilterStoreProps, p2?: SearchFil
   );
 }
 
-function datesEqual(d1?: DateTime, d2?: DateTime): boolean {
-  if (!d1 && !d2) {
+function datesEqual(date1?: DateTime, date2?: DateTime): boolean {
+  if (!date1 && !date2) {
     return true;
   }
-  if (!d1 || !d2) {
+  if (!date1 || !date2) {
     return false;
   }
-  return d1.equals(d2);
+  return date1.equals(date2);
+}
+
+function sourcesEqual(sources1?: string[], sources2?: string[]): boolean {
+  const sources1Set = new Set(sources1);
+  const sources2Set = new Set(sources2);
+  return sources1Set.isSubsetOf(sources2Set) && sources1Set.isSupersetOf(sources2Set);
 }
 
 const initialState = {};
@@ -28,11 +34,17 @@ const subject = new BehaviorSubject<SearchRequestParameters>(initialState);
 
 searchFilter.observable
   .pipe(
-    distinctUntilChanged(searchFilterStorePropsEqual),
-    combineLatestWith(settings.observable),
-    map(([searchFilter, settings]) => {
+    combineLatestWith(settings.observable.pipe(map((settings) => settings.sources))),
+    distinctUntilChanged((previous, current) => {
+      const [previousSearchFilter, previousSources] = previous;
+      const [currentSearchFilter, currentSources] = current;
+      return (
+        searchFilterStorePropsEqual(previousSearchFilter, currentSearchFilter) &&
+        sourcesEqual(previousSources, currentSources)
+      );
+    }),
+    map(([searchFilter, sources]) => {
       const { textFilter, tag, dateFilter } = searchFilter ?? {};
-      const { sources } = settings;
       return {
         textFilter: [textFilter, tag].filter((t) => !!t).join(' '),
         dateFilter: {
