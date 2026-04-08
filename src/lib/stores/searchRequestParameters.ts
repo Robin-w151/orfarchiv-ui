@@ -24,6 +24,16 @@ function datesEqual(date1?: DateTime, date2?: DateTime): boolean {
 }
 
 function sourcesEqual(sources1?: string[], sources2?: string[]): boolean {
+  if (!sources1 && !sources2) {
+    return true;
+  }
+  if (!sources1 || !sources2) {
+    return false;
+  }
+  if (sources1.length !== sources2.length) {
+    return false;
+  }
+
   const sources1Set = new Set(sources1);
   const sources2Set = new Set(sources2);
   return sources1Set.isSubsetOf(sources2Set) && sources1Set.isSupersetOf(sources2Set);
