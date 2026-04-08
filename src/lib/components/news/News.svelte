@@ -20,7 +20,7 @@
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { debounceTime, tap } from 'rxjs';
+  import { debounceTime, forkJoin, Observable, of, switchMap, tap } from 'rxjs';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import AlertBox from '../shared/content/AlertBox.svelte';
@@ -41,17 +41,7 @@
   onMount(async () => {
     subscriptions.push(refreshNews.onUpdate(fetchNewNews));
     subscriptions.push(loadMoreNews.onUpdate(fetchMoreNews));
-    subscriptions.push(
-      searchRequestParameters
-        .pipe(
-          debounceTime(250),
-          tap((searchRequestParameters) => {
-            lastSearchRequestParameters = searchRequestParameters;
-            fetchNews(searchRequestParameters);
-          }),
-        )
-        .subscribe(),
-    );
+    subscriptions.push(fetchNewsPipeline().subscribe());
   });
 
   onDestroy(() => {
@@ -59,19 +49,36 @@
     clearTimeout(checkUpdatesTimeout);
   });
 
-  async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<void> {
-    await news.taskWithLoading(async () => {
-      const foundNews = await newsApi.searchNews(searchRequestParameters);
-      if (!foundNews?.prevKey) {
-        news.setNews(foundNews);
-        return;
-      }
+  function fetchNewsPipeline(): Observable<unknown> {
+    return searchRequestParameters.pipe(
+      debounceTime(250),
+      tap(() => news.setIsLoading(true)),
+      switchMap((searchRequestParameters) => {
+        return forkJoin([of(searchRequestParameters), fetchNews(searchRequestParameters)]);
+      }),
+      tap(([searchRequestParameters, [foundNews, newNews]]) => {
+        logger.infoGroup('apply-news', [
+          ['search-request-parameters', searchRequestParameters],
+          ['news', foundNews],
+          ['new-news', newNews],
+        ]);
 
-      const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
-      news.setNews(foundNews, newNews);
-    });
+        news.setNews(foundNews, newNews);
+        news.setIsLoading(false);
+        lastSearchRequestParameters = searchRequestParameters;
+        setCheckUpdatesTimeout(true);
+      }),
+    );
+  }
 
-    setCheckUpdatesTimeout(true);
+  async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<[News, News | undefined]> {
+    const foundNews = await newsApi.searchNews(searchRequestParameters);
+    if (!foundNews?.prevKey) {
+      return [foundNews, undefined];
+    }
+
+    const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
+    return [foundNews, newNews];
   }
 
   async function fetchNewNews(): Promise<void> {
