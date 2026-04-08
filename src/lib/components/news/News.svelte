@@ -20,7 +20,17 @@
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { debounceTime, forkJoin, Observable, of, switchMap, tap } from 'rxjs';
+  import {
+    BehaviorSubject,
+    combineLatestWith,
+    debounceTime,
+    forkJoin,
+    map,
+    Observable,
+    of,
+    switchMap,
+    tap,
+  } from 'rxjs';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import AlertBox from '../shared/content/AlertBox.svelte';
@@ -31,6 +41,7 @@
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
+  const reloadNews = new BehaviorSubject(0);
 
   let checkUpdatesTimeout: ReturnType<typeof setTimeout> | undefined;
   let showNewsList = $derived(hasNews($news as News));
@@ -52,6 +63,8 @@
   function fetchNewsPipeline(): Observable<unknown> {
     return searchRequestParameters.pipe(
       debounceTime(250),
+      combineLatestWith(reloadNews),
+      map(([searchRequestParameters]) => searchRequestParameters),
       tap(() => news.setIsLoading(true)),
       switchMap((searchRequestParameters) => {
         return forkJoin([of(searchRequestParameters), fetchNews(searchRequestParameters)]);
@@ -173,7 +186,7 @@
   }
 
   function handleTryAgainClick(): void {
-    fetchNews(searchRequestParameters.value);
+    reloadNews.next(reloadNews.value + 1);
   }
 
   function handleResetFilterClick(): void {
