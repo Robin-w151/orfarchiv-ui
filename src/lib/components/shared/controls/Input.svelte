@@ -96,7 +96,7 @@
 
 <div class={wrapperClass}>
   {#if tag}
-    <Button class={tagClass} size="small" onclick={handleTagClick}>
+    <Button class={tagClass} size="small" title="Schlagwort entfernen" onclick={handleTagClick}>
       <span>{tag}</span>
       <Icon src={XMark} theme="outlined" class="size-4" />
     </Button>
