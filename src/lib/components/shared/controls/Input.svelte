@@ -65,6 +65,7 @@
 
   function handleTagClick(): void {
     onTagRemove?.();
+    inputRef?.focus();
   }
 
   function handleClearButtonClick(): void {
