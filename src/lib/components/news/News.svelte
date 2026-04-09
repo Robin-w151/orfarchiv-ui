@@ -24,6 +24,7 @@
     BehaviorSubject,
     combineLatestWith,
     debounceTime,
+    finalize,
     forkJoin,
     map,
     Observable,
@@ -84,6 +85,10 @@
 
         news.setIsLoading(false);
         setCheckUpdatesTimeout(true);
+      }),
+      finalize(() => {
+        newsApi.cancelSearchNews();
+        news.setIsLoading(false);
       }),
     );
   }
