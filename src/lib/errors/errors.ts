@@ -9,15 +9,11 @@ export function formatTags(tags: Tags): string {
 }
 
 // News API
-export class NewsApiError extends Error {
+export class NewsApiError extends Data.TaggedError('NewsApiError')<{
+  message: string;
   type: NewsApiErrorType;
-
-  constructor(message: string, type: NewsApiErrorType, options?: ErrorOptions) {
-    super(message, options);
-    this.type = type;
-  }
-}
-
+  cause?: unknown;
+}> {}
 export type NewsApiErrorType = 'error' | 'cancelled';
 
 // Story content

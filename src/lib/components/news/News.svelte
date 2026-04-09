@@ -79,10 +79,10 @@
 
         if (foundNews) {
           news.setNews(foundNews, newNews);
+          lastSearchRequestParameters = searchRequestParameters;
         }
 
         news.setIsLoading(false);
-        lastSearchRequestParameters = searchRequestParameters;
         setCheckUpdatesTimeout(true);
       }),
     );
