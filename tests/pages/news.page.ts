@@ -70,6 +70,10 @@ export class NewsPage {
 
   constructor(private readonly page: Page) {}
 
+  getTagButton(tag: string): Locator {
+    return this.newsFilter.getByRole('button', { name: tag });
+  }
+
   getDateFilterInput(name: string): Locator {
     return this.popover.getByPlaceholder(name);
   }

@@ -95,7 +95,10 @@ test.describe('NewsPage', () => {
       await newsPage.popover.getByText('Wissenschaft').click();
 
       await expect(newsPage.popover).not.toBeVisible();
-      await expect(newsPage.textFilterInput).toHaveValue('Wissenschaft');
+      await expect(newsPage.getTagButton('Wissenschaft')).toBeVisible();
+
+      await newsPage.getTagButton('Wissenschaft').click();
+      await expect(newsPage.getTagButton('Wissenschaft')).not.toBeVisible();
     });
 
     test('date filter is changeable', async ({ newsPage }) => {

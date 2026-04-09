@@ -3,10 +3,12 @@ import { AI_MODEL_DEFAULT, SETTINGS_STORE_NAME } from '$lib/configs/client';
 import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
+import { BehaviorSubject, type Observable } from 'rxjs';
 import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
 
 export interface SettingsStore extends Readable<Settings> {
+  get observable(): Observable<Settings>;
   setFetchReadMoreContent: (fetchReadMoreContent: boolean) => void;
   setCheckNewsUpdates: (checkNewsUpdates: boolean) => void;
   setForceReducedMotion: (forceReducedMotion: boolean) => void;
@@ -87,6 +89,8 @@ function sanitizeLocalStorage(): void {
 
 function createSettingsStore(): SettingsStore {
   const { subscribe, update } = persisted<Settings>(SETTINGS_STORE_NAME, initialState);
+  const subject = new BehaviorSubject<Settings>(initialState);
+  subscribe((settings) => subject.next(settings));
 
   function setFetchReadMoreContent(fetchReadMoreContent: boolean): void {
     update((settings) => ({ ...settings, fetchReadMoreContent }));
@@ -135,6 +139,9 @@ function createSettingsStore(): SettingsStore {
   }
 
   return {
+    get observable(): Observable<Settings> {
+      return subject.asObservable();
+    },
     subscribe,
     setFetchReadMoreContent,
     setCheckNewsUpdates,

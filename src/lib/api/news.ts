@@ -1,4 +1,5 @@
 import type { AppRouter } from '$lib/backend/trpc/router';
+import { NewsApiError } from '$lib/errors/errors';
 import { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { Request } from '$lib/models/request';
@@ -6,6 +7,7 @@ import type { SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import type { TRPCClient } from '@trpc/client';
+import { Effect, Either } from 'effect';
 import { v4 as uuid } from 'uuid';
 import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
@@ -84,7 +86,7 @@ export class NewsApi {
     const abortController = this.abortControllers.get(requestId);
 
     if (abortController) {
-      logger.debug('cancel-request', requestId);
+      logger.info('cancel-request', requestId);
 
       abortController.abort();
       this.abortControllers.delete(requestId);
@@ -97,35 +99,54 @@ export class NewsApi {
     requestId: I,
     schema: ZodType<T>,
   ): Promise<T> {
-    let abortController: AbortController | undefined;
+    const program = Effect.gen(this, function* () {
+      yield* Effect.addFinalizer((_exit) => {
+        if (requestId) {
+          this.abortControllers.delete(requestId);
+        }
+        return Effect.void;
+      });
 
-    if (typeof requestId === 'string') {
-      abortController = this.abortControllers.get(requestId);
-      abortController?.abort();
-      abortController = new AbortController();
-      this.abortControllers.set(requestId, abortController);
-    }
+      let abortController: AbortController | undefined;
 
-    try {
-      const response = await request(abortController as RequestController<I>);
+      if (typeof requestId === 'string') {
+        abortController = this.abortControllers.get(requestId);
+        abortController?.abort();
+        abortController = new AbortController();
+        this.abortControllers.set(requestId, abortController);
+      }
 
-      const validationResult = await schema.safeParseAsync(response);
+      const response = yield* Effect.tryPromise({
+        try: () => request(abortController as RequestController<I>),
+        catch: (error) => {
+          if (abortController?.signal.aborted) {
+            if (requestId && this.cancels.get(requestId)) {
+              this.cancels.delete(requestId);
+            }
+            return new NewsApiError({ message: 'Request was cancelled!', type: 'cancelled', cause: error });
+          } else {
+            return new NewsApiError({ message: 'Failed to make request', type: 'error', cause: error });
+          }
+        },
+      });
+
+      const validationResult = schema.safeParse(response);
       if (validationResult.error) {
-        throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+        return yield* new NewsApiError({
+          message: `Invalid response from server: ${validationResult.error.message}`,
+          type: 'error',
+        });
       }
 
-      return response;
-    } catch (error) {
-      if (requestId && this.cancels.get(requestId)) {
-        this.cancels.delete(requestId);
-        throw new Error('Request was cancelled!', { cause: error });
-      } else {
-        throw error;
-      }
-    } finally {
-      if (requestId) {
-        this.abortControllers.delete(requestId);
-      }
+      return validationResult.data;
+    });
+
+    const result = await program.pipe(Effect.scoped, Effect.either, Effect.runPromise);
+
+    if (Either.isRight(result)) {
+      return result.right;
+    } else {
+      throw result.left;
     }
   }
 }

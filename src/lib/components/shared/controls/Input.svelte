@@ -7,9 +7,11 @@
   interface Props {
     id: string;
     value?: string;
+    tag?: string;
     placeholder?: string;
     shortcutKeys?: Array<string>;
     onValueChange?: (value?: string) => void;
+    onTagRemove?: () => void;
     onchange?: (value: string | undefined, event: Event) => void;
     onclear?: () => void;
     onfocus?: (event: Event) => void;
@@ -20,9 +22,11 @@
   let {
     id,
     value = $bindable(''),
+    tag,
     placeholder,
     shortcutKeys,
     onValueChange,
+    onTagRemove,
     onchange,
     onclear,
     onfocus,
@@ -30,15 +34,22 @@
     onkeydown,
   }: Props = $props();
 
-  const wrapperClass = 'flex items-center relative w-full flex-1';
-  const inputClass = [
+  const wrapperClass = [
+    'flex items-center gap-2 relative',
+    'w-full flex-1',
+    'text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900',
+    'transition',
+    'rounded-md',
+  ];
+  const inputClass = $derived([
     'pr-12 w-full',
     'text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900',
-    'rounded-md',
     'transition',
-  ];
+    tag ? 'rounded-r-md' : 'rounded-md',
+  ]);
+  const tagClass = ['flex items-center gap-1', 'ml-1.5 pl-2 pr-1', 'transition', 'rounded-sm'];
   const clearButtonClass = 'absolute right-2';
-  const shortcutKeysClass = 'absolute right-2 flex gap-1';
+  const shortcutKeysClass = 'absolute right-2 flex gap-1 pointer-events-none';
 
   let inputRef: HTMLInputElement | undefined = $state();
   let showClearButton = $derived(!!value);
@@ -49,6 +60,11 @@
   });
 
   export function focus(): void {
+    inputRef?.focus();
+  }
+
+  function handleTagClick(): void {
+    onTagRemove?.();
     inputRef?.focus();
   }
 
@@ -79,6 +95,12 @@
 </script>
 
 <div class={wrapperClass}>
+  {#if tag}
+    <Button class={tagClass} size="small" title="Schlagwort entfernen" onclick={handleTagClick}>
+      <span>{tag}</span>
+      <Icon src={XMark} theme="outlined" class="size-4" />
+    </Button>
+  {/if}
   <input
     class={inputClass}
     type="text"

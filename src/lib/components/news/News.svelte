@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { NewsApi } from '$lib/api/news';
   import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
@@ -19,6 +20,18 @@
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
+  import {
+    BehaviorSubject,
+    combineLatestWith,
+    debounceTime,
+    finalize,
+    forkJoin,
+    map,
+    Observable,
+    of,
+    switchMap,
+    tap,
+  } from 'rxjs';
   import { onDestroy, onMount } from 'svelte';
   import { get } from 'svelte/store';
   import AlertBox from '../shared/content/AlertBox.svelte';
@@ -26,20 +39,22 @@
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
-  import { resolve } from '$app/paths';
+  import { NewsApiError } from '$lib/errors/errors';
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
+  const reloadNews = new BehaviorSubject(0);
 
   let checkUpdatesTimeout: ReturnType<typeof setTimeout> | undefined;
   let showNewsList = $derived(hasNews($news as News));
   let anySourcesEnabled = $derived(hasAnySourcesEnabled($settings as Settings));
   let loadMoreButtonDisabled = $derived($news.nextKey === null);
+  let lastSearchRequestParameters = searchRequestParameters.value;
 
   onMount(async () => {
     subscriptions.push(refreshNews.onUpdate(fetchNewNews));
     subscriptions.push(loadMoreNews.onUpdate(fetchMoreNews));
-    subscriptions.push(searchRequestParameters.subscribe(fetchNews));
+    subscriptions.push(fetchNewsPipeline().subscribe());
   });
 
   onDestroy(() => {
@@ -47,24 +62,62 @@
     clearTimeout(checkUpdatesTimeout);
   });
 
-  async function fetchNews(searchRequestParameters: SearchRequestParameters): Promise<void> {
-    await news.taskWithLoading(async () => {
+  function fetchNewsPipeline(): Observable<unknown> {
+    return searchRequestParameters.pipe(
+      debounceTime(250),
+      combineLatestWith(reloadNews),
+      map(([searchRequestParameters]) => searchRequestParameters),
+      tap(() => news.setIsLoading(true)),
+      switchMap((searchRequestParameters) => {
+        return forkJoin([of(searchRequestParameters), fetchNews(searchRequestParameters)]);
+      }),
+      tap(([searchRequestParameters, [foundNews, newNews]]) => {
+        logger.infoGroup('apply-news', [
+          ['search-request-parameters', searchRequestParameters],
+          ['news', foundNews],
+          ['new-news', newNews],
+        ]);
+
+        if (foundNews) {
+          news.setNews(foundNews, newNews);
+          lastSearchRequestParameters = searchRequestParameters;
+        }
+
+        news.setIsLoading(false);
+        setCheckUpdatesTimeout(true);
+      }),
+      finalize(() => {
+        newsApi.cancelSearchNews();
+        news.setIsLoading(false);
+      }),
+    );
+  }
+
+  async function fetchNews(
+    searchRequestParameters: SearchRequestParameters,
+  ): Promise<[News | undefined, News | undefined]> {
+    try {
       const foundNews = await newsApi.searchNews(searchRequestParameters);
       if (!foundNews?.prevKey) {
-        news.setNews(foundNews);
-        return;
+        return [foundNews, undefined];
       }
 
       const newNews = await newsApi.searchNews(searchRequestParameters, foundNews?.prevKey);
-      news.setNews(foundNews, newNews);
-    });
-
-    setCheckUpdatesTimeout(true);
+      return [foundNews, newNews];
+    } catch (error) {
+      if (error instanceof NewsApiError && error.type === 'cancelled') {
+        logger.info('Fetch news request was cancelled', error);
+        return [undefined, undefined];
+      } else {
+        logger.error('Failed to fetch news', error);
+        return [{ stories: [] }, undefined];
+      }
+    }
   }
 
   async function fetchNewNews(): Promise<void> {
     await news.taskWithLoading(async () => {
-      const currSearchRequestParameters = get(searchRequestParameters);
+      const currSearchRequestParameters = lastSearchRequestParameters;
       const currNews = get(news);
       const prevKey = currNews.prevKey;
       if (!prevKey) {
@@ -80,7 +133,7 @@
 
   async function fetchMoreNews(): Promise<void> {
     await news.taskWithLoading(async () => {
-      const currSearchRequestParameters = get(searchRequestParameters);
+      const currSearchRequestParameters = lastSearchRequestParameters;
       const nextKey = get(news).nextKey;
       if (nextKey === null) {
         return;
@@ -91,7 +144,7 @@
   }
 
   async function fetchNewsUpdates(): Promise<void> {
-    const currSearchRequestParameters = get(searchRequestParameters);
+    const currSearchRequestParameters = lastSearchRequestParameters;
     const prevKey = get(news).prevKey;
     if (!prevKey) {
       return;
@@ -154,7 +207,7 @@
   }
 
   function handleTryAgainClick(): void {
-    fetchNews(get(searchRequestParameters));
+    reloadNews.next(reloadNews.value + 1);
   }
 
   function handleResetFilterClick(): void {

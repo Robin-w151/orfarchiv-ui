@@ -68,7 +68,6 @@
     "husky": "9.1.7",
     "jsdom": "29.0.1",
     "lint-staged": "16.4.0",
-    "lodash.debounce": "4.0.8",
     "lru-cache": "11.2.7",
     "luxon": "3.7.2",
     "mongodb": "7.1.1",
