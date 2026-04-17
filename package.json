@@ -55,7 +55,7 @@
     "acorn": "8.16.0",
     "clsx": "2.1.1",
     "dexie": "4.4.2",
-    "dompurify": "3.3.3",
+    "dompurify": "3.4.0",
     "dotenv-flow": "4.1.0",
     "easy-speech": "2.4.0",
     "effect": "3.21.0",
