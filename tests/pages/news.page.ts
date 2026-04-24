@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { newsMockEmptyUpdate } from '../mocks/news.mocks';
+import { waitForTestReady } from '../shared/waitForTestReady';
 
 export class NewsPage {
   log: unknown[] = [];
@@ -86,6 +87,11 @@ export class NewsPage {
 
   async visitSite(): Promise<void> {
     await this.newsLink.click();
+  }
+
+  async reloadSite(): Promise<void> {
+    await this.page.reload();
+    await waitForTestReady(this.page);
   }
 
   getTagButton(tag: string): Locator {

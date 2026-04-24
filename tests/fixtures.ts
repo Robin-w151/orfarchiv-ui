@@ -1,7 +1,8 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { newsMock } from './mocks/news.mocks';
 import { NewsPage } from './pages/news.page';
 import { SettingsPage } from './pages/settings.page';
+import { waitForTestReady } from './shared/waitForTestReady';
 
 interface TestFixtures {
   newsPage: NewsPage;
@@ -44,7 +45,3 @@ export const test = base.extend<TestFixtures>({
     await use(settingsPage);
   },
 });
-
-async function waitForTestReady(page: Page): Promise<void> {
-  await expect(page.locator('html')).toHaveAttribute('data-test', 'ready');
-}

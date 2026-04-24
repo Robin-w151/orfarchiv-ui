@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import { waitForTestReady } from '../shared/waitForTestReady';
 
 export class SettingsPage {
   get isPageActive(): Promise<boolean> {
@@ -13,6 +14,11 @@ export class SettingsPage {
 
   async visitSite(): Promise<void> {
     await this.settingsLink.click();
+  }
+
+  async reloadSite(): Promise<void> {
+    await this.page.reload();
+    await waitForTestReady(this.page);
   }
 
   getListSection(sectionTitle: string): Locator {

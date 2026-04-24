@@ -14,7 +14,7 @@ test.describe('SettingsPage', () => {
       await expect(checkbox).not.toBeChecked();
 
       await checkbox.click();
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(checkbox).toBeChecked();
     });
@@ -58,7 +58,7 @@ test.describe('SettingsPage', () => {
 
       await radioButton.click();
       await page.waitForTimeout(250);
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(radioButton).toBeChecked();
       await expect(page.locator('html')).not.toHaveClass('dark');
@@ -70,7 +70,7 @@ test.describe('SettingsPage', () => {
 
       await radioButton.click();
       await page.waitForTimeout(250);
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(radioButton).toBeChecked();
       await expect(page.locator('html')).toHaveClass('dark');
@@ -85,7 +85,7 @@ test.describe('SettingsPage', () => {
       await expect(checkbox).not.toBeChecked();
 
       await checkbox.click();
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(checkbox).toBeChecked();
     });
@@ -98,7 +98,7 @@ test.describe('SettingsPage', () => {
       await expect(model).toHaveValue('gemini-2.5-flash-lite');
 
       await model.selectOption('gemini-2.5-flash');
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(model).toHaveValue('gemini-2.5-flash');
     });
@@ -111,7 +111,7 @@ test.describe('SettingsPage', () => {
       await expect(apiKey).toHaveValue('');
 
       await apiKey.fill('test');
-      await settingsPage.visitSite();
+      await settingsPage.reloadSite();
 
       await expect(apiKey).toHaveValue('test');
     });
@@ -145,7 +145,7 @@ test.describe('SettingsPage', () => {
         await expect(checkbox).toBeChecked();
 
         await checkbox.click();
-        await settingsPage.visitSite();
+        await settingsPage.reloadSite();
 
         await expect(checkbox).not.toBeChecked();
       });
