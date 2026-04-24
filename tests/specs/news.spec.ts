@@ -313,13 +313,10 @@ test.describe('NewsPage', () => {
 
     test('ai summary extended response', async ({ newsPage }) => {
       const longContentText = Array.from({ length: 700 }, () => 'Wort').join(' ');
-      await newsPage.mockFetchContentApi(
-        {
-          content: `<div><p>${longContentText}</p></div>`,
-          contentText: longContentText,
-        },
-        true,
-      );
+      await newsPage.mockFetchContentApi({
+        content: `<div><p>${longContentText}</p></div>`,
+        contentText: longContentText,
+      });
 
       const aiSummary = {
         title: 'Lagebericht zur Energiekrise',
