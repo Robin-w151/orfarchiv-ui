@@ -290,6 +290,10 @@ test.describe('NewsPage', () => {
 
       const aiSummary = {
         title: 'Klimabericht im Überblick',
+        points: [
+          'Der Bericht zeigt steigende Temperaturen in Europa.',
+          'Fachleute fordern schnellere Maßnahmen zur Emissionsreduktion.',
+        ],
         text: 'Der Bericht zeigt steigende Temperaturen in Europa. Fachleute fordern schnellere Maßnahmen zur Emissionsreduktion.',
       };
       await newsPage.mockAiSummaryApi(aiSummary);
@@ -302,6 +306,8 @@ test.describe('NewsPage', () => {
       await aiSummaryRequest;
 
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[0]);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1]);
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.text);
     });
 
@@ -349,10 +355,12 @@ test.describe('NewsPage', () => {
 
       const firstAiSummary = {
         title: 'Erste Zusammenfassung',
+        points: ['Die erste Version fasst die wichtigsten Entwicklungen zusammen.'],
         text: 'Die erste Version fasst die wichtigsten Entwicklungen zusammen.',
       };
       const secondAiSummary = {
         title: 'Aktualisierte Zusammenfassung',
+        points: ['Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.'],
         text: 'Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.',
       };
       await newsPage.mockAiSummaryApi([firstAiSummary, secondAiSummary]);
@@ -365,6 +373,7 @@ test.describe('NewsPage', () => {
       await firstAiSummaryRequest;
 
       await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.points[0]);
       await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.text);
 
       const secondAiSummaryRequest = newsPage.waitForAiSummary();
@@ -372,6 +381,7 @@ test.describe('NewsPage', () => {
       await secondAiSummaryRequest;
 
       await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.points[0]);
       await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.text);
     });
   });
