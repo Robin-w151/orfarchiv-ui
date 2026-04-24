@@ -50,7 +50,14 @@ export const SearchStoryOptions = z.object({
 });
 export type SearchStoryOptions = z.infer<typeof SearchStoryOptions>;
 
-export const StorySummary = z.object({
+export const StorySummarySimple = z.object({
+  title: z.string(),
+  points: z.array(z.string()),
+  text: z.string(),
+});
+export type StorySummarySimple = z.infer<typeof StorySummarySimple>;
+
+export const StorySummaryExtended = z.object({
   title: z.string(),
   points: z.array(
     z.object({
@@ -59,4 +66,16 @@ export const StorySummary = z.object({
     }),
   ),
 });
+export type StorySummaryExtended = z.infer<typeof StorySummaryExtended>;
+
+export const StorySummary = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('simple'),
+    summary: StorySummarySimple,
+  }),
+  z.object({
+    type: z.literal('extended'),
+    summary: StorySummaryExtended,
+  }),
+]);
 export type StorySummary = z.infer<typeof StorySummary>;

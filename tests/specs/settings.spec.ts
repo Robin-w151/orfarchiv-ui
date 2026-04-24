@@ -2,6 +2,10 @@ import { expect } from '@playwright/test';
 import { test } from '../fixtures';
 
 test.describe('SettingsPage', () => {
+  test.beforeEach(async ({ settingsPage }) => {
+    await settingsPage.visitSite();
+  });
+
   test.describe('General', () => {
     const sectionTitle = 'Allgemein';
 
