@@ -305,37 +305,6 @@ test.describe('NewsPage', () => {
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.text);
     });
 
-    test('ai summary regenerate updates content', async ({ newsPage }) => {
-      await newsPage.mockFetchContentApi(contentMock);
-
-      const firstAiSummary = {
-        title: 'Erste Zusammenfassung',
-        text: 'Die erste Version fasst die wichtigsten Entwicklungen zusammen.',
-      };
-      const secondAiSummary = {
-        title: 'Aktualisierte Zusammenfassung',
-        text: 'Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.',
-      };
-      await newsPage.mockAiSummaryApi([firstAiSummary, secondAiSummary]);
-
-      const storyIndex = 0;
-      await newsPage.openStoryContent(storyIndex);
-
-      const firstAiSummaryRequest = newsPage.waitForAiSummary();
-      await newsPage.aiSummaryButton.click();
-      await firstAiSummaryRequest;
-
-      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.title);
-      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.text);
-
-      const secondAiSummaryRequest = newsPage.waitForAiSummary();
-      await newsPage.aiSummaryRegenerateButton.click();
-      await secondAiSummaryRequest;
-
-      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.title);
-      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.text);
-    });
-
     test('ai summary extended response', async ({ newsPage }) => {
       const longContentText = Array.from({ length: 700 }, () => 'Wort').join(' ');
       await newsPage.mockFetchContentApi(
@@ -373,6 +342,37 @@ test.describe('NewsPage', () => {
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[0].text);
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1].title);
       await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1].text);
+    });
+
+    test('ai summary regenerate updates content', async ({ newsPage }) => {
+      await newsPage.mockFetchContentApi(contentMock);
+
+      const firstAiSummary = {
+        title: 'Erste Zusammenfassung',
+        text: 'Die erste Version fasst die wichtigsten Entwicklungen zusammen.',
+      };
+      const secondAiSummary = {
+        title: 'Aktualisierte Zusammenfassung',
+        text: 'Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.',
+      };
+      await newsPage.mockAiSummaryApi([firstAiSummary, secondAiSummary]);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const firstAiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryButton.click();
+      await firstAiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.text);
+
+      const secondAiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryRegenerateButton.click();
+      await secondAiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.text);
     });
   });
 });
