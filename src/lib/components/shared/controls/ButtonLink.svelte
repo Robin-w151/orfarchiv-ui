@@ -73,6 +73,7 @@
   {target}
   {rel}
   {title}
+  aria-label={iconOnly ? title : undefined}
   onclick={handleClick}
   onfocus={handleFocus}
   onmouseover={handleMouseOver}

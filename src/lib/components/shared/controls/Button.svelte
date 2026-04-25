@@ -52,6 +52,15 @@
   }
 </script>
 
-<button class={buttonClass} {type} {disabled} {title} {onclick} {onkeydown} bind:this={buttonRef}>
+<button
+  class={buttonClass}
+  {type}
+  {disabled}
+  {title}
+  aria-label={iconOnly ? title : undefined}
+  {onclick}
+  {onkeydown}
+  bind:this={buttonRef}
+>
   {@render children?.()}
 </button>

@@ -12,26 +12,6 @@ import {
 import { DateTime } from 'luxon';
 
 test.describe('NewsPage', () => {
-  let log: any;
-
-  test.beforeEach(async ({ page }) => {
-    log = [];
-    const logCall = (message: string): void => log.push(message);
-    await page.exposeFunction('logCall', logCall);
-    await page.addInitScript(() => {
-      const navigator = globalThis.navigator;
-
-      navigator.canShare = (data) => {
-        logCall(`canShare: ${data?.text}`);
-        return true;
-      };
-
-      (navigator as any).share = (data: any) => {
-        logCall(`share: ${data?.text}`);
-      };
-    });
-  });
-
   test.describe('Site', () => {
     test('title', async ({ newsPage }) => {
       await expect(newsPage.titleLink).toHaveAttribute('href', '/');
@@ -196,7 +176,7 @@ test.describe('NewsPage', () => {
       await shareButton.click();
 
       const expectedClipboardText = newsMock.stories[storyIndex].url;
-      expect(log).toEqual([`canShare: ${expectedClipboardText}`, `share: ${expectedClipboardText}`]);
+      expect(newsPage.log).toEqual([`canShare: ${expectedClipboardText}`, `share: ${expectedClipboardText}`]);
     });
 
     test('support link', async ({ newsPage }) => {
@@ -242,6 +222,12 @@ test.describe('NewsPage', () => {
       const storyContent = newsPage.getStoryContent(storyIndex);
       await expect(storyContent).toContainText(contentMockText);
     });
+  });
+
+  test.describe('AI', () => {
+    test.beforeEach(async ({ settingsPage }) => {
+      await settingsPage.visitSite();
+    });
 
     test('ai summary error', async ({ newsPage, settingsPage }) => {
       const enableAiSummary = settingsPage.getListSectionInput(
@@ -280,6 +266,120 @@ test.describe('NewsPage', () => {
       await newsPage.aiSummaryNavigateToSettingsButton.click();
 
       await expect(settingsPage.isPageActive).resolves.toBe(true);
+    });
+  });
+
+  test.describe('AI Summary', () => {
+    test.beforeEach(async ({ newsPage, settingsPage }) => {
+      await settingsPage.visitSite();
+      const enableAiSummary = settingsPage.getListSectionInput(
+        'Künstliche Intelligenz',
+        'KI-Zusammenfassung aktivieren',
+      );
+      await expect(enableAiSummary).not.toBeChecked();
+
+      await enableAiSummary.click();
+      const aiApiKey = settingsPage.getListSectionInput('Künstliche Intelligenz', 'Gemini API-Key');
+      await aiApiKey.fill('test');
+
+      await newsPage.visitSite();
+    });
+
+    test('ai summary simple response', async ({ newsPage }) => {
+      await newsPage.mockFetchContentApi(contentMock);
+
+      const aiSummary = {
+        title: 'Klimabericht im Überblick',
+        points: [
+          'Der Bericht zeigt steigende Temperaturen in Europa.',
+          'Fachleute fordern schnellere Maßnahmen zur Emissionsreduktion.',
+        ],
+        text: 'Der Bericht zeigt steigende Temperaturen in Europa. Fachleute fordern schnellere Maßnahmen zur Emissionsreduktion.',
+      };
+      await newsPage.mockAiSummaryApi(aiSummary);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const aiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryButton.click();
+      await aiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[0]);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1]);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.text);
+    });
+
+    test('ai summary extended response', async ({ newsPage }) => {
+      const longContentText = Array.from({ length: 700 }, () => 'Wort').join(' ');
+      await newsPage.mockFetchContentApi({
+        content: `<div><p>${longContentText}</p></div>`,
+        contentText: longContentText,
+      });
+
+      const aiSummary = {
+        title: 'Lagebericht zur Energiekrise',
+        points: [
+          {
+            title: 'Versorgung bleibt stabil',
+            text: 'Die aktuelle Versorgungslage wird als stabil bewertet, trotz hoher Nachfrage in mehreren Regionen.',
+          },
+          {
+            title: 'Preise steigen weiter',
+            text: 'Die Energiepreise liegen weiterhin deutlich über dem Vorjahresniveau und belasten Haushalte wie Unternehmen.',
+          },
+        ],
+      };
+      await newsPage.mockAiSummaryApi(aiSummary);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const aiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryButton.click();
+      await aiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[0].title);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[0].text);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1].title);
+      await expect(newsPage.aiSummaryContent).toContainText(aiSummary.points[1].text);
+    });
+
+    test('ai summary regenerate updates content', async ({ newsPage }) => {
+      await newsPage.mockFetchContentApi(contentMock);
+
+      const firstAiSummary = {
+        title: 'Erste Zusammenfassung',
+        points: ['Die erste Version fasst die wichtigsten Entwicklungen zusammen.'],
+        text: 'Die erste Version fasst die wichtigsten Entwicklungen zusammen.',
+      };
+      const secondAiSummary = {
+        title: 'Aktualisierte Zusammenfassung',
+        points: ['Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.'],
+        text: 'Die aktualisierte Version ergänzt neue Details und eine präzisere Einordnung.',
+      };
+      await newsPage.mockAiSummaryApi([firstAiSummary, secondAiSummary]);
+
+      const storyIndex = 0;
+      await newsPage.openStoryContent(storyIndex);
+
+      const firstAiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryButton.click();
+      await firstAiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.points[0]);
+      await expect(newsPage.aiSummaryContent).toContainText(firstAiSummary.text);
+
+      const secondAiSummaryRequest = newsPage.waitForAiSummary();
+      await newsPage.aiSummaryRegenerateButton.click();
+      await secondAiSummaryRequest;
+
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.title);
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.points[0]);
+      await expect(newsPage.aiSummaryContent).toContainText(secondAiSummary.text);
     });
   });
 });
