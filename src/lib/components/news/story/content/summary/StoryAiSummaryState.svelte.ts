@@ -40,14 +40,12 @@ function messageContentTemplate(extended: boolean): string {
   if (extended) {
     return `**Kernaussagen in Stichpunkten:** Fasse die wichtigsten Informationen in 5 separaten Stichpunkten zusammen.
 *   **Aussagentitel:** Jeder Stichpunkt beginnt mit einem Titel von maximal 5 Wörtern.
-*   **Aussage:** Fasse die jeweilige Kernaussage in 2 bis 5 vollständigen, aber kurzen Sätzen zusammen. Formuliere klar und verständlich.
-    `;
+*   **Aussage:** Fasse die jeweilige Kernaussage in 2 bis 5 vollständigen, aber kurzen Sätzen zusammen. Formuliere klar und verständlich.`;
   } else {
     return `**Kernaussagen als Überblick und Einordnung:**
 *   **Wichtige Punkte (2-3):** Nenne 2-3 zentrale Fakten als sehr kurze Stichpunkte (jeweils maximal 12 Wörter). Fokus: Wer? Was? Wann? Wo?
 *   **Text (1 Absatz, 3-5 Sätze):** Formuliere eine zusammenhängende Einordnung mit Kontext, Verlauf und Bedeutung der Ereignisse.
-*   **Abgrenzung:** Wiederhole die Stichpunkte im Text nicht wörtlich. Der Text soll ergänzen, nicht duplizieren.
-    `;
+*   **Abgrenzung:** Wiederhole die Stichpunkte im Text nicht wörtlich. Der Text soll ergänzen, nicht duplizieren.`;
   }
 }
 
