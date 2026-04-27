@@ -36,7 +36,15 @@ function sourcesEqual(sources1?: string[], sources2?: string[]): boolean {
 
   const sources1Set = new Set(sources1);
   const sources2Set = new Set(sources2);
-  return sources1Set.isSubsetOf(sources2Set) && sources1Set.isSupersetOf(sources2Set);
+
+  if (typeof Set.prototype.isSubsetOf === 'function' && typeof Set.prototype.isSupersetOf === 'function') {
+    return sources1Set.isSubsetOf(sources2Set) && sources1Set.isSupersetOf(sources2Set);
+  } else {
+    return (
+      sources1Set.values().every((source) => sources2Set.has(source)) &&
+      sources2Set.values().every((source) => sources1Set.has(source))
+    );
+  }
 }
 
 const initialState = {};
