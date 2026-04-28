@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import compat from 'eslint-plugin-compat';
 import prettier from 'eslint-config-prettier';
 import storybook from 'eslint-plugin-storybook';
 import svelte from 'eslint-plugin-svelte';
@@ -12,6 +13,7 @@ export default [
   ...svelte.configs['flat/recommended'],
   prettier,
   ...svelte.configs['flat/prettier'],
+  compat.configs['flat/recommended'],
   {
     languageOptions: {
       globals: {

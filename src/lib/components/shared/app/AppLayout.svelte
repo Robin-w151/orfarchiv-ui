@@ -54,7 +54,9 @@
       runViewTransition(
         async () => {
           resolve();
-          await navigation.complete;
+          if (navigation?.complete) {
+            await navigation.complete;
+          }
         },
         {
           useReducedMotion: reducedMotionStore.useReducedMotion,
