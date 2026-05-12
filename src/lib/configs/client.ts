@@ -49,8 +49,8 @@ export const AI_MODEL_DEFAULT = 'gemini-2.5-flash-lite' satisfies AiModel;
 export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
   'gemini-3.1-flash-lite': {
     name: 'Gemini 3.1 Flash-Lite',
-    modelCode: 'gemini-3.1-flash-lite-preview',
-    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview',
+    modelCode: 'gemini-3.1-flash-lite',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite',
     supportsThinking: true,
   },
   'gemini-3.0-flash': {
