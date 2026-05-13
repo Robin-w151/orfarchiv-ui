@@ -34,13 +34,15 @@
 
   const rel = $derived(target === '_blank' ? 'noopener noreferrer' : undefined);
 
-  const buttonClass = buttonClassFn({
-    btnType: 'secondary',
-    size,
-    iconOnly,
-    round,
-    clazz,
-  });
+  const buttonClass = $derived(
+    buttonClassFn({
+      btnType: 'secondary',
+      size,
+      iconOnly,
+      round,
+      clazz,
+    }),
+  );
 
   function triggerPrefetchRoute(): void {
     if (prefetch) {
@@ -71,6 +73,7 @@
   {target}
   {rel}
   {title}
+  aria-label={iconOnly ? title : undefined}
   onclick={handleClick}
   onfocus={handleFocus}
   onmouseover={handleMouseOver}

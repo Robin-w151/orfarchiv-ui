@@ -22,6 +22,7 @@
 
   let { storyContent, onClose }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   const aiSummaryState = new StoryAiSummaryState(storyContent);
 
   onMount(async () => {
@@ -75,6 +76,7 @@
   {:else if aiSummaryState.aiSummaryLoading}
     <StoryAiSummarySkeleton />
   {:else if aiSummaryState.aiSummary}
+    {@const { type, summary } = aiSummaryState.aiSummary}
     <div class="flex flex-col items-center gap-4 pb-4">
       <article class="story-content" data-testid="ai-summary">
         <div class="byline">
@@ -92,12 +94,21 @@
             </span>
           </p>
         </div>
-        <h1>{aiSummaryState.aiSummary.title}</h1>
+        <h1>{summary.title}</h1>
         <div>
-          {#each aiSummaryState.aiSummary.points as point, index (index)}
-            <h2>{point.title}</h2>
-            <p>{point.text}</p>
-          {/each}
+          {#if type === 'extended'}
+            {#each summary.points as point, index (index)}
+              <h2>{point.title}</h2>
+              <p>{point.text}</p>
+            {/each}
+          {:else}
+            <ul>
+              {#each summary.points as point, index (index)}
+                <li>{point}</li>
+              {/each}
+            </ul>
+            <p>{summary.text}</p>
+          {/if}
         </div>
       </article>
     </div>

@@ -339,8 +339,8 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     const borderRight = parseInt(frameStyle.borderRightWidth as string, 10);
     const borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10);
 
-    let blockScroll = 0;
-    let inlineScroll = 0;
+    let blockScroll: number;
+    let inlineScroll: number;
 
     // The property existance checks for offfset[Width|Height] is because only HTMLElement objects have them, but any Element might pass by here
     // @TODO find out if the "as HTMLElement" overrides can be dropped

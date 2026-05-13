@@ -8,6 +8,8 @@ updates:
       day: 'monday'
       time: '02:00'
       timezone: 'Europe/Vienna'
+    cooldown:
+      default-days: 2
     commit-message:
       prefix: 'chore(deps)'
     groups:

@@ -31,7 +31,7 @@ async function calculateScriptHashes() {
   try {
     appHtml = decoder.decode(await readFile(INPUT_FILE));
   } catch (error) {
-    throw new Error(`Failed to read HTML file ${INPUT_FILE}: ${error.message}`);
+    throw new Error(`Failed to read HTML file ${INPUT_FILE}: ${error.message}`, { cause: error });
   }
 
   const appDocument = new JSDOM(appHtml).window.document;
@@ -64,6 +64,6 @@ async function calculateScriptHash(scriptText) {
 
     return `sha256-${hashString}`;
   } catch (error) {
-    throw new Error(`Hash calculation failed: ${error.message}`);
+    throw new Error(`Hash calculation failed: ${error.message}`, { cause: error });
   }
 }

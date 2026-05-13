@@ -17,7 +17,7 @@
   const textClass = `
     text-transparent bg-gradient-to-r bg-clip-text
   `;
-  const textClass$ = clsx([fromColorClass, toColorClass]);
+  const textClass$ = $derived(clsx([fromColorClass, toColorClass]));
 </script>
 
 <span class="{textClass} {textClass$}">

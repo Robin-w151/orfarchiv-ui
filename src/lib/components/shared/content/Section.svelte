@@ -12,13 +12,13 @@
 
   let { title, isLoading = false, class: clazz, children }: Props = $props();
 
-  const sectionClass = `
+  const sectionClass = $derived(`
     flex flex-col items-center
     w-full
     bg-white dark:bg-gray-900
     overflow-clip
     ${clazz}
-  `;
+  `);
   const headerClass = `
     flex gap-2 justify-center items-center sticky top-0 z-20
     ${defaultPadding}

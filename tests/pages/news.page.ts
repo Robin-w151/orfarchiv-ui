@@ -1,13 +1,20 @@
 import type { Locator, Page } from '@playwright/test';
 import { newsMockEmptyUpdate } from '../mocks/news.mocks';
+import { waitForTestReady } from '../shared/waitForTestReady';
 
 export class NewsPage {
+  log: unknown[] = [];
+
   get titleLink(): Locator {
     return this.page.locator('header > h1 > a');
   }
 
+  get newsLink(): Locator {
+    return this.page.locator('header nav').getByRole('link', { name: 'News' });
+  }
+
   get loadUpdateLink(): Locator {
-    return this.page.locator("header nav a[title='Aktualisieren']");
+    return this.page.locator('header nav').getByRole('link', { name: 'Aktualisieren' });
   }
 
   get loadMoreButton(): Locator {
@@ -18,8 +25,12 @@ export class NewsPage {
     return this.page.locator('#news #news-filter');
   }
 
-  get newsFilterMenuButton(): Locator {
-    return this.newsFilter.locator('div + div > button');
+  get newsFilterTagMenuButton(): Locator {
+    return this.newsFilter.getByTitle('Schlagwörter');
+  }
+
+  get newsFilterOtherMenuButton(): Locator {
+    return this.newsFilter.getByTitle('Weitere Filter-Optionen');
   }
 
   get textFilterInput(): Locator {
@@ -48,6 +59,14 @@ export class NewsPage {
     return this.page.getByRole('button', { name: 'KI-Zusammenfassung' });
   }
 
+  get aiSummaryContent(): Locator {
+    return this.modal.locator('article[data-testid="ai-summary"]');
+  }
+
+  get aiSummaryRegenerateButton(): Locator {
+    return this.modal.getByRole('button', { name: 'Erneut generieren' });
+  }
+
   get aiSummaryNavigateToSettingsButton(): Locator {
     return this.page.getByRole('link', { name: 'Zu den Einstellungen' });
   }
@@ -65,6 +84,19 @@ export class NewsPage {
   }
 
   constructor(private readonly page: Page) {}
+
+  async visitSite(): Promise<void> {
+    await this.newsLink.click();
+  }
+
+  async reloadSite(): Promise<void> {
+    await this.page.reload();
+    await waitForTestReady(this.page);
+  }
+
+  getTagButton(tag: string): Locator {
+    return this.newsFilter.getByRole('button', { name: tag });
+  }
 
   getDateFilterInput(name: string): Locator {
     return this.popover.getByPlaceholder(name);
@@ -133,12 +165,35 @@ export class NewsPage {
     });
   }
 
-  async visitSite(): Promise<void> {
-    const url = `/`;
-    const response = await this.page.goto(url);
-    if (!response || response.status() > 399) {
-      throw new Error(`Failed with response code ${response?.status()}`);
-    }
+  async mockAiSummaryApi(data: Record<string, unknown> | Record<string, unknown>[]): Promise<void> {
+    const responses = Array.isArray(data) ? data : [data];
+    let responseIndex = 0;
+
+    await this.page.route('**/v1beta/openai/chat/completions**', (route) => {
+      const responsePayload = responses[Math.min(responseIndex, responses.length - 1)];
+      responseIndex += 1;
+
+      route.fulfill({
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify(responsePayload),
+              },
+            },
+          ],
+          usage: {
+            total_tokens: 0,
+            prompt_tokens: 0,
+            completion_tokens: 0,
+          },
+        }),
+      });
+    });
   }
 
   async waitForContent(): Promise<void> {
@@ -151,6 +206,10 @@ export class NewsPage {
 
   async waitForStoryContent(): Promise<void> {
     await this.page.waitForResponse(/\/api\/trpc\/news.content/i);
+  }
+
+  async waitForAiSummary(): Promise<void> {
+    await this.page.waitForResponse(/\/v1beta\/openai\/chat\/completions/i);
   }
 
   async searchNews(textFilter: string): Promise<void> {

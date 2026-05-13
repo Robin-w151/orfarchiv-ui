@@ -6,6 +6,7 @@ export default {
   component: ConicGradientSpinner,
 };
 
-export const ConicGradient = () => ({
+export const ConicGradient = (args) => ({
   Component: ConicGradientSpinner,
+  props: args,
 });

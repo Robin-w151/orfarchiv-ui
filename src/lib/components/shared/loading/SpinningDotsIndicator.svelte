@@ -14,8 +14,9 @@
 
   let { delay = 0, onclick, onkeydown }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   let showIndicator = $state(!delay);
-  let timeout: any;
+  let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
   let backdropRef = $state<HTMLDivElement | undefined>(undefined);
 
   const dotClass = clsx(['absolute', 'w-4 h-4', 'rounded-full']);

@@ -11,7 +11,7 @@
 
   let { id, name, label, value, onchange }: Props = $props();
 
-  let group = $state(`${value}-1`);
+  let group = $derived(`${value}-1`);
 </script>
 
 <fieldset class="flex flex-col gap-1">

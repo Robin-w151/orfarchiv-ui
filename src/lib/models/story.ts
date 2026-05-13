@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const Story = z.object({
   id: z.string(),
   title: z.string(),
-  category: z.string(),
+  category: z.string().optional(),
   url: z.url(),
   timestamp: z.iso.datetime({ offset: true }),
   source: z.string(),
@@ -13,15 +13,16 @@ export const Story = z.object({
 });
 export type Story = z.infer<typeof Story>;
 
-export interface StoryEntity {
-  _id: unknown;
-  id: string;
-  title: string;
-  category: string;
-  url: string;
-  timestamp: Date;
-  source: string;
-}
+export const StoryEntity = z.object({
+  _id: z.unknown(),
+  id: z.string(),
+  title: z.string(),
+  category: z.string().nullish(),
+  url: z.url(),
+  timestamp: z.date(),
+  source: z.string(),
+});
+export type StoryEntity = z.infer<typeof StoryEntity>;
 
 export const StorySource = z.object({
   name: z.string(),
@@ -50,7 +51,14 @@ export const SearchStoryOptions = z.object({
 });
 export type SearchStoryOptions = z.infer<typeof SearchStoryOptions>;
 
-export const StorySummary = z.object({
+export const StorySummarySimple = z.object({
+  title: z.string(),
+  points: z.array(z.string()),
+  text: z.string(),
+});
+export type StorySummarySimple = z.infer<typeof StorySummarySimple>;
+
+export const StorySummaryExtended = z.object({
   title: z.string(),
   points: z.array(
     z.object({
@@ -59,4 +67,16 @@ export const StorySummary = z.object({
     }),
   ),
 });
+export type StorySummaryExtended = z.infer<typeof StorySummaryExtended>;
+
+export const StorySummary = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('simple'),
+    summary: StorySummarySimple,
+  }),
+  z.object({
+    type: z.literal('extended'),
+    summary: StorySummaryExtended,
+  }),
+]);
 export type StorySummary = z.infer<typeof StorySummary>;

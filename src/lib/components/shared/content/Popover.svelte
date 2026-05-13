@@ -77,34 +77,38 @@
     onClose: () => updateOpenState(false),
   });
 
-  const floating = useFloating({
-    whileElementsMounted: autoUpdate,
-    get open() {
-      return open;
-    },
-    onOpenChange: (v) => {
-      if (v) {
-        handleOpen();
-      } else {
-        handleClose();
-      }
-    },
-    placement,
-    get middleware() {
-      return [offset(10), flip(), shift()];
-    },
-  });
-  const role = useRole(floating.context);
-  const click = useClick(floating.context, { keyboardHandlers: openOnKeyboardClick });
-  const dismiss = useDismiss(floating.context, { escapeKey: !isCloseWatcherAvailable() });
-  const interactions = useInteractions(
-    [
-      role,
-      dismiss,
-      click,
-      openOnFocus ? useFocus(floating.context) : null,
-      openOnHover ? useHover(floating.context, { delay }) : null,
-    ].filter((props) => !!props),
+  const floating = $derived(
+    useFloating({
+      whileElementsMounted: autoUpdate,
+      get open() {
+        return open;
+      },
+      onOpenChange: (v) => {
+        if (v) {
+          handleOpen();
+        } else {
+          handleClose();
+        }
+      },
+      placement,
+      get middleware() {
+        return [offset(10), flip(), shift()];
+      },
+    }),
+  );
+  const role = $derived(useRole(floating.context));
+  const click = $derived(useClick(floating.context, { keyboardHandlers: openOnKeyboardClick }));
+  const dismiss = $derived(useDismiss(floating.context, { escapeKey: !isCloseWatcherAvailable() }));
+  const interactions = $derived(
+    useInteractions(
+      [
+        role,
+        dismiss,
+        click,
+        openOnFocus ? useFocus(floating.context) : null,
+        openOnHover ? useHover(floating.context, { delay }) : null,
+      ].filter((props) => !!props),
+    ),
   );
 
   const popoverContentClass = 'z-40';

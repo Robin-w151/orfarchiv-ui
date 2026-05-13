@@ -29,6 +29,7 @@
     ...restProps
   }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   const accessibleTransitionStore = new AccessibleTransitionStore(transition, transitionProps);
 
   $effect(() => {

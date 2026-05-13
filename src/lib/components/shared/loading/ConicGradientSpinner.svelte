@@ -7,7 +7,9 @@
 
   let { class: clazz }: Props = $props();
 
-  const spinnerClass = clsx([`flex justify-center items-center`, `w-6 h-6`, `rounded-full animate-spin`, clazz]);
+  const spinnerClass = $derived(
+    clsx([`flex justify-center items-center`, `w-6 h-6`, `rounded-full animate-spin`, clazz]),
+  );
 </script>
 
 <div class="spinner {spinnerClass}"></div>

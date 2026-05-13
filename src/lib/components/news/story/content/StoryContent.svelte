@@ -62,7 +62,7 @@
   let sourceLabel = $derived(getSourceLabel(storyContent?.source?.name));
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
   let isPlaying = $derived(audioStore.story?.id === story.id && audioStore.isPlaying);
-  let isViewedTimout: any | undefined = undefined;
+  let isViewedTimout: ReturnType<typeof setTimeout> | undefined = undefined;
 
   $effect(() => {
     handleContentChange(storyContentRef);

@@ -1,11 +1,25 @@
-import type { Page, Locator } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { waitForTestReady } from '../shared/waitForTestReady';
 
 export class SettingsPage {
   get isPageActive(): Promise<boolean> {
     return this.page.waitForURL('/settings').then(() => true);
   }
 
+  get settingsLink(): Locator {
+    return this.page.locator('header nav').getByRole('link', { name: 'Einstellungen' });
+  }
+
   constructor(private readonly page: Page) {}
+
+  async visitSite(): Promise<void> {
+    await this.settingsLink.click();
+  }
+
+  async reloadSite(): Promise<void> {
+    await this.page.reload();
+    await waitForTestReady(this.page);
+  }
 
   getListSection(sectionTitle: string): Locator {
     return this.page
@@ -21,13 +35,5 @@ export class SettingsPage {
     return this.getListSection(sectionTitle).locator('li label', {
       has: this.page.locator(`text="${label}"`),
     });
-  }
-
-  async visitSite(): Promise<void> {
-    const url = `/settings`;
-    const response = await this.page.goto(url);
-    if (!response || response.status() > 399) {
-      throw new Error(`Failed with response code ${response?.status()}`);
-    }
   }
 }

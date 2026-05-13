@@ -3,7 +3,7 @@ import { logger, NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/server';
 import type { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
-import type { SearchStoryOptions, Story, StoryEntity } from '$lib/models/story';
+import { StoryEntity, type SearchStoryOptions, type Story } from '$lib/models/story';
 import type { Collection, Sort } from 'mongodb';
 
 type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
@@ -173,7 +173,7 @@ function mapToStory(entry: StoryEntity): Story {
   return {
     id: entry.id,
     title: entry.title,
-    category: entry.category,
+    category: entry.category ?? undefined,
     url: entry.url,
     timestamp: entry.timestamp.toISOString(),
     source: entry.source,
@@ -181,25 +181,7 @@ function mapToStory(entry: StoryEntity): Story {
 }
 
 function isStoryEntity(story: unknown): story is StoryEntity {
-  return (
-    !!story &&
-    typeof story === 'object' &&
-    '_id' in story &&
-    !!story._id &&
-    'id' in story &&
-    !!story.id &&
-    'title' in story &&
-    !!story.title &&
-    'category' in story &&
-    !!story.category &&
-    'url' in story &&
-    !!story.url &&
-    'timestamp' in story &&
-    !!story.timestamp &&
-    typeof story.timestamp === 'object' &&
-    'source' in story &&
-    !!story.source
-  );
+  return StoryEntity.safeParse(story).success;
 }
 
 function parseDate(date: string | null | undefined): Date | undefined {

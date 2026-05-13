@@ -11,7 +11,7 @@
   import { AI_MODEL_CONFIG_MAP, AI_MODEL_DEFAULT } from '$lib/configs/client';
   import { AiModel, AiModels } from '$lib/models/ai';
   import settings from '$lib/stores/settings';
-  import { Key } from '@steeze-ui/heroicons';
+  import { BookOpen, Key } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 
   function handleAiSummaryEnabledChange(event: Event & { currentTarget: HTMLInputElement }): void {
@@ -47,6 +47,12 @@
             {/each}
           </Select>
         </Label>
+        <div>
+          <Link class="flex items-center gap-2 w-fit" href={AI_MODEL_CONFIG_MAP[$settings.aiModel].ref} target="_blank">
+            <Icon src={BookOpen} class="h-4 w-4" />
+            <span>Modell Dokumentation</span>
+          </Link>
+        </div>
       </Item>
       <Item>
         <Label label="Gemini API-Key">

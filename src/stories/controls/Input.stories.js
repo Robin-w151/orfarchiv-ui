@@ -3,6 +3,7 @@ import InputComponent from '$lib/components/shared/controls/Input.svelte';
 const args = {
   id: 'input',
   value: '',
+  tag: '',
   placeholder: 'Enter text here',
   shortcutKeys: ['Ctrl', 'K'],
 };
@@ -20,6 +21,11 @@ export default {
     value: {
       type: 'string',
       description: 'Current value of the input control',
+      control: 'text',
+    },
+    tag: {
+      type: 'string',
+      description: 'Tag text of the input control',
       control: 'text',
     },
     placeholder: {
@@ -42,7 +48,4 @@ export default {
 export const Input = (args) => ({
   Component: InputComponent,
   props: args,
-  on: {
-    onchange: args.onchange,
-  },
 });
