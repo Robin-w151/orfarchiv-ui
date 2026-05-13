@@ -46,7 +46,7 @@ export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 
 // AI
 export const AI_MODEL_DEFAULT = 'gemini-2.5-flash-lite' satisfies AiModel;
-export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
+export const AI_MODEL_CONFIG_MAP = Object.freeze({
   'gemini-3.1-flash-lite': {
     name: 'Gemini 3.1 Flash-Lite',
     modelCode: 'gemini-3.1-flash-lite',
@@ -62,13 +62,13 @@ export const AI_MODEL_CONFIG_MAP = Object.freeze(<const>{
   'gemini-2.5-flash': {
     name: 'Gemini 2.5 Flash',
     modelCode: 'gemini-2.5-flash',
-    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini_25_flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash',
     supportsThinking: true,
   },
   'gemini-2.5-flash-lite': {
     name: 'Gemini 2.5 Flash-Lite',
     modelCode: 'gemini-2.5-flash-lite',
-    ref: 'https://ai.google.dev/gemini-api/docs/models#gemini_25_flash-lite',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-lite',
     supportsThinking: true,
   },
-}) satisfies AiModelConfigMap;
+} as const) satisfies AiModelConfigMap;
