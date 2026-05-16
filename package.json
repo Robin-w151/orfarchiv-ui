@@ -107,9 +107,6 @@
     "glob": ">=10.5.0",
     "vite-plugin-devtools-json": {
       "vite": "$vite"
-    },
-    "vite-plugin-pwa": {
-      "vite": "$vite"
     }
   },
   "type": "module",
