@@ -6,9 +6,9 @@ import type { Request } from '$lib/models/request';
 import type { SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
+import { uuid } from '$lib/utils/uuid';
 import type { TRPCClient } from '@trpc/client';
 import { Effect, Either } from 'effect';
-import { v4 as uuid } from 'uuid';
 import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
 
