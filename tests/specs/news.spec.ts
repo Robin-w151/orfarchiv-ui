@@ -187,6 +187,15 @@ test.describe('NewsPage', () => {
       const expectedHref = 'https://der.orf.at/kontakt/orf-online-angebote100.html';
       await expectExternalLink(supportLink, expectedHref);
     });
+
+    test('open options menu repeatedly', async ({ newsPage }) => {
+      for (let i = 0; i < 5; i++) {
+        await storyMenu.click();
+        await expect(newsPage.popover).not.toBeVisible();
+        await storyMenu.click();
+        await expect(newsPage.popover).toBeVisible();
+      }
+    });
   });
 
   test.describe('Content', () => {

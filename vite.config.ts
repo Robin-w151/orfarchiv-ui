@@ -5,7 +5,6 @@ import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
 import Sonda from 'sonda/sveltekit';
 import { defineConfig } from 'vite';
-import devtoolsJson from 'vite-plugin-devtools-json';
 import manifest from './src/assets/manifest';
 
 dotenv.config({ silent: true });
@@ -32,7 +31,6 @@ export default defineConfig({
       },
     }),
     Sonda({ open: false }),
-    devtoolsJson(),
   ],
   build: {
     sourcemap: true,

@@ -1,7 +1,7 @@
 import type { OANotification, OANotificationOptions } from '$lib/models/notifications';
 import { createSystemNotification } from '$lib/utils/notifications';
+import { uuid } from '$lib/utils/uuid';
 import { get, writable, type Readable } from 'svelte/store';
-import { v4 as uuid } from 'uuid';
 
 export interface NotificationsStore extends Readable<Array<OANotification>> {
   notify: (title: string, text: string, options?: OANotificationOptions) => Promise<void>;
