@@ -36,28 +36,27 @@
     accessibleTransitionStore.transition = transition;
     accessibleTransitionStore.transitionProps = transitionProps;
   });
-
-  let usedTransition = $derived(accessibleTransitionStore.accessibleTransition);
-  let usedTransitionProps = $derived(accessibleTransitionStore.accessibleTransitionProps);
 </script>
 
 {#if onlyIn}
+  {@const usedTransition = accessibleTransitionStore.accessibleTransition}
   <svelte:element
     this={element}
     class={clazz}
     {style}
-    in:usedTransition|global={usedTransitionProps}
+    in:usedTransition|global={accessibleTransitionStore.accessibleTransitionProps}
     bind:this={elementRef}
     {...restProps}
   >
     {@render children?.()}
   </svelte:element>
 {:else}
+  {@const usedTransition = accessibleTransitionStore.accessibleTransition}
   <svelte:element
     this={element}
     class={clazz}
     {style}
-    transition:usedTransition|global={usedTransitionProps}
+    transition:usedTransition|global={accessibleTransitionStore.accessibleTransitionProps}
     bind:this={elementRef}
     {...restProps}
   >

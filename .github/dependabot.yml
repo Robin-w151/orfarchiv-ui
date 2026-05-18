@@ -22,3 +22,5 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@mozilla/readability'
         versions: '>0.5.0'
+      - dependency-name: 'svelte'
+        versions: '>5.55.2'
