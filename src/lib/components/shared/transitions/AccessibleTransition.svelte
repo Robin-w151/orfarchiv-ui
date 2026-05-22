@@ -1,7 +1,7 @@
 <script lang="ts" generics="TElement extends HTMLElement = HTMLDivElement">
   import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
   import { transitionDefaults } from '$lib/utils/transitions';
-  import { onDestroy, type Snippet } from 'svelte';
+  import { type Snippet } from 'svelte';
   import { type SvelteHTMLElements } from 'svelte/elements';
   import { fade, type TransitionConfig } from 'svelte/transition';
 
@@ -31,15 +31,6 @@
 
   // svelte-ignore state_referenced_locally
   const accessibleTransitionStore = new AccessibleTransitionStore(transition, transitionProps);
-
-  const destroyEffect = $effect.root(() => {
-    accessibleTransitionStore.transition = transition;
-    accessibleTransitionStore.transitionProps = transitionProps;
-  });
-
-  onDestroy(() => {
-    destroyEffect();
-  });
 </script>
 
 {#if onlyIn}
@@ -48,9 +39,9 @@
     this={element}
     class={clazz}
     {style}
+    {...restProps}
     in:usedTransition|global={accessibleTransitionStore.accessibleTransitionProps}
     bind:this={elementRef}
-    {...restProps}
   >
     {@render children?.()}
   </svelte:element>
@@ -60,9 +51,9 @@
     this={element}
     class={clazz}
     {style}
+    {...restProps}
     transition:usedTransition|global={accessibleTransitionStore.accessibleTransitionProps}
     bind:this={elementRef}
-    {...restProps}
   >
     {@render children?.()}
   </svelte:element>
