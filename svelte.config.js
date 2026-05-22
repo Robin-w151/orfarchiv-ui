@@ -20,6 +20,11 @@ const config = {
     },
     csp,
   },
+  compilerOptions: {
+    experimental: {
+      async: true,
+    },
+  },
 };
 
 export default config;

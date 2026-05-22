@@ -25,7 +25,6 @@
   import { ChevronUp, ExclamationCircle, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
-  import { SvelteMap } from 'svelte/reactivity';
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './image/StoryImageViewer.svelte';
@@ -201,8 +200,9 @@
     audioStore.read(story, storyContent.contentText);
   }
 
-  function findAllImages(ref?: HTMLElement): SvelteMap<HTMLImageElement, ImageMeta> {
-    const images = new SvelteMap<HTMLImageElement, ImageMeta>();
+  function findAllImages(ref?: HTMLElement): Map<HTMLImageElement, ImageMeta> {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const images = new Map<HTMLImageElement, ImageMeta>();
     for (const picture of querySelectorAll(ref, 'picture')) {
       const image = picture.querySelector('img');
       if (image) {
