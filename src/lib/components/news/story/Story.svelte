@@ -33,7 +33,7 @@
   let headerRef: StoryHeader | undefined = $state();
   let showContent = $state(false);
 
-  const storyContentTransitionStore = new AccessibleTransitionStore(rollDown);
+  const storyContentTransitionStore = new AccessibleTransitionStore(() => rollDown);
   const storyContentTransition = $derived(storyContentTransitionStore.accessibleTransition);
 
   onMount(() => {
