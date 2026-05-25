@@ -12,17 +12,25 @@ export interface AccessibleTransitionStoreInterface {
 
 export class AccessibleTransitionStore implements AccessibleTransitionStoreInterface {
   private reducedMotionStore = getReducedMotionStore();
+  private transition: () => Transition;
+  private transitionProps: () => TransitionProps;
 
-  transition = $state<Transition>(fade);
-  transitionProps = $state<TransitionProps>(transitionDefaults);
+  accessibleTransition: Transition;
+  accessibleTransitionProps: TransitionProps;
 
-  accessibleTransition = $derived(this.reducedMotionStore.useReducedMotion ? fade : this.transition);
-  accessibleTransitionProps = $derived(
-    this.reducedMotionStore.useReducedMotion || !this.transitionProps ? transitionDefaults : this.transitionProps,
-  );
-
-  constructor(transition: Transition, transitionProps?: TransitionProps) {
+  constructor(transition: () => Transition, transitionProps: () => TransitionProps = () => transitionDefaults) {
     this.transition = transition;
-    this.transitionProps = transitionProps || transitionDefaults;
+    this.transitionProps = transitionProps;
+
+    this.accessibleTransition = $derived.by(() =>
+      this.reducedMotionStore.useReducedMotion ? fade : this.transition(),
+    );
+    this.accessibleTransitionProps = $derived.by(() => {
+      if (this.reducedMotionStore.useReducedMotion) {
+        return transitionDefaults;
+      }
+
+      return this.transitionProps() ?? transitionDefaults;
+    });
   }
 }

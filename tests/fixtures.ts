@@ -1,12 +1,14 @@
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { newsMock } from './mocks/news.mocks';
 import { NewsPage } from './pages/news.page';
 import { SettingsPage } from './pages/settings.page';
 import { waitForTestReady } from './shared/waitForTestReady';
+import { WebErrorPage } from './pages/webError.page';
 
 interface TestFixtures {
   newsPage: NewsPage;
   settingsPage: SettingsPage;
+  webErrorPage: WebErrorPage;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -44,4 +46,14 @@ export const test = base.extend<TestFixtures>({
 
     await use(settingsPage);
   },
+  webErrorPage: [
+    async ({ context }, use) => {
+      const webErrorPage = new WebErrorPage(context);
+
+      await use(webErrorPage);
+
+      expect(webErrorPage.errors, 'Uncaught errors occurred').toHaveLength(0);
+    },
+    { auto: true },
+  ],
 });

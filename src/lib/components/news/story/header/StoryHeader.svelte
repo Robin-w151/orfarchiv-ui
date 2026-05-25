@@ -2,7 +2,7 @@
   import StoryPopover from '$lib/components/news/story/header/options/StoryPopover.svelte';
   import { getSourceLabel } from '$lib/models/settings';
   import type { Story } from '$lib/models/story';
-  import { AccessibleTransitionStore, type TransitionProps } from '$lib/stores/runes/accessibleTransition.svelte';
+  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
   import { formatTimestamp } from '$lib/utils/datetime.js';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
   import { blur } from 'svelte/transition';
@@ -41,10 +41,13 @@
   let showViewedInfo = $derived(story?.isBookmarked && story?.isViewed);
   let sourceLabel = $derived(getSourceLabel(story?.source));
 
-  const accessibleBlurTransition = new AccessibleTransitionStore(blur, {
-    duration: 500,
-    amount: 25,
-  } as TransitionProps);
+  const accessibleBlurTransition = new AccessibleTransitionStore(
+    () => blur,
+    () => ({
+      duration: 500,
+      amount: 25,
+    }),
+  );
   const blurTransition = $derived(accessibleBlurTransition.accessibleTransition);
 </script>
 

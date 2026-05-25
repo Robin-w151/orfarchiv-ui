@@ -4,10 +4,10 @@ import type { TransitionConfig } from 'svelte/transition';
 export type Position = 'top' | 'bottom' | 'left' | 'right' | 'center';
 export type TransformOrigin = `${Position}` | `${Position} ${Position}`;
 
-export const transitionDefaults = {
+export const transitionDefaults = Object.freeze({
   duration: 150,
   easing: cubicInOut,
-};
+});
 
 export function rollFade(node: Element, options: TransitionConfig): TransitionConfig {
   const opacity = +getComputedStyle(node).opacity;
