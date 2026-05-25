@@ -45,18 +45,18 @@ export const PAN_DISTANCE = 50;
 export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 
 // AI
-export const AI_MODEL_DEFAULT = 'gemini-2.5-flash-lite' satisfies AiModel;
+export const AI_MODEL_DEFAULT = 'gemini-3.5-flash' satisfies AiModel;
 export const AI_MODEL_CONFIG_MAP = Object.freeze({
+  'gemini-3.5-flash': {
+    name: 'Gemini 3.5 Flash',
+    modelCode: 'gemini-3.5-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash',
+    supportsThinking: true,
+  },
   'gemini-3.1-flash-lite': {
     name: 'Gemini 3.1 Flash-Lite',
     modelCode: 'gemini-3.1-flash-lite',
     ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite',
-    supportsThinking: true,
-  },
-  'gemini-3.0-flash': {
-    name: 'Gemini 3.0 Flash',
-    modelCode: 'gemini-3-flash-preview',
-    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview',
     supportsThinking: true,
   },
   'gemini-2.5-flash': {
