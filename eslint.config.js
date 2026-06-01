@@ -8,6 +8,18 @@ import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 
 export default [
+  {
+    ignores: [
+      'build/',
+      '.svelte-kit/',
+      '.vercel',
+      'dist/',
+      'playwright-report/',
+      'test-results/',
+      '.storybook/',
+      'storybook-static/',
+    ],
+  },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs['flat/recommended'],
@@ -32,9 +44,6 @@ export default [
         svelteConfig,
       },
     },
-  },
-  {
-    ignores: ['build/', '.svelte-kit/', '.vercel', 'dist/', 'playwright-report/', 'test-results/'],
   },
   {
     files: ['**/*.{ts,svelte}'],

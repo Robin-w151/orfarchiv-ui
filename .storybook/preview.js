@@ -1,18 +1,12 @@
 import '../src/app.css';
 import './preview.css';
-import { setReducedMotionStore } from '../src/lib/stores/runes/reducedMotion.svelte';
-import { setSkeletonStore } from '../src/lib/stores/runes/skeleton.svelte';
-import { setAudioStore } from '../src/lib/stores/runes/audio.svelte';
+import StorybookStoreDecorator from './StorybookStoreDecorator.svelte';
 
-const withSvelteStores = (storyFn) => {
-  setReducedMotionStore();
-  setSkeletonStore();
-  setAudioStore();
-
-  return storyFn();
-};
-
-export const decorators = [withSvelteStores];
+export const decorators = [
+  () => ({
+    Component: StorybookStoreDecorator,
+  }),
+];
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
