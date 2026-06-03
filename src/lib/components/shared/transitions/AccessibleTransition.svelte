@@ -33,10 +33,11 @@
     () => transition,
     () => transitionProps,
   );
+
+  const usedTransition = $derived(accessibleTransitionStore.accessibleTransition);
 </script>
 
 {#if onlyIn}
-  {@const usedTransition = accessibleTransitionStore.accessibleTransition}
   <svelte:element
     this={element}
     class={clazz}
@@ -48,7 +49,6 @@
     {@render children?.()}
   </svelte:element>
 {:else}
-  {@const usedTransition = accessibleTransitionStore.accessibleTransition}
   <svelte:element
     this={element}
     class={clazz}
