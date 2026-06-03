@@ -42,7 +42,7 @@ export class OptimizedContentIsEmptyError extends Data.TaggedError('OptimizedCon
 }> {}
 
 // AI
-export const AiServiceErrorTypes = ['INVALID_REQUEST', 'TIMEOUT', 'RATE_LIMIT'] as const;
+export const AiServiceErrorTypes = ['INVALID_REQUEST', 'TIMEOUT', 'RATE_LIMIT', 'API_KEY_INVALID'] as const;
 export type AiServiceErrorType = (typeof AiServiceErrorTypes)[number];
 export class AiServiceError extends Data.TaggedError('AiServiceError')<{
   message: string;
