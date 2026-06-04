@@ -183,6 +183,18 @@ export class AiService {
   }
 
   private isErrorRetryable(error: unknown): boolean {
-    return !(error instanceof AiServiceError) || error.type !== 'API_KEY_INVALID';
+    if (error instanceof AiServiceError) {
+      switch (error.type) {
+        case 'INVALID_REQUEST':
+        case 'API_KEY_INVALID': {
+          return false;
+        }
+        default: {
+          return true;
+        }
+      }
+    }
+
+    return true;
   }
 }
