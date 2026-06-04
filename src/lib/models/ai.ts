@@ -20,3 +20,20 @@ export interface AiModelConfig {
 export type AiModelConfigMap = {
   readonly [K in AiModel]: AiModelConfig;
 };
+
+export const OpenAIError = z.object({
+  status: z.number(),
+  error: z.array(
+    z.object({
+      error: z.object({
+        details: z.array(
+          z.object({
+            '@type': z.string(),
+            reason: z.string().optional(),
+          }),
+        ),
+      }),
+    }),
+  ),
+});
+export type OpenAIError = z.infer<typeof OpenAIError>;

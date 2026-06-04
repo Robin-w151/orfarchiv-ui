@@ -55,6 +55,10 @@ function errorMessage(error: AiServiceError): string {
       return 'Das Generieren der KI-Zusammenfassung hat zu lange gedauert. Eventuell gibt es Probleme mit der Netzwerkverbindung oder das KI-Modell ist überlastet. Bitte versuchen Sie es später erneut.';
     case 'RATE_LIMIT':
       return 'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Möglicherweise ist nicht ausreichend Guthaben vorhanden oder es wurden in letzter Zeit zu viele Anfragen an die KI gestellt. Wechseln Sie das KI-Modell in den Einstellungen oder versuchen Sie es später erneut.';
+    case 'MODEL_OVERLOADED':
+      return 'Das KI-Modell ist aktuell überlastet. Wechseln Sie das KI-Modell in den Einstellungen oder versuchen Sie es später erneut.';
+    case 'API_KEY_INVALID':
+      return 'Der API-Key für die KI-Zusammenfassung ist ungültig. Bitte überprüfen Sie die Einstellungen.';
     default:
       return 'Beim Generieren der KI-Zusammenfassung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.';
   }

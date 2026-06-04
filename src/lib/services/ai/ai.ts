@@ -1,11 +1,11 @@
 import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
-import type { AiModel } from '$lib/models/ai';
+import { OpenAIError, type AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule } from 'effect';
 import OpenAI from 'openai';
 import { makeParseableResponseFormat, type AutoParseableResponseFormat } from 'openai/lib/parser';
-import type { ReasoningEffort, ResponseFormatJSONSchema } from 'openai/resources';
+import type { ResponseFormatJSONSchema } from 'openai/resources';
 import { z, type ZodType } from 'zod';
 
 export class AiService {
@@ -43,7 +43,7 @@ export class AiService {
               model: modelConfig.modelCode,
               messages: [{ role: 'user', content: message }],
               response_format: this.zodResponseFormat(schema, 'json_object'),
-              reasoning_effort: reasoningEffort as ReasoningEffort,
+              reasoning_effort: reasoningEffort,
             },
             { signal: abortSignal, maxRetries: 0 },
           );
@@ -51,23 +51,18 @@ export class AiService {
         catch: (error) => {
           let type: AiServiceErrorType | undefined;
           if (error instanceof OpenAI.APIError) {
-            switch (error.status) {
-              case 400:
-                type = 'INVALID_REQUEST';
-                break;
-              case 429:
-                type = 'RATE_LIMIT';
-                break;
-              default:
-                break;
-            }
+            type = this.getErrorType(error);
           }
 
           return new AiServiceError({ message: 'Failed to send message', type, cause: error });
         },
       }).pipe(
         Effect.timeout('2 minutes'),
-        Effect.retry({ times: 1, schedule: Schedule.exponential(5000).pipe(Schedule.jittered) }),
+        Effect.retry({
+          times: 1,
+          schedule: Schedule.exponential(5000).pipe(Schedule.jittered),
+          while: (error) => this.isErrorRetryable(error),
+        }),
         Effect.catchTag(
           'TimeoutException',
           (error) => new AiServiceError({ message: 'Response generation timed out', type: 'TIMEOUT', cause: error }),
@@ -156,5 +151,52 @@ export class AiService {
       },
       (content) => zodObject.parse(JSON.parse(content)),
     );
+  }
+
+  private getErrorType(error: unknown): AiServiceErrorType | undefined {
+    const parsedError = OpenAIError.safeParse(error);
+    if (!parsedError.success) {
+      return undefined;
+    }
+
+    const errorInfo = this.errorInfo(parsedError.data);
+    if (errorInfo) {
+      switch (errorInfo['reason']) {
+        case 'API_KEY_INVALID':
+          return 'API_KEY_INVALID';
+      }
+    }
+
+    switch (parsedError.data.status) {
+      case 400:
+        return 'INVALID_REQUEST';
+      case 429:
+        return 'RATE_LIMIT';
+      case 503:
+        return 'MODEL_OVERLOADED';
+    }
+
+    return undefined;
+  }
+
+  private errorInfo(error: OpenAIError): Record<string, string> | undefined {
+    const details = error.error[0]?.error?.details;
+    return details.find((detail) => detail['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo');
+  }
+
+  private isErrorRetryable(error: unknown): boolean {
+    if (error instanceof AiServiceError) {
+      switch (error.type) {
+        case 'INVALID_REQUEST':
+        case 'API_KEY_INVALID': {
+          return false;
+        }
+        default: {
+          return true;
+        }
+      }
+    }
+
+    return true;
   }
 }
