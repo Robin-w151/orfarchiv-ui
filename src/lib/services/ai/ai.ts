@@ -172,6 +172,8 @@ export class AiService {
         return 'INVALID_REQUEST';
       case 429:
         return 'RATE_LIMIT';
+      case 503:
+        return 'MODEL_OVERLOADED';
     }
 
     return undefined;
