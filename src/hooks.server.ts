@@ -1,4 +1,4 @@
-import { building } from '$app/env';
+import { building } from '$app/environment';
 import orfArchivDb from '$lib/backend/db/init';
 import type { Handle } from '@sveltejs/kit';
 

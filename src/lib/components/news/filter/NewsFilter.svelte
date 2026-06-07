@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from '$app/env';
+  import { browser } from '$app/environment';
   import NewsFilterOtherPopover from '$lib/components/news/filter/NewsFilterOtherPopover.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import { startSearch } from '$lib/stores/newsEvents';

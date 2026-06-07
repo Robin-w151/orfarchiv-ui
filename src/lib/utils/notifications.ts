@@ -1,4 +1,4 @@
-import { browser } from '$app/env';
+import { browser } from '$app/environment';
 import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from '$lib/configs/client';
 import type { OANotificationHandlers, OANotificationOptions } from '$lib/models/notifications';
 import { logger } from './logger';

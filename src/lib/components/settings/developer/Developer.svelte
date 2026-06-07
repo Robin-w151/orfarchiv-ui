@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from '$app/env';
+  import { browser } from '$app/environment';
   import Item from '$lib/components/shared/content/Item.svelte';
   import Section from '$lib/components/shared/content/Section.svelte';
   import SectionList from '$lib/components/shared/content/SectionList.svelte';

@@ -38,9 +38,6 @@ export default defineConfig({
         $lib: resolve('./src/lib'),
       },
       csp,
-      experimental: {
-        explicitEnvironmentVariables: true,
-      },
       compilerOptions: {
         experimental: {
           async: true,

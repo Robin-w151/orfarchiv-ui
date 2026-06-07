@@ -3,7 +3,7 @@
   import Link from '$lib/components/shared/controls/Link.svelte';
   import SectionList from '$lib/components/shared/content/SectionList.svelte';
   import SimpleItem from '$lib/components/shared/content/SimpleItem.svelte';
-  import { PUBLIC_APP_MODE } from '$app/env/public';
+  import { PUBLIC_APP_MODE } from '$env/static/public';
 
   const appVersion = import.meta.env.APP_VERSION;
   const appCommitHash = import.meta.env.APP_COMMIT_HASH;

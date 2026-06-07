@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from '$app/env';
+  import { browser } from '$app/environment';
   import styles, { type ColorScheme } from '$lib/stores/styles';
   import { onDestroy, onMount } from 'svelte';
 

@@ -1,4 +1,4 @@
-import { browser } from '$app/env';
+import { browser } from '$app/environment';
 import { AI_MODEL_DEFAULT, SETTINGS_STORE_NAME } from '$lib/configs/client';
 import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';

@@ -1,4 +1,4 @@
-import { browser } from '$app/env';
+import { browser } from '$app/environment';
 import type { Story } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import { isMediaSessionAvailable } from '$lib/utils/support';
