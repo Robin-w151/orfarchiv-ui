@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PUBLIC_APP_MODE } from '$env/static/public';
+  import { PUBLIC_APP_MODE } from '$app/env/public';
   import Appearance from '$lib/components/settings/appearance/Appearance.svelte';
   import Content from '$lib/components/shared/content/Content.svelte';
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';

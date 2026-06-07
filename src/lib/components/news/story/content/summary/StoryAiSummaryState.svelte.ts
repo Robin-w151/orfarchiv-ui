@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { STORY_SUMMARY_EXTENDED_WORD_LIMIT } from '$lib/configs/client';
 import type { AiServiceError } from '$lib/errors/errors';
 import { StorySummary, StorySummaryExtended, StorySummarySimple, type StoryContent } from '$lib/models/story';
