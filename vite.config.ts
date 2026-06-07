@@ -1,13 +1,25 @@
+import adapterNode from '@sveltejs/adapter-node';
+import adapterVercel from '@sveltejs/adapter-vercel';
+import type { KitConfig } from '@sveltejs/kit';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import Sonda from 'sonda/sveltekit';
 import { defineConfig } from 'vite';
+import cspConfig from './csp-config.js';
 import manifest from './src/assets/manifest';
 
 dotenv.config({ silent: true });
+
+const useAdapterNode = process.env.USE_ADAPTER_NODE === 'true';
+const isCspDisabled = process.env.DISABLE_CSP === 'true';
+
+const adapter = useAdapterNode ? adapterNode() : adapterVercel();
+const csp = (isCspDisabled ? undefined : cspConfig) as KitConfig['csp'];
 
 export default defineConfig({
   define: {
@@ -18,7 +30,20 @@ export default defineConfig({
   },
   plugins: [
     tailwindcss(),
-    sveltekit(),
+    sveltekit({
+      preprocess: vitePreprocess(),
+      adapter,
+      alias: {
+        $assets: resolve('./src/assets'),
+        $lib: resolve('./src/lib'),
+      },
+      csp,
+      compilerOptions: {
+        experimental: {
+          async: true,
+        },
+      },
+    }),
     SvelteKitPWA({
       strategies: 'injectManifest',
       manifest,
