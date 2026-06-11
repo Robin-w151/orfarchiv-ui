@@ -8,13 +8,18 @@ export const DateFilter = z.object({
 export type DateFilter = z.infer<typeof DateFilter>;
 
 export const SearchFilter = z.object({
+  tag: z.string().optional(),
   textFilter: z.string().optional(),
   dateFilter: DateFilter.optional(),
 });
 export type SearchFilter = z.infer<typeof SearchFilter>;
 
+export const SearchMatchMode = z.enum(['anyOf', 'allOf']);
+export type SearchMatchMode = z.infer<typeof SearchMatchMode>;
+
 export const SearchRequestParameters = SearchFilter.extend({
   sources: z.array(z.string()).optional(),
+  matchMode: SearchMatchMode.optional(),
 });
 export type SearchRequestParameters = z.infer<typeof SearchRequestParameters>;
 

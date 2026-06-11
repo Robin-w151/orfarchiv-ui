@@ -64,13 +64,15 @@ searchFilter.observable
     map(([searchFilter, sources]) => {
       const { textFilter, tag, dateFilter } = searchFilter ?? {};
       return {
-        textFilter: [textFilter, tag].filter((t) => !!t).join(' '),
+        tag,
+        textFilter,
         dateFilter: {
           from: dateFilter?.from?.toISO() ?? undefined,
           to: dateFilter?.to?.toISO() ?? undefined,
         },
         sources,
-      };
+        matchMode: 'anyOf',
+      } satisfies SearchRequestParameters;
     }),
   )
   .subscribe((searchRequestParameters) => subject.next(searchRequestParameters));

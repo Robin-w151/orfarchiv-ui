@@ -2,7 +2,7 @@ import orfArchivDb from '$lib/backend/db/init';
 import { logger, NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/server';
 import type { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
-import type { SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
+import type { SearchMatchMode, SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryEntity, type SearchStoryOptions, type Story } from '$lib/models/story';
 import type { Collection, Sort } from 'mongodb';
 
@@ -67,21 +67,15 @@ export async function searchStory(url: string, options?: SearchStoryOptions): Pr
   }
 }
 
-function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters): any {
+function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: SearchRequestParameters): any {
   const textFilters = textFilter
     ?.split(/\s+/)
     .filter((text) => !!text)
     .map((text) => text.toLowerCase())
     .map((text) => new RegExp(`${text}`, 'i'));
 
-  const textQuery =
-    textFilters && textFilters.length > 0
-      ? {
-          $and: textFilters?.map((filter) => ({
-            $or: ['title', 'category', 'source'].map((key) => ({ [key]: { $in: [filter] } })),
-          })),
-        }
-      : {};
+  const tagQuery = buildTagQuery(tag);
+  const textQuery = buildTextQuery(textFilters, matchMode);
 
   const fromDate = parseDate(dateFilter?.from);
   const fromQuery = fromDate ? { timestamp: { $gte: fromDate } } : {};
@@ -90,7 +84,35 @@ function buildQuery({ textFilter, dateFilter, sources }: SearchRequestParameters
   const toQuery = toDate ? { timestamp: { $lte: toDate } } : {};
 
   const sourceQuery = sources?.length && sources.length > 0 ? { source: { $in: sources } } : {};
-  return { $and: [textQuery, fromQuery, toQuery, sourceQuery] };
+  return { $and: [tagQuery, textQuery, fromQuery, toQuery, sourceQuery] };
+}
+
+function buildTagQuery(tag: string | undefined): any {
+  if (!tag) {
+    return {};
+  }
+
+  const tagRegex = new RegExp(tag, 'i');
+  return {
+    $or: ['category', 'source'].map((key) => ({ [key]: { $in: [tagRegex] } })),
+  };
+}
+
+function buildTextQuery(textFilters: Array<RegExp> | undefined, matchMode: SearchMatchMode = 'anyOf'): any {
+  if (!textFilters || textFilters.length === 0) {
+    return {};
+  }
+
+  const textFilterQueries = textFilters?.map((filter) => ({
+    $or: ['title', 'category', 'source'].map((key) => ({ [key]: { $in: [filter] } })),
+  }));
+
+  switch (matchMode) {
+    case 'anyOf':
+      return { $or: textFilterQueries };
+    case 'allOf':
+      return { $and: textFilterQueries };
+  }
 }
 
 function generatePaginationQuery(query: any, pageKey?: PageKey): PaginatedQuery {
