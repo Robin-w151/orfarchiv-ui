@@ -29,7 +29,7 @@ export class NewsPage {
     return this.newsFilter.getByTitle('Schlagwörter');
   }
 
-  get newsFilterOtherMenuButton(): Locator {
+  get newsFilterMenuButton(): Locator {
     return this.newsFilter.getByTitle('Weitere Filter-Optionen');
   }
 
@@ -39,6 +39,18 @@ export class NewsPage {
 
   get textFilterClearButton(): Locator {
     return this.newsFilter.locator('input + button');
+  }
+
+  get matchModeFilter(): Locator {
+    return this.popover.getByPlaceholder('Suchmodus');
+  }
+
+  get applyTempFiltersButton(): Locator {
+    return this.popover.getByRole('button', { name: 'Anwenden' });
+  }
+
+  get resetTempFiltersButton(): Locator {
+    return this.popover.getByRole('button', { name: 'Zurücksetzen' });
   }
 
   get newsListItems(): Locator {

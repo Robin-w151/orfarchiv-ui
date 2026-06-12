@@ -1,4 +1,4 @@
-import type { SearchFilter } from '$lib/models/searchRequest';
+import type { SearchFilter, SearchMatchMode } from '$lib/models/searchRequest';
 import { DateTime, type DurationLike } from 'luxon';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { type Readable, type Subscriber } from 'svelte/store';
@@ -8,10 +8,13 @@ export type InternalDateFilter = {
   to?: DateTime;
 };
 
-export interface SearchFilterStoreProps extends Omit<SearchFilter, 'dateFilter'> {
+export interface InternalSearchFilter extends Omit<SearchFilter, 'dateFilter'> {
   tag?: string;
   dateFilter?: InternalDateFilter;
-  tempDateFilter?: InternalDateFilter;
+  matchMode?: SearchMatchMode;
+}
+export interface SearchFilterStoreProps extends InternalSearchFilter {
+  temp?: Omit<InternalSearchFilter, 'tag'>;
 }
 
 export interface SearchFilterStore extends Readable<SearchFilterStoreProps> {
@@ -21,8 +24,9 @@ export interface SearchFilterStore extends Readable<SearchFilterStoreProps> {
   resetTag: () => void;
   setFrom: (fromDate: string | undefined) => void;
   setTo: (toDate: string | undefined) => void;
+  setMatchMode: (matchMode: SearchMatchMode) => void;
   applyTempSearchFilter: () => void;
-  resetDateFilter: () => void;
+  resetTempFilters: () => void;
   resetAll: () => void;
   selectDateFilterToday: () => void;
   selectDateFilterLastWeek: () => void;
@@ -31,15 +35,19 @@ export interface SearchFilterStore extends Readable<SearchFilterStoreProps> {
 }
 
 const initialState = (): SearchFilterStoreProps => ({
-  textFilter: '',
   tag: undefined,
+  textFilter: '',
   dateFilter: {
     from: undefined,
     to: undefined,
   },
-  tempDateFilter: {
-    from: undefined,
-    to: undefined,
+  matchMode: 'anyOf',
+  temp: {
+    dateFilter: {
+      from: undefined,
+      to: undefined,
+    },
+    matchMode: 'anyOf',
   },
 });
 
@@ -69,30 +77,44 @@ function resetTag(): void {
 function setFrom(from?: string): void {
   const newFrom = from ? DateTime.fromISO(from).startOf('day') : undefined;
   update((searchFilter) => {
-    const to = searchFilter.tempDateFilter?.to;
+    const to = searchFilter.temp?.dateFilter?.to;
     const newTo = !to || !newFrom || newFrom <= to ? to : newFrom.endOf('day');
-    return { ...searchFilter, tempDateFilter: { from: newFrom, to: newTo } };
+    return { ...searchFilter, temp: { ...searchFilter.temp, dateFilter: { from: newFrom, to: newTo } } };
   });
 }
 
 function setTo(to?: string): void {
   const newTo = to ? DateTime.fromISO(to).endOf('day') : undefined;
   update((searchFilter) => {
-    const from = searchFilter.tempDateFilter?.from;
+    const from = searchFilter.temp?.dateFilter?.from;
     const newFrom = !from || !newTo || from <= newTo ? from : newTo.startOf('day');
-    return { ...searchFilter, tempDateFilter: { from: newFrom, to: newTo } };
+    return { ...searchFilter, temp: { ...searchFilter.temp, dateFilter: { from: newFrom, to: newTo } } };
   });
 }
 
-function applyTempSearchFilter(): void {
-  update((searchFilter) => ({ ...searchFilter, dateFilter: searchFilter.tempDateFilter }));
+function setMatchMode(matchMode: SearchMatchMode): void {
+  update((searchFilter) => ({ ...searchFilter, temp: { ...searchFilter.temp, matchMode } }));
 }
 
-function resetDateFilter(): void {
+function applyTempSearchFilter(): void {
+  update((searchFilter) => ({ ...searchFilter, ...searchFilter.temp }));
+}
+
+function resetTempFilters(): void {
   update((searchFilter) => ({
     ...searchFilter,
-    dateFilter: {},
-    tempDateFilter: {},
+    dateFilter: {
+      from: undefined,
+      to: undefined,
+    },
+    matchMode: 'anyOf',
+    temp: {
+      dateFilter: {
+        from: undefined,
+        to: undefined,
+      },
+      matchMode: 'anyOf',
+    },
   }));
 }
 
@@ -104,7 +126,7 @@ function selectDateFilterToday(): void {
   const [from, to] = dateRangeFromNow({});
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -112,7 +134,7 @@ function selectDateFilterLastWeek(): void {
   const [from, to] = dateRangeFromNow({ weeks: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -120,7 +142,7 @@ function selectDateFilterLastMonth(): void {
   const [from, to] = dateRangeFromNow({ months: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -128,7 +150,7 @@ function selectDateFilterLastYear(): void {
   const [from, to] = dateRangeFromNow({ years: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -149,11 +171,12 @@ export default {
   resetTag,
   setFrom,
   setTo,
+  setMatchMode,
   applyTempSearchFilter,
-  resetDateFilter,
+  resetTempFilters,
   resetAll,
   selectDateFilterToday,
   selectDateFilterLastWeek,
   selectDateFilterLastMonth,
   selectDateFilterLastYear,
-} as SearchFilterStore;
+} satisfies SearchFilterStore;

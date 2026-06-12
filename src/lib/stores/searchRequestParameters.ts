@@ -6,10 +6,11 @@ import settings from './settings';
 
 function searchFilterStorePropsEqual(p1?: SearchFilterStoreProps, p2?: SearchFilterStoreProps): boolean {
   return (
-    p1?.textFilter === p2?.textFilter &&
     p1?.tag === p2?.tag &&
+    p1?.textFilter === p2?.textFilter &&
     datesEqual(p1?.dateFilter?.from, p2?.dateFilter?.from) &&
-    datesEqual(p1?.dateFilter?.to, p2?.dateFilter?.to)
+    datesEqual(p1?.dateFilter?.to, p2?.dateFilter?.to) &&
+    p1?.matchMode === p2?.matchMode
   );
 }
 
@@ -62,7 +63,7 @@ searchFilter.observable
       );
     }),
     map(([searchFilter, sources]) => {
-      const { textFilter, tag, dateFilter } = searchFilter ?? {};
+      const { textFilter, tag, dateFilter, matchMode } = searchFilter ?? {};
       return {
         tag,
         textFilter,
@@ -71,7 +72,7 @@ searchFilter.observable
           to: dateFilter?.to?.toISO() ?? undefined,
         },
         sources,
-        matchMode: 'anyOf',
+        matchMode,
       } satisfies SearchRequestParameters;
     }),
   )

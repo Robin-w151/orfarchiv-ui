@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import NewsFilterOtherPopover from '$lib/components/news/filter/NewsFilterOtherPopover.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
+  import type { SearchMatchMode } from '$lib/models/searchRequest';
   import { startSearch } from '$lib/stores/newsEvents';
   import searchFilter from '$lib/stores/searchFilter';
   import { isMac } from '$lib/utils/platform';
@@ -9,6 +9,7 @@
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
   import { isTouchDevice } from '$lib/utils/support';
   import { onDestroy, onMount } from 'svelte';
+  import NewsFilterMenuPopover from './NewsFilterMenuPopover.svelte';
   import NewsFilterTagPopover from './NewsFilterTagPopover.svelte';
 
   const subscriptions: Array<Subscription> = [];
@@ -56,6 +57,10 @@
   function handleDateFilterToChange(to?: string): void {
     searchFilter.setTo(to);
   }
+
+  function handleMatchModeChange(matchMode: SearchMatchMode): void {
+    searchFilter.setMatchMode(matchMode);
+  }
 </script>
 
 <div class={filterClass} id="news-filter">
@@ -70,13 +75,15 @@
     bind:this={textFilterInputRef}
   />
   <NewsFilterTagPopover onSelectTag={handleSelectTag} />
-  <NewsFilterOtherPopover
-    from={$searchFilter.tempDateFilter?.from}
-    to={$searchFilter.tempDateFilter?.to}
+  <NewsFilterMenuPopover
+    from={$searchFilter.temp?.dateFilter?.from}
+    to={$searchFilter.temp?.dateFilter?.to}
+    matchMode={$searchFilter.temp?.matchMode}
     onFromChange={handleDateFilterFromChange}
     onToChange={handleDateFilterToChange}
+    onMatchModeChange={handleMatchModeChange}
     onApply={searchFilter.applyTempSearchFilter}
-    onReset={searchFilter.resetDateFilter}
+    onReset={searchFilter.resetTempFilters}
     onSelectToday={searchFilter.selectDateFilterToday}
     onSelectLastWeek={searchFilter.selectDateFilterLastWeek}
     onSelectLastMonth={searchFilter.selectDateFilterLastMonth}
