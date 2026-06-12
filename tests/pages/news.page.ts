@@ -45,6 +45,14 @@ export class NewsPage {
     return this.popover.getByPlaceholder('Suchmodus');
   }
 
+  get applyTempFiltersButton(): Locator {
+    return this.popover.getByRole('button', { name: 'Anwenden' });
+  }
+
+  get resetTempFiltersButton(): Locator {
+    return this.popover.getByRole('button', { name: 'Zurücksetzen' });
+  }
+
   get newsListItems(): Locator {
     return this.page.locator('#news ul > li');
   }

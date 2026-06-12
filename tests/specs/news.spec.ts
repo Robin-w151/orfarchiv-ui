@@ -93,6 +93,28 @@ test.describe('NewsPage', () => {
       await newsPage.matchModeFilter.selectOption('allOf');
       await expect(newsPage.matchModeFilter).toHaveValue('allOf');
     });
+
+    test('apply and reset temp filters', async ({ newsPage }) => {
+      await newsPage.newsFilterMenuButton.click();
+      await newsPage.getDateFilterInput('Von').fill('01.01.2026');
+      await newsPage.getDateFilterInput('Bis').fill('31.01.2026');
+      await newsPage.matchModeFilter.selectOption('allOf');
+      await newsPage.applyTempFiltersButton.click();
+      await expect(newsPage.popover).not.toBeVisible();
+
+      await newsPage.newsFilterMenuButton.click();
+      await expect(newsPage.getDateFilterInput('Von')).toHaveValue('01.01.2026');
+      await expect(newsPage.getDateFilterInput('Bis')).toHaveValue('31.01.2026');
+      await expect(newsPage.matchModeFilter).toHaveValue('allOf');
+
+      await newsPage.resetTempFiltersButton.click();
+      await expect(newsPage.popover).not.toBeVisible();
+
+      await newsPage.newsFilterMenuButton.click();
+      await expect(newsPage.getDateFilterInput('Von')).toHaveValue('');
+      await expect(newsPage.getDateFilterInput('Bis')).toHaveValue('');
+      await expect(newsPage.matchModeFilter).toHaveValue('anyOf');
+    });
   });
 
   test.describe('Sections', () => {
