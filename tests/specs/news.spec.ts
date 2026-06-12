@@ -82,9 +82,16 @@ test.describe('NewsPage', () => {
     });
 
     test('date filter is changeable', async ({ newsPage }) => {
-      await newsPage.newsFilterOtherMenuButton.click();
+      await newsPage.newsFilterMenuButton.click();
       await expect(newsPage.getDateFilterInput('Von')).toBeEditable();
       await expect(newsPage.getDateFilterInput('Bis')).toBeEditable();
+    });
+
+    test('match mode filter is changeable', async ({ newsPage }) => {
+      await newsPage.newsFilterMenuButton.click();
+      await expect(newsPage.matchModeFilter).toHaveValue('anyOf');
+      await newsPage.matchModeFilter.selectOption('allOf');
+      await expect(newsPage.matchModeFilter).toHaveValue('allOf');
     });
   });
 

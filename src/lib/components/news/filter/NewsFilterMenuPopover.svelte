@@ -4,15 +4,19 @@
   import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
   import Button from '$lib/components/shared/controls/Button.svelte';
   import DatePicker from '$lib/components/shared/controls/DatePicker.svelte';
-  import { Calendar, Funnel } from '@steeze-ui/heroicons';
+  import Select from '$lib/components/shared/controls/Select.svelte';
+  import { SearchMatchMode } from '$lib/models/searchRequest';
+  import { Calendar, Funnel, MagnifyingGlass } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import type { DateTime } from 'luxon';
 
   interface Props {
     from?: DateTime;
     to?: DateTime;
+    matchMode?: SearchMatchMode;
     onFromChange?: (from?: string) => void;
     onToChange?: (to?: string) => void;
+    onMatchModeChange?: (matchMode: SearchMatchMode) => void;
     onApply?: () => void;
     onReset?: () => void;
     onSelectToday?: () => void;
@@ -24,8 +28,10 @@
   let {
     from,
     to,
+    matchMode,
     onFromChange,
     onToChange,
+    onMatchModeChange,
     onApply,
     onReset,
     onSelectToday,
@@ -33,6 +39,17 @@
     onSelectLastMonth,
     onSelectLastYear,
   }: Props = $props();
+
+  const searchModeOptions: Array<{ label: string; value: SearchMatchMode }> = [
+    {
+      label: 'Mindestens eines',
+      value: 'anyOf',
+    },
+    {
+      label: 'Alle',
+      value: 'allOf',
+    },
+  ];
 
   const menuClass = `
     flex flex-col items-center gap-5
@@ -51,6 +68,11 @@
 
   function handleToChange(to?: DateTime): void {
     onToChange?.(to?.endOf('day').toISO() ?? undefined);
+  }
+
+  function handleMatchModeChange(matchMode?: string): void {
+    const parsedMatchMode = SearchMatchMode.safeParse(matchMode);
+    onMatchModeChange?.(parsedMatchMode?.data ?? 'anyOf');
   }
 
   function handleApplyClick(): void {
@@ -111,6 +133,17 @@
           <label for="to-input">Bis</label>
           <DatePicker id="to-input" value={to} placeholder="Bis" onchange={handleToChange} />
         </div>
+      </section>
+      <section class={menuSectionClass}>
+        <span class={menuSectionTitleClass}>
+          <Icon src={MagnifyingGlass} theme="outlined" class="size-6" />
+          <TextGradient>Suchmodus</TextGradient>
+        </span>
+        <Select id="search-mode" value={matchMode} onchange={handleMatchModeChange} placeholder="Suchmodus">
+          {#each searchModeOptions as option (option.value)}
+            <option value={option.value}>{option.label}</option>
+          {/each}
+        </Select>
       </section>
       <div class={menuActionsClass}>
         <Button
