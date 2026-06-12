@@ -126,7 +126,7 @@ function selectDateFilterToday(): void {
   const [from, to] = dateRangeFromNow({});
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -134,7 +134,7 @@ function selectDateFilterLastWeek(): void {
   const [from, to] = dateRangeFromNow({ weeks: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -142,7 +142,7 @@ function selectDateFilterLastMonth(): void {
   const [from, to] = dateRangeFromNow({ months: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
@@ -150,7 +150,7 @@ function selectDateFilterLastYear(): void {
   const [from, to] = dateRangeFromNow({ years: 1 });
   update((searchFilter) => ({
     ...searchFilter,
-    tempDateFilter: { from, to },
+    temp: { ...searchFilter.temp, dateFilter: { from, to } },
   }));
 }
 
