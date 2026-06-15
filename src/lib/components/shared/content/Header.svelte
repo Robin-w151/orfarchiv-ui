@@ -6,10 +6,11 @@
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '$lib/configs/client';
   import news from '$lib/stores/news';
+  import styles, { getEffectiveColorScheme } from '$lib/stores/styles';
   import { refreshNews } from '$lib/stores/newsEvents';
   import notifications from '$lib/stores/notifications';
   import { defaultPadding } from '$lib/utils/styles';
-  import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Newspaper } from '@steeze-ui/heroicons';
+  import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Moon, Newspaper, Sun } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
 
@@ -25,6 +26,7 @@
   const headerActionsClass = 'flex gap-2';
 
   let isNewsPage = $derived(page.url.pathname === '/');
+  let isDark = $derived(getEffectiveColorScheme($styles.colorScheme) === 'dark');
 
   function handleRefreshButtonClick(): void {
     refreshNews.notify();
@@ -72,6 +74,14 @@
     <ButtonLink href={resolve('/bookmarks')} title="Lesezeichen" iconOnly prefetch>
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
+    <Button
+      title={isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
+      iconOnly
+      btnType="secondary"
+      onclick={() => styles.setColorScheme(isDark ? 'light' : 'dark')}
+    >
+      <Icon src={isDark ? Moon : Sun} theme="outlined" class="size-6" />
+    </Button>
     <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>

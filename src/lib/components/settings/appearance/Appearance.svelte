@@ -26,13 +26,12 @@
     },
   ];
 
-  let colorScheme: ColorScheme = $state($styles.colorScheme);
-
-  function handleColorSchemeRadioChange(_value: string): void {
-    if (colorScheme) {
+  function handleColorSchemeRadioChange(value: string): void {
+    const scheme = value as ColorScheme;
+    if (scheme) {
       runViewTransition(
         () => {
-          styles.setColorScheme(colorScheme);
+          styles.setColorScheme(scheme);
         },
         {
           useReducedMotion: reducedMotionStore.useReducedMotion,
@@ -63,7 +62,7 @@
           name="color-scheme"
           label={option.label}
           value={option.value}
-          bind:group={colorScheme}
+          bind:group={$styles.colorScheme}
           onchange={handleColorSchemeRadioChange.bind(null, option.value)}
           onclick={handleColorSchemeRadioClick}
           onkeydown={handleColorSchemeRadioKeydown}

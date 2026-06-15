@@ -50,4 +50,20 @@ function setColorScheme(colorScheme: ColorScheme): void {
   update((styles) => ({ ...styles, colorScheme }));
 }
 
+/**
+ * Returns the effective (visually active) color scheme.
+ * Resolves 'system' against the OS preference via matchMedia.
+ * @param colorScheme — the store's colorScheme value ('light' | 'dark' | 'system')
+ *                      or undefined as a safety net (falls back to 'system')
+ */
+export function getEffectiveColorScheme(colorScheme: ColorScheme | undefined): ColorScheme {
+  if (colorScheme === 'system') {
+    if (browser) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  }
+  return colorScheme ?? 'system';
+}
+
 export default { subscribe, setColorScheme } as StylesStore;
