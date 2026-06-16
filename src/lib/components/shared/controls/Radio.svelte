@@ -1,13 +1,13 @@
-<script lang="ts" generics="T">
+<script lang="ts" generics="TValue extends string">
   import { inputClass, labelClass, wrapperClass } from './checkbox.styles';
 
   interface Props {
     id: string;
     name: string;
     label: string;
-    value: T;
-    group: string;
-    onchange?: (value: T) => void;
+    value: TValue;
+    group: TValue;
+    onchange?: (value: TValue) => void;
     onclick?: (event: MouseEvent) => void;
     onkeydown?: (event: KeyboardEvent) => void;
   }
