@@ -1,8 +1,7 @@
+import { getContext, setContext } from 'svelte';
 import { MediaQuery } from 'svelte/reactivity';
-import styles, { type ColorScheme } from '../styles';
 import { fromStore } from 'svelte/store';
-import { setContext } from 'svelte';
-import { getContext } from 'svelte';
+import styles, { type ColorScheme } from '../styles';
 
 export interface EffectiveColorSchemeStoreInterface {
   effectiveColorScheme: Exclude<ColorScheme, 'system'>;
