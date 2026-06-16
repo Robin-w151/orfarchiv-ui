@@ -91,6 +91,7 @@
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
     <Button
+      class="max-sm:hidden"
       title={isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
       iconOnly
       btnType="secondary"
