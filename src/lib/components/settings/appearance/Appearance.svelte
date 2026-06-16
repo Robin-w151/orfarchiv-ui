@@ -59,7 +59,7 @@
           name="color-scheme"
           label={option.label}
           value={option.value}
-          bind:group={$styles.colorScheme}
+          group={$styles.colorScheme}
           onchange={handleColorSchemeRadioChange.bind(null, option.value)}
           onclick={handleColorSchemeRadioClick}
           onkeydown={handleColorSchemeRadioKeydown}
