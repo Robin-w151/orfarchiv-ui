@@ -24,20 +24,17 @@
       label: 'Dunkel',
       value: 'dark',
     },
-  ];
+  ] as const;
 
-  function handleColorSchemeRadioChange(value: string): void {
-    const scheme = value as ColorScheme;
-    if (scheme) {
-      runViewTransition(
-        () => {
-          styles.setColorScheme(scheme);
-        },
-        {
-          useReducedMotion: reducedMotionStore.useReducedMotion,
-        },
-      );
-    }
+  function handleColorSchemeRadioChange(value: ColorScheme): void {
+    runViewTransition(
+      () => {
+        styles.setColorScheme(value);
+      },
+      {
+        useReducedMotion: reducedMotionStore.useReducedMotion,
+      },
+    );
   }
 
   function handleColorSchemeRadioClick(event: MouseEvent): void {
