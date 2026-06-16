@@ -6,14 +6,19 @@
   import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
   import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '$lib/configs/client';
   import news from '$lib/stores/news';
-  import styles, { getEffectiveColorScheme } from '$lib/stores/styles';
   import { refreshNews } from '$lib/stores/newsEvents';
   import notifications from '$lib/stores/notifications';
+  import { getEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import styles from '$lib/stores/styles';
   import { defaultPadding } from '$lib/utils/styles';
+  import { runViewTransition } from '$lib/utils/viewTransition';
   import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Moon, Newspaper, Sun } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
 
+  const effectiveColorSchemeStore = getEffectiveColorSchemeStore();
+  const reducedMotionStore = getReducedMotionStore();
   const newsApi = new NewsApi();
 
   const headerClass = `
@@ -26,7 +31,7 @@
   const headerActionsClass = 'flex gap-2';
 
   let isNewsPage = $derived(page.url.pathname === '/');
-  let isDark = $derived(getEffectiveColorScheme($styles.colorScheme) === 'dark');
+  let isDark = $derived(effectiveColorSchemeStore.effectiveColorScheme === 'dark');
 
   function handleRefreshButtonClick(): void {
     refreshNews.notify();
@@ -44,6 +49,17 @@
       replaceInCategory: true,
       forceAppNotification: true,
     });
+  }
+
+  function handleColorSchemeButtonClick(): void {
+    runViewTransition(
+      () => {
+        styles.setColorScheme(isDark ? 'light' : 'dark');
+      },
+      {
+        useReducedMotion: reducedMotionStore.useReducedMotion,
+      },
+    );
   }
 </script>
 
@@ -78,7 +94,7 @@
       title={isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
       iconOnly
       btnType="secondary"
-      onclick={() => styles.setColorScheme(isDark ? 'light' : 'dark')}
+      onclick={handleColorSchemeButtonClick}
     >
       <Icon src={isDark ? Moon : Sun} theme="outlined" class="size-6" />
     </Button>

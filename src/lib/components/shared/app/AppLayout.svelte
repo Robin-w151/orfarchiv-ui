@@ -20,6 +20,7 @@
   import EnableGlobalKeybindings from './EnableGlobalKeybindings.svelte';
   import EnableNetworkNotifications from './EnableNetworkNotifications.svelte';
   import EnableUpdateListener from './EnableUpdateListener.svelte';
+  import { setEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
 
   interface Props {
     children?: Snippet;
@@ -30,6 +31,7 @@
   const reducedMotionStore = setReducedMotionStore();
   setSkeletonStore();
   setAudioStore();
+  setEffectiveColorSchemeStore();
 
   const infoApi = new InfoApi();
 
