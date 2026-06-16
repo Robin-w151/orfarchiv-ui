@@ -5,7 +5,7 @@ import { setContext } from 'svelte';
 import { getContext } from 'svelte';
 
 export interface EffectiveColorSchemeStoreInterface {
-  effectiveColorScheme: ColorScheme;
+  effectiveColorScheme: Exclude<ColorScheme, 'system'>;
 }
 
 export class EffectiveColorSchemeStore implements EffectiveColorSchemeStoreInterface {
