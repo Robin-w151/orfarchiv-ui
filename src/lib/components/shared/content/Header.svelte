@@ -91,16 +91,37 @@
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
     <Button
-      class="max-sm:hidden"
+      class="max-sm:hidden theme-toggle"
       title={isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
       iconOnly
       btnType="secondary"
       onclick={handleColorSchemeButtonClick}
     >
-      <Icon src={isDark ? Moon : Sun} theme="outlined" class="size-6" />
+      <Icon src={Sun} theme="outlined" class="size-6 theme-sun" />
+      <Icon src={Moon} theme="outlined" class="size-6 theme-moon" />
     </Button>
     <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>
 </header>
+
+<style>
+  :global(.theme-toggle) {
+    :global(.theme-sun) {
+      display: block;
+    }
+    :global(.theme-moon) {
+      display: none;
+    }
+  }
+
+  :global(:root.dark .theme-toggle) {
+    :global(.theme-sun) {
+      display: none;
+    }
+    :global(.theme-moon) {
+      display: block;
+    }
+  }
+</style>
