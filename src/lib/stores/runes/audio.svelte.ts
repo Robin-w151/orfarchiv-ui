@@ -236,13 +236,13 @@ class AudioStore implements AudioStoreInterface {
   }
 }
 
-const DEFAULT_KEY = 'root_audio_store';
+const DEFAULT_KEY = Symbol('root_audio_store');
 
-export function getAudioStore(key: string = DEFAULT_KEY): AudioStoreInterface {
+export function getAudioStore(key: symbol = DEFAULT_KEY): AudioStoreInterface {
   return getContext(key);
 }
 
-export function setAudioStore(key: string = DEFAULT_KEY): AudioStoreInterface {
+export function setAudioStore(key: symbol = DEFAULT_KEY): AudioStoreInterface {
   const audioStore = new AudioStore();
   audioStore.init();
   return setContext(key, audioStore);

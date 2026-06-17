@@ -13,13 +13,13 @@ class SkeletonStore implements SkeletonStoreInterface {
   );
 }
 
-const DEFAULT_KEY = 'root_skeleton_store';
+const DEFAULT_KEY = Symbol('root_skeleton_store');
 
-export function getSkeletonStore(key: string = DEFAULT_KEY): SkeletonStoreInterface {
+export function getSkeletonStore(key: symbol = DEFAULT_KEY): SkeletonStoreInterface {
   return getContext(key);
 }
 
-export function setSkeletonStore(key: string = DEFAULT_KEY): SkeletonStoreInterface {
+export function setSkeletonStore(key: symbol = DEFAULT_KEY): SkeletonStoreInterface {
   const skeletonStore = new SkeletonStore();
   return setContext(key, skeletonStore);
 }

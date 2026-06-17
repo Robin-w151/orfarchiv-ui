@@ -24,21 +24,17 @@
       label: 'Dunkel',
       value: 'dark',
     },
-  ];
+  ] as const;
 
-  let colorScheme: ColorScheme = $state($styles.colorScheme);
-
-  function handleColorSchemeRadioChange(_value: string): void {
-    if (colorScheme) {
-      runViewTransition(
-        () => {
-          styles.setColorScheme(colorScheme);
-        },
-        {
-          useReducedMotion: reducedMotionStore.useReducedMotion,
-        },
-      );
-    }
+  function handleColorSchemeRadioChange(value: ColorScheme): void {
+    runViewTransition(
+      () => {
+        styles.setColorScheme(value);
+      },
+      {
+        useReducedMotion: reducedMotionStore.useReducedMotion,
+      },
+    );
   }
 
   function handleColorSchemeRadioClick(event: MouseEvent): void {
@@ -63,7 +59,7 @@
           name="color-scheme"
           label={option.label}
           value={option.value}
-          bind:group={colorScheme}
+          group={$styles.colorScheme}
           onchange={handleColorSchemeRadioChange.bind(null, option.value)}
           onclick={handleColorSchemeRadioClick}
           onkeydown={handleColorSchemeRadioKeydown}

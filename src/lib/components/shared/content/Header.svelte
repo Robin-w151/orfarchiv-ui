@@ -8,11 +8,17 @@
   import news from '$lib/stores/news';
   import { refreshNews } from '$lib/stores/newsEvents';
   import notifications from '$lib/stores/notifications';
+  import { getEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
+  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
+  import styles from '$lib/stores/styles';
   import { defaultPadding } from '$lib/utils/styles';
-  import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Newspaper } from '@steeze-ui/heroicons';
+  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Moon, Newspaper, Sun } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
 
+  const effectiveColorSchemeStore = getEffectiveColorSchemeStore();
+  const reducedMotionStore = getReducedMotionStore();
   const newsApi = new NewsApi();
 
   const headerClass = `
@@ -25,6 +31,7 @@
   const headerActionsClass = 'flex gap-2';
 
   let isNewsPage = $derived(page.url.pathname === '/');
+  let isDark = $derived(effectiveColorSchemeStore.effectiveColorScheme === 'dark');
 
   function handleRefreshButtonClick(): void {
     refreshNews.notify();
@@ -42,6 +49,17 @@
       replaceInCategory: true,
       forceAppNotification: true,
     });
+  }
+
+  function handleColorSchemeButtonClick(): void {
+    runViewTransition(
+      () => {
+        styles.setColorScheme(isDark ? 'light' : 'dark');
+      },
+      {
+        useReducedMotion: reducedMotionStore.useReducedMotion,
+      },
+    );
   }
 </script>
 
@@ -72,8 +90,38 @@
     <ButtonLink href={resolve('/bookmarks')} title="Lesezeichen" iconOnly prefetch>
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
+    <Button
+      class="max-sm:hidden theme-toggle"
+      title={isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}
+      iconOnly
+      btnType="secondary"
+      onclick={handleColorSchemeButtonClick}
+    >
+      <Icon src={Sun} theme="outlined" class="size-6 theme-sun" />
+      <Icon src={Moon} theme="outlined" class="size-6 theme-moon" />
+    </Button>
     <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>
 </header>
+
+<style>
+  :global(.theme-toggle) {
+    :global(.theme-sun) {
+      display: block;
+    }
+    :global(.theme-moon) {
+      display: none;
+    }
+  }
+
+  :global(:root.dark .theme-toggle) {
+    :global(.theme-sun) {
+      display: none;
+    }
+    :global(.theme-moon) {
+      display: block;
+    }
+  }
+</style>

@@ -9,7 +9,7 @@ export interface StylesStoreProps {
   colorScheme: ColorScheme;
 }
 
-export interface StylesStore extends Readable<StylesStoreProps>, Partial<StylesStoreProps> {
+export interface StylesStore extends Readable<StylesStoreProps> {
   setColorScheme: (colorScheme: ColorScheme) => void;
 }
 
@@ -50,4 +50,4 @@ function setColorScheme(colorScheme: ColorScheme): void {
   update((styles) => ({ ...styles, colorScheme }));
 }
 
-export default { subscribe, setColorScheme } as StylesStore;
+export default { subscribe, setColorScheme } satisfies StylesStore;

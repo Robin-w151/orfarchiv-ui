@@ -19,13 +19,13 @@ class ReducedMotionStore implements ReducedMotionStoreInterface {
   }
 }
 
-const DEFAULT_KEY = 'root_reduced_motion_store';
+const DEFAULT_KEY = Symbol('root_reduced_motion_store');
 
-export function getReducedMotionStore(key: string = DEFAULT_KEY): ReducedMotionStoreInterface {
+export function getReducedMotionStore(key: symbol = DEFAULT_KEY): ReducedMotionStoreInterface {
   return getContext(key);
 }
 
-export function setReducedMotionStore(key: string = DEFAULT_KEY): ReducedMotionStoreInterface {
+export function setReducedMotionStore(key: symbol = DEFAULT_KEY): ReducedMotionStoreInterface {
   const reducedMotionStore = new ReducedMotionStore();
   return setContext(key, reducedMotionStore);
 }

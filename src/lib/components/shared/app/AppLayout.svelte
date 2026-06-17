@@ -3,6 +3,7 @@
   import { InfoApi } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
   import { setAudioStore } from '$lib/stores/runes/audio.svelte';
+  import { setEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
   import { setReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import { logger } from '$lib/utils/logger';
@@ -30,6 +31,7 @@
   const reducedMotionStore = setReducedMotionStore();
   setSkeletonStore();
   setAudioStore();
+  setEffectiveColorSchemeStore();
 
   const infoApi = new InfoApi();
 
