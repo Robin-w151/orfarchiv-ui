@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import type { Bookmarks } from '$lib/models/bookmarks';
 import type { Story } from '$lib/models/story';
 import { liveQuery } from 'dexie';

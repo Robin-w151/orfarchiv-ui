@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
+  import { browser } from '$app/env';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import type { SearchMatchMode } from '$lib/models/searchRequest';
   import { startSearch } from '$lib/stores/newsEvents';

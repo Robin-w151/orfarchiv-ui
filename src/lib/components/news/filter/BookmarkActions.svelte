@@ -1,14 +1,14 @@
 <script lang="ts">
+  import { browser } from '$app/env';
+  import BookmarkDeletePopover from '$lib/components/news/filter/BookmarkDeletePopover.svelte';
   import Input from '$lib/components/shared/controls/Input.svelte';
   import bookmarks from '$lib/stores/bookmarks';
   import { startSearch } from '$lib/stores/newsEvents';
+  import { isMac } from '$lib/utils/platform';
   import { defaultBackground, defaultPadding } from '$lib/utils/styles';
   import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { onDestroy, onMount } from 'svelte';
-  import BookmarkDeletePopover from '$lib/components/news/filter/BookmarkDeletePopover.svelte';
-  import { browser } from '$app/environment';
   import { isTouchDevice } from '$lib/utils/support';
-  import { isMac } from '$lib/utils/platform';
+  import { onDestroy, onMount } from 'svelte';
 
   const subscriptions: Array<Subscription> = [];
 

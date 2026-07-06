@@ -1,8 +1,8 @@
-import { env } from '$env/dynamic/private';
+import { ORFARCHIV_DB_URL as ORFARCHIV_DB_URL_ENV } from '$app/env/private';
 import { createLogger, format, transports } from 'winston';
 
 // Database
-export const ORFARCHIV_DB_URL = (): string => env.ORFARCHIV_DB_URL?.trim() || 'mongodb://localhost';
+export const ORFARCHIV_DB_URL = ORFARCHIV_DB_URL_ENV?.trim() || 'mongodb://localhost';
 
 // Logger
 const { combine, json, timestamp } = format;
