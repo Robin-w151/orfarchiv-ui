@@ -3,13 +3,13 @@ import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
 import { OpenAIError, type AiModel } from '$lib/models/ai';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule } from 'effect';
-import OpenAI from 'openai';
+import OpenAI, { APIError } from 'openai';
 import { makeParseableResponseFormat, type AutoParseableResponseFormat } from 'openai/lib/parser';
 import type { ResponseFormatJSONSchema } from 'openai/resources';
 import { z, type ZodType } from 'zod';
 
 export class AiService {
-  private ai: OpenAI;
+  private readonly ai: OpenAI;
 
   constructor(
     private readonly apiKey: string,
@@ -50,7 +50,7 @@ export class AiService {
         },
         catch: (error) => {
           let type: AiServiceErrorType | undefined;
-          if (error instanceof OpenAI.APIError) {
+          if (error instanceof APIError) {
             type = this.getErrorType(error);
           }
 
@@ -153,22 +153,23 @@ export class AiService {
     );
   }
 
-  private getErrorType(error: unknown): AiServiceErrorType | undefined {
+  private getErrorType(error: APIError): AiServiceErrorType | undefined {
     const parsedError = OpenAIError.safeParse(error);
     if (!parsedError.success) {
       return undefined;
     }
 
-    const errorInfo = this.errorInfo(parsedError.data);
-    if (errorInfo) {
-      switch (errorInfo['reason']) {
-        case 'API_KEY_INVALID':
+    const { message } = parsedError.data.error[0].error;
+    if (message) {
+      switch (message) {
+        case 'Please pass a valid API key':
           return 'API_KEY_INVALID';
       }
     }
 
     switch (parsedError.data.status) {
       case 400:
+      case 404:
         return 'INVALID_REQUEST';
       case 429:
         return 'RATE_LIMIT';
@@ -177,11 +178,6 @@ export class AiService {
     }
 
     return undefined;
-  }
-
-  private errorInfo(error: OpenAIError): Record<string, string> | undefined {
-    const details = error.error[0]?.error?.details;
-    return details.find((detail) => detail['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo');
   }
 
   private isErrorRetryable(error: unknown): boolean {

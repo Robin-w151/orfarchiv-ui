@@ -26,12 +26,9 @@ export const OpenAIError = z.object({
   error: z.array(
     z.object({
       error: z.object({
-        details: z.array(
-          z.object({
-            '@type': z.string(),
-            reason: z.string().optional(),
-          }),
-        ),
+        code: z.number(),
+        message: z.string(),
+        status: z.string(),
       }),
     }),
   ),
