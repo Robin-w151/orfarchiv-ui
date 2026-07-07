@@ -1,5 +1,6 @@
 import { type Collection, type Db, MongoClient } from 'mongodb';
-import { logger, ORFARCHIV_DB_URL } from '$lib/configs/server';
+import { logger } from '$lib/configs/server';
+import { ORFARCHIV_DB_URL } from '$app/env/private';
 
 class OrfArchivDb {
   private client: MongoClient | undefined;
