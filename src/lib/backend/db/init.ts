@@ -1,5 +1,6 @@
 import { type Collection, type Db, MongoClient } from 'mongodb';
-import { logger, ORFARCHIV_DB_URL } from '$lib/configs/server';
+import { logger } from '$lib/configs/server';
+import { ORFARCHIV_DB_URL } from '$app/env/private';
 
 class OrfArchivDb {
   private client: MongoClient | undefined;
@@ -8,7 +9,7 @@ class OrfArchivDb {
   public async init(): Promise<void> {
     if (!this.isInitialized()) {
       logger.info('Initializing orfarchiv db');
-      this.client = await MongoClient.connect(ORFARCHIV_DB_URL());
+      this.client = await MongoClient.connect(ORFARCHIV_DB_URL);
       this.db = this.client.db('orfarchiv');
     }
   }

@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { STYLES_STORE_NAME } from '$lib/configs/client';
 import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
