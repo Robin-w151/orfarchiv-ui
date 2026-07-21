@@ -91,6 +91,18 @@
 
     figure {
       @apply my-2;
+
+      p {
+        @apply m-0;
+      }
+
+      .image-container {
+        @apply relative;
+
+        .image-credit-tag {
+          @apply px-1 block absolute bottom-0 right-0 bg-gray-100/30 dark:bg-gray-800/40 backdrop-blur-sm text-sm rounded-tl-lg rounded-br-lg;
+        }
+      }
     }
 
     h1 {

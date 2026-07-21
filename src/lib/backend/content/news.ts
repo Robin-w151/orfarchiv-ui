@@ -17,7 +17,8 @@ import createDOMPurify, { type WindowLike } from 'dompurify';
 import { Effect, Either, Predicate } from 'effect';
 import { JSDOM } from 'jsdom';
 
-const ALLOWED_CLASSES = ['fact', 'keyword', 'slideshow'];
+const ALLOWED_CLASSES = ['fact', 'image-container', 'image-credit-tag', 'keyword', 'slideshow'];
+const VUE_SCOPE_ATTRIBUTE_REGEXP = /data-v-\w+/;
 
 export function fetchStoryContent(
   url: string,
@@ -474,6 +475,12 @@ function* tableIterator(table: HTMLTableElement): Generator<{
 
 function sanitizeContent(html: string): string {
   const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as WindowLike);
+  DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+    if (VUE_SCOPE_ATTRIBUTE_REGEXP.test(data.attrName)) {
+      data.keepAttr = false;
+    }
+  });
+
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     ADD_ATTR: ['target'],

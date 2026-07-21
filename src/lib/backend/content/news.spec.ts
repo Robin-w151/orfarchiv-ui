@@ -915,6 +915,42 @@ describe('News content', () => {
       `);
     });
   });
+
+  describe('Images', () => {
+    test('transform image with caption and credit', async () => {
+      mockArticle(`
+        <figure>
+          <div class="image-container">
+            <div class="image">
+              <picture>
+                <img loading="lazy" src="https://foo.bar/example-image" width="5760" height="3219" alt="Test alt text" class="image">
+              </picture>
+            </div>
+            <span class="image-credit-tag">Test credits</span>
+          </div>
+          <figcaption class="caption">Test caption</figcaption>
+        </figure>  
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : undefined;
+
+      await expect(content).toBeHtml(`<div id="readability-page-1" class="page">
+          <figure>
+            <div class="image-container">
+              <div>
+                <picture>
+                  <img loading="lazy" src="https://foo.bar/example-image" width="5760" height="3219" alt="Test alt text">
+                </picture>
+              </div>
+              <p><span class="image-credit-tag">Test credits</span></p>
+            </div>
+            <figcaption>Test caption</figcaption>
+          </figure>
+        </div>
+      `);
+    });
+  });
 });
 
 function mockArticle(html: string | Map<string, string>): void {
