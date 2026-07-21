@@ -157,7 +157,7 @@ export class StoryAiSummaryState {
     this.aiSummaryCancel = cancel;
   };
 
-  private isExtended = (messageWords: number | undefined): boolean => {
+  private readonly isExtended = (messageWords: number | undefined): boolean => {
     return (messageWords ?? 0) > STORY_SUMMARY_EXTENDED_WORD_LIMIT;
   };
 }

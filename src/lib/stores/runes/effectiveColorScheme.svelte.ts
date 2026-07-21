@@ -8,8 +8,8 @@ export interface EffectiveColorSchemeStoreInterface {
 }
 
 export class EffectiveColorSchemeStore implements EffectiveColorSchemeStoreInterface {
-  private prefersDarkColorScheme = new MediaQuery('(prefers-color-scheme: dark)');
-  private styles = fromStore(styles);
+  private readonly prefersDarkColorScheme = new MediaQuery('(prefers-color-scheme: dark)');
+  private readonly styles = fromStore(styles);
 
   effectiveColorScheme = $derived.by(() => {
     const prefersDarkColorScheme = this.prefersDarkColorScheme.current;

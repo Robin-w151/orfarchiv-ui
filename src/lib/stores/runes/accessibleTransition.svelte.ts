@@ -11,9 +11,9 @@ export interface AccessibleTransitionStoreInterface {
 }
 
 export class AccessibleTransitionStore implements AccessibleTransitionStoreInterface {
-  private reducedMotionStore = getReducedMotionStore();
-  private transition: () => Transition;
-  private transitionProps: () => TransitionProps;
+  private readonly reducedMotionStore = getReducedMotionStore();
+  private readonly transition: () => Transition;
+  private readonly transitionProps: () => TransitionProps;
 
   accessibleTransition: Transition;
   accessibleTransitionProps: TransitionProps;

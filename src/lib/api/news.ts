@@ -19,9 +19,9 @@ type RequestId = string;
 type RequestController<I extends RequestId | undefined> = I extends string ? AbortController : undefined;
 
 export class NewsApi {
-  private trpc: TRPCClient<AppRouter>;
-  private abortControllers = new Map<RequestId, AbortController>();
-  private cancels = new Map<RequestId, boolean>();
+  private readonly trpc: TRPCClient<AppRouter>;
+  private readonly abortControllers = new Map<RequestId, AbortController>();
+  private readonly cancels = new Map<RequestId, boolean>();
 
   constructor(origin?: string) {
     this.trpc = createTRPC(origin);

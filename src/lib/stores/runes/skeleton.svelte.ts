@@ -6,7 +6,7 @@ export interface SkeletonStoreInterface {
 }
 
 class SkeletonStore implements SkeletonStoreInterface {
-  private reducedMotionStore = getReducedMotionStore();
+  private readonly reducedMotionStore = getReducedMotionStore();
 
   readonly skeletonAnimationClass = $derived(
     this.reducedMotionStore.useReducedMotion ? 'skeleton-animation-pulse' : 'skeleton-animation-fly',

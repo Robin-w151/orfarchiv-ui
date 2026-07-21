@@ -7,7 +7,7 @@ export interface ReducedMotionStoreInterface {
 }
 
 class ReducedMotionStore implements ReducedMotionStoreInterface {
-  private prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
+  private readonly prefersReducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
   private forceReducedMotion = $state(false);
 
   useReducedMotion = $derived(this.forceReducedMotion || this.prefersReducedMotion.current);

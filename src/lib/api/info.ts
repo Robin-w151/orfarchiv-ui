@@ -5,7 +5,7 @@ import { Info } from '$lib/models/info';
 import { logger } from '$lib/utils/logger';
 
 export class InfoApi {
-  private trpc: TRPCClient<AppRouter>;
+  private readonly trpc: TRPCClient<AppRouter>;
   private abortController: AbortController | null = null;
 
   constructor(origin?: string) {

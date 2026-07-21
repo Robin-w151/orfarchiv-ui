@@ -160,11 +160,8 @@ export class AiService {
     }
 
     const { message } = parsedError.data.error[0].error;
-    if (message) {
-      switch (message) {
-        case 'Please pass a valid API key':
-          return 'API_KEY_INVALID';
-      }
+    if (message === 'Please pass a valid API key') {
+      return 'API_KEY_INVALID';
     }
 
     switch (parsedError.data.status) {

@@ -1,7 +1,7 @@
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 class Logger {
-  private levelToBackgroundMap = new Map<LogLevel, string>([
+  private readonly levelToBackgroundMap = new Map<LogLevel, string>([
     ['debug', '#7f8c8d'],
     ['info', '#3498db'],
     ['warn', '#f39c12'],
