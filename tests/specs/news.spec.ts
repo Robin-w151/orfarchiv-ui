@@ -10,6 +10,7 @@ import {
   newsMockWithFilter,
 } from '../mocks/news.mocks';
 import { DateTime } from 'luxon';
+import { getSourceLabel } from '$lib/models/settings';
 
 test.describe('NewsPage', () => {
   test.describe('Site', () => {
@@ -158,11 +159,11 @@ test.describe('NewsPage', () => {
     });
 
     test('info', async ({ newsPage }) => {
-      const storyIndex = 1;
+      const storyIndex = 3;
       const storyInfo = newsPage.getNewsListItem(storyIndex).locator('header h3 + span');
 
-      const { category, timestamp } = newsMock.stories[storyIndex];
-      const expectedStoryInfo = `${category} ${DateTime.fromISO(timestamp).toFormat('dd.MM.yyyy, HH:mm')}`;
+      const { category, source, timestamp } = newsMock.stories[storyIndex];
+      const expectedStoryInfo = `${category}, ${getSourceLabel(source)} - ${DateTime.fromISO(timestamp).toFormat('dd.MM.yyyy, HH:mm')}`;
       await expect(storyInfo).toHaveText(expectedStoryInfo);
     });
   });

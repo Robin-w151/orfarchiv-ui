@@ -30,7 +30,7 @@ export const newsMock = {
       category: 'Wirtschaft',
       url: 'https://orf.at/stories/3284302/',
       timestamp: '2022-09-04T17:57:19.000Z',
-      source: 'news',
+      source: 'steiermark',
     },
     {
       id: 'news:3284301',

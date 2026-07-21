@@ -38,8 +38,11 @@
     headerRef?.focus();
   }
 
-  let showViewedInfo = $derived(story?.isBookmarked && story?.isViewed);
-  let sourceLabel = $derived(getSourceLabel(story?.source));
+  const showViewedInfo = $derived(story?.isBookmarked && story?.isViewed);
+  const subTitle = $derived.by(() => {
+    const tags = new Set([story.category, getSourceLabel(story?.source)].filter(Boolean));
+    return [...tags].join(', ');
+  });
 
   const accessibleBlurTransition = new AccessibleTransitionStore(
     () => blur,
@@ -63,9 +66,8 @@
         <span>{story.title}</span>
       </h3>
       <span class={metadataClass}>
-        <span>{story.category ?? 'Keine Kategorie'}</span>
-        {#if sourceLabel}<span>({sourceLabel})</span>{/if}
-        <span>{formatTimestamp(story.timestamp)}</span></span
+        <span>{subTitle}</span>
+        <span> - {formatTimestamp(story.timestamp)}</span></span
       >
     </div>
   </header>
