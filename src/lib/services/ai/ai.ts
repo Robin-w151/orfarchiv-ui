@@ -21,14 +21,13 @@ export class AiService {
   sendMessage<T>(message: string, schema: ZodType<T>): Effect.Effect<T, AiServiceError> {
     return Effect.gen(this, function* () {
       const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
-      const reasoningEffort = modelConfig.supportsThinking ? 'none' : undefined;
 
       yield* Effect.sync(() => {
         logger.infoGroup(
           'ai-message',
           [
             ['model', modelConfig.modelCode],
-            ['reasoning-effort', reasoningEffort],
+            ['reasoning-effort', modelConfig.reasoningEffort],
             ['message', message],
             ['response-schema', schema],
           ],
@@ -43,7 +42,7 @@ export class AiService {
               model: modelConfig.modelCode,
               messages: [{ role: 'user', content: message }],
               response_format: this.zodResponseFormat(schema, 'json_object'),
-              reasoning_effort: reasoningEffort,
+              reasoning_effort: modelConfig.reasoningEffort,
             },
             { signal: abortSignal, maxRetries: 0 },
           );

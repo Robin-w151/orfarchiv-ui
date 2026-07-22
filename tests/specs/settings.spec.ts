@@ -95,7 +95,7 @@ test.describe('SettingsPage', () => {
       await checkbox.click();
 
       const model = settingsPage.getListSectionInput(sectionTitle, 'KI-Modell');
-      await expect(model).toHaveValue('gemini-3.5-flash');
+      await expect(model).toHaveValue('gemini-3.5-flash-lite');
 
       await model.selectOption('gemini-2.5-flash');
       await settingsPage.reloadSite();

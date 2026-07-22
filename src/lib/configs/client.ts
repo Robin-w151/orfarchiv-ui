@@ -45,30 +45,42 @@ export const PAN_DISTANCE = 50;
 export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 
 // AI
-export const AI_MODEL_DEFAULT = 'gemini-3.5-flash' satisfies AiModel;
+export const AI_MODEL_DEFAULT = 'gemini-3.5-flash-lite' satisfies AiModel;
 export const AI_MODEL_CONFIG_MAP = Object.freeze({
+  'gemini-3.6-flash': {
+    name: 'Gemini 3.6 Flash',
+    modelCode: 'gemini-3.6-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash',
+    reasoningEffort: 'minimal',
+  },
   'gemini-3.5-flash': {
     name: 'Gemini 3.5 Flash',
     modelCode: 'gemini-3.5-flash',
     ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash',
-    supportsThinking: true,
+    reasoningEffort: 'minimal',
+  },
+  'gemini-3.5-flash-lite': {
+    name: 'Gemini 3.5 Flash-Lite',
+    modelCode: 'gemini-3.5-flash-lite',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite',
+    reasoningEffort: 'minimal',
   },
   'gemini-3.1-flash-lite': {
     name: 'Gemini 3.1 Flash-Lite',
     modelCode: 'gemini-3.1-flash-lite',
     ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite',
-    supportsThinking: true,
+    reasoningEffort: 'low',
   },
   'gemini-2.5-flash': {
     name: 'Gemini 2.5 Flash',
     modelCode: 'gemini-2.5-flash',
     ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash',
-    supportsThinking: true,
+    reasoningEffort: 'low',
   },
   'gemini-2.5-flash-lite': {
     name: 'Gemini 2.5 Flash-Lite',
     modelCode: 'gemini-2.5-flash-lite',
     ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-lite',
-    supportsThinking: true,
+    reasoningEffort: 'low',
   },
 } as const) satisfies AiModelConfigMap;
