@@ -1,4 +1,4 @@
-import { defineEnvVars } from '@sveltejs/kit/hooks';
+import { defineEnvVars } from '@sveltejs/kit/env';
 import z from 'zod';
 
 export const variables = defineEnvVars({
