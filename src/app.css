@@ -134,22 +134,20 @@
     }
 
     table {
-      @apply mx-auto my-4 w-full border border-solid;
+      @apply mx-auto my-4 w-full;
 
-      & > thead {
-        @apply border border-solid;
-      }
+      tr {
+        th {
+          @apply bg-gray-200 dark:bg-gray-700;
+        }
 
-      & > tbody {
-        @apply flex flex-col divide-y;
-      }
+        td {
+          @apply bg-gray-100 dark:bg-gray-800;
+        }
 
-      & tr {
-        @apply flex divide-x;
-
-        & > td,
-        & > th {
-          @apply flex-1 p-1 break-all;
+        td,
+        th {
+          @apply flex-1 p-2 break-all border border-solid border-gray-400 dark:border-gray-500;
         }
       }
     }
