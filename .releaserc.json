@@ -16,6 +16,11 @@
             "type": "chore",
             "scope": "deps",
             "release": "patch"
+          },
+          {
+            "type": "ci",
+            "scope": "redeploy",
+            "release": "patch"
           }
         ]
       }
@@ -28,7 +33,8 @@
           "types": [
             { "type": "feat", "section": "Features" },
             { "type": "fix", "section": "Bug Fixes" },
-            { "type": "chore", "scope": "deps", "section": "Dependencies" }
+            { "type": "chore", "scope": "deps", "section": "Dependencies" },
+            { "type": "ci", "scope": "redeploy", "section": "Redeploy" }
           ]
         }
       }
