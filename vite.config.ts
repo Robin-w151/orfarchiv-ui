@@ -11,7 +11,7 @@ import { resolve } from 'node:path';
 import Sonda from 'sonda/sveltekit';
 import { defineConfig } from 'vite';
 import cspConfig from './csp-config.js';
-import manifest from './src/assets/manifest';
+import manifest from './src/assets/manifest.ts';
 
 dotenv.config({ silent: true });
 
