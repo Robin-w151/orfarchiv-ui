@@ -134,7 +134,7 @@
     }
 
     table {
-      @apply mx-auto my-4 w-full;
+      @apply mx-auto my-4 w-full border-separate border-spacing-0;
 
       tr {
         th {
@@ -147,7 +147,35 @@
 
         td,
         th {
-          @apply flex-1 p-2 break-all border border-solid border-gray-400 dark:border-gray-500;
+          @apply flex-1 p-2 break-all border-t border-l border-solid border-gray-400 dark:border-gray-500;
+        }
+
+        & > :last-child {
+          @apply border-r;
+        }
+      }
+
+      & > :first-child > tr:first-child {
+        & > :first-child {
+          @apply rounded-tl-lg;
+        }
+
+        & > :last-child {
+          @apply rounded-tr-lg;
+        }
+      }
+
+      & > :last-child > tr:last-child {
+        & > * {
+          @apply border-b;
+        }
+
+        & > :first-child {
+          @apply rounded-bl-lg;
+        }
+
+        & > :last-child {
+          @apply rounded-br-lg;
         }
       }
     }
