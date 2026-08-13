@@ -129,7 +129,7 @@
       }
 
       &[data-image-state='loading'] {
-        @apply bg-gray-300 dark:bg-gray-600;
+        @apply bg-gray-300 dark:bg-gray-600 animate-pulse;
 
         img {
           @apply opacity-0;

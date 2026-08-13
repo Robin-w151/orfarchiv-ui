@@ -278,7 +278,7 @@ test.describe('NewsPage', () => {
 
       const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.first);
       await expect(imageFrame).toHaveAttribute('data-image-state', 'loading');
-      await expect(imageFrame).toHaveClass(/skeleton-animation-/);
+      await expect(imageFrame).toHaveCSS('animation-name', 'pulse');
 
       releaseImages();
       await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
@@ -291,7 +291,7 @@ test.describe('NewsPage', () => {
 
       const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.first);
       await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
-      await expect(imageFrame).not.toHaveClass(/skeleton-animation-/);
+      await expect(imageFrame).toHaveCSS('animation-name', 'none');
       await expect(newsPage.getStoryImage(storyIndex, imageMockSources.first)).toBeVisible();
     });
 

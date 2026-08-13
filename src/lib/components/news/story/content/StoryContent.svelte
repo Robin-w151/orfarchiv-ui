@@ -9,7 +9,6 @@
   const IMAGE_FRAME_CLASS = 'image-frame';
   const IMAGE_ERROR_CLASS = 'image-error';
   const IMAGE_ERROR_MESSAGE = 'Bild konnte nicht geladen werden';
-  const SKELETON_ANIMATION_CLASSES = ['skeleton-animation-pulse', 'skeleton-animation-fly'];
 </script>
 
 <script lang="ts">
@@ -26,7 +25,6 @@
   import contentStore from '$lib/stores/content';
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';
   import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
   import settings from '$lib/stores/settings';
   import { logger } from '$lib/utils/logger';
   import { runViewTransition } from '$lib/utils/viewTransition';
@@ -48,7 +46,6 @@
 
   const audioStore = getAudioStore();
   const reducedMotionStore = getReducedMotionStore();
-  const skeletonStore = getSkeletonStore();
   const newsApi = new NewsApi();
   const failedImageSources = new SvelteSet<string>();
 
@@ -77,10 +74,6 @@
 
   $effect(() => {
     return handleContentChange(storyContentRef);
-  });
-
-  $effect(() => {
-    updateSkeletonAnimation(storyContentRef, skeletonStore.skeletonAnimationClass);
   });
 
   onMount(async () => {
@@ -317,12 +310,6 @@
 
   function applyImageState(image: HTMLImageElement, frame: HTMLElement, state: ImageState): void {
     frame.dataset.imageState = state;
-    frame.classList.remove(...SKELETON_ANIMATION_CLASSES);
-
-    if (state === 'loading') {
-      frame.classList.add(skeletonStore.skeletonAnimationClass);
-      return;
-    }
 
     if (state === 'error') {
       image.removeAttribute('tabindex');
@@ -345,13 +332,6 @@
     imageError.dataset.testid = 'story-image-error';
     imageError.textContent = IMAGE_ERROR_MESSAGE;
     frame.appendChild(imageError);
-  }
-
-  function updateSkeletonAnimation(ref: HTMLElement | undefined, animationClass: string): void {
-    for (const frame of querySelectorAll<HTMLElement>(ref, `.${IMAGE_FRAME_CLASS}[data-image-state='loading']`)) {
-      frame.classList.remove(...SKELETON_ANIMATION_CLASSES);
-      frame.classList.add(animationClass);
-    }
   }
 
   function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
