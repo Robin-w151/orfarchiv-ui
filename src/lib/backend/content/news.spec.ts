@@ -968,6 +968,22 @@ describe('News content', () => {
       expect(content).toContain('height="3333"');
     });
 
+    test('add dimensions from lazy loading placeholder with raw percent character', async () => {
+      const placeholder =
+        "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' viewBox='0 0 5000 3333'/>";
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img class="lazy-loading" src="${placeholder}"
+          data-src="https://foo.bar/crops/w=1280,q=90/example-image" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="5000"');
+      expect(content).toContain('height="3333"');
+    });
+
     test('add dimensions from crop url', async () => {
       mockArticle(`
         <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>

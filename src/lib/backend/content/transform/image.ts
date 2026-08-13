@@ -106,7 +106,7 @@ function findImageSizeFromPlaceholder(image?: HTMLImageElement): { width: number
     return undefined;
   }
 
-  const viewBox = /viewBox=['"]?\d+[ %]+\d+[ %]+(\d+)[ %]+(\d+)/i.exec(decodeURIComponent(placeholder));
+  const viewBox = /viewBox=['"]?\d+[ %]+\d+[ %]+(\d+)[ %]+(\d+)/i.exec(decodePlaceholder(placeholder));
   if (!viewBox) {
     return undefined;
   }
@@ -114,6 +114,14 @@ function findImageSizeFromPlaceholder(image?: HTMLImageElement): { width: number
   const width = Number(viewBox[1]);
   const height = Number(viewBox[2]);
   return width > 0 && height > 0 ? { width, height } : undefined;
+}
+
+function decodePlaceholder(placeholder: string): string {
+  try {
+    return decodeURIComponent(placeholder);
+  } catch {
+    return placeholder;
+  }
 }
 
 function findImageSizeFromCropUrl(image: HTMLImageElement): { width: number; height: number } | undefined {
