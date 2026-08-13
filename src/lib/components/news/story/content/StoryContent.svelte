@@ -3,6 +3,12 @@
     image: HTMLImageElement;
     source?: HTMLSourceElement;
   }
+
+  type ImageState = 'loading' | 'loaded' | 'error';
+
+  const IMAGE_FRAME_CLASS = 'image-frame';
+  const IMAGE_ERROR_CLASS = 'image-error';
+  const IMAGE_ERROR_MESSAGE = 'Bild konnte nicht geladen werden';
 </script>
 
 <script lang="ts">
@@ -25,6 +31,7 @@
   import { ChevronUp, ExclamationCircle, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
   import StoryContentSkeleton from './StoryContentSkeleton.svelte';
   import StoryImageViewer from './image/StoryImageViewer.svelte';
@@ -40,6 +47,7 @@
   const audioStore = getAudioStore();
   const reducedMotionStore = getReducedMotionStore();
   const newsApi = new NewsApi();
+  const failedImageSources = new SvelteSet<string>();
 
   const wrapperClass = 'flex flex-col items-center gap-3';
   const contentClass = 'cursor-auto w-full';
@@ -62,9 +70,10 @@
   let sourceUrl = $derived(storyContent?.source?.url ?? story?.url);
   let isPlaying = $derived(audioStore.story?.id === story.id && audioStore.isPlaying);
   let isViewedTimout: ReturnType<typeof setTimeout> | undefined = undefined;
+  let availableStoryImages = $derived(storyImages.filter(({ src }) => !failedImageSources.has(src)));
 
   $effect(() => {
-    handleContentChange(storyContentRef);
+    return handleContentChange(storyContentRef);
   });
 
   onMount(async () => {
@@ -136,7 +145,12 @@
     }
   }
 
-  function handleContentChange(ref?: HTMLElement): void {
+  function handleContentChange(ref?: HTMLElement): () => void {
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
+    failedImageSources.clear();
+
     const images = findAllImages(ref);
     const newStoryImages = Array.from(images.entries()).map(([image, meta]) => {
       const storyImage = {
@@ -144,7 +158,12 @@
         alt: image.alt,
         caption: findCaption(image),
       };
+      const frame = wrapImage(image, storyImage);
       const openImageViewer = (): void => {
+        if (frame.dataset.imageState === 'error') {
+          return;
+        }
+
         runViewTransition(
           () => {
             activeStoryImage = storyImage;
@@ -157,18 +176,43 @@
 
       image.tabIndex = 0;
       image.style.viewTransitionClass = 'story-image';
-      image.addEventListener('click', openImageViewer);
-      image.addEventListener('keydown', (event) => {
-        const { key } = event;
-        if (key === 'Enter') {
-          event.preventDefault();
-          openImageViewer();
-        }
-      });
+      image.addEventListener('click', openImageViewer, { signal });
+      image.addEventListener(
+        'keydown',
+        (event) => {
+          const { key } = event;
+          if (key === 'Enter') {
+            event.preventDefault();
+            openImageViewer();
+          }
+        },
+        { signal },
+      );
+
+      applyImageState(image, frame, findInitialImageState(image));
       return storyImage;
     });
 
     storyImages = deduplicateStoryImages(newStoryImages);
+
+    ref?.addEventListener('load', handleImageStateEvent, { capture: true, signal });
+    ref?.addEventListener('error', handleImageStateEvent, { capture: true, signal });
+
+    return () => abortController.abort();
+  }
+
+  function handleImageStateEvent(event: Event): void {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const frame = image.closest<HTMLElement>(`.${IMAGE_FRAME_CLASS}`);
+    if (!frame) {
+      return;
+    }
+
+    applyImageState(image, frame, event.type === 'error' ? 'error' : 'loaded');
   }
 
   function handleImageClose(): void {
@@ -233,6 +277,74 @@
 
   function deduplicateStoryImages(images: Array<StoryImage>): Array<StoryImage> {
     return [...new Map(images.map((image) => [image.src, image])).values()];
+  }
+
+  function wrapImage(image: HTMLImageElement, storyImage: StoryImage): HTMLElement {
+    const element = image.closest('picture') ?? image;
+    const parent = element.parentElement;
+    if (parent?.classList.contains(IMAGE_FRAME_CLASS)) {
+      return parent;
+    }
+
+    const frame = document.createElement('span');
+    frame.className = IMAGE_FRAME_CLASS;
+    frame.dataset.testid = 'story-image-frame';
+    frame.dataset.imageSrc = storyImage.src;
+
+    const width = Number(image.getAttribute('width'));
+    const height = Number(image.getAttribute('height'));
+    frame.dataset.imageSize = width > 0 && height > 0 ? 'intrinsic' : 'unknown';
+
+    parent?.insertBefore(frame, element);
+    frame.appendChild(element);
+    return frame;
+  }
+
+  function findInitialImageState(image: HTMLImageElement): ImageState {
+    if (!image.complete) {
+      return 'loading';
+    }
+
+    return image.naturalWidth > 0 ? 'loaded' : 'error';
+  }
+
+  function applyImageState(image: HTMLImageElement, frame: HTMLElement, state: ImageState): void {
+    frame.dataset.imageState = state;
+    const src = frame.dataset.imageSrc;
+
+    if (state === 'error') {
+      image.removeAttribute('tabindex');
+      showImageError(frame);
+
+      if (src) {
+        failedImageSources.add(src);
+      }
+
+      return;
+    }
+
+    image.tabIndex = 0;
+    hideImageError(frame);
+
+    if (src) {
+      failedImageSources.delete(src);
+    }
+  }
+
+  function showImageError(frame: HTMLElement): void {
+    if (frame.querySelector(`.${IMAGE_ERROR_CLASS}`)) {
+      return;
+    }
+
+    const imageError = document.createElement('span');
+    imageError.className = IMAGE_ERROR_CLASS;
+    imageError.dataset.testid = 'story-image-error';
+    imageError.textContent = IMAGE_ERROR_MESSAGE;
+    frame.appendChild(imageError);
+  }
+
+  function hideImageError(frame: HTMLElement): void {
+    frame.querySelector(`.${IMAGE_ERROR_CLASS}`)?.remove();
   }
 
   function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
@@ -302,7 +414,7 @@
 </div>
 
 {#if activeStoryImage}
-  <StoryImageViewer images={storyImages} bind:image={activeStoryImage} onClose={handleImageClose} />
+  <StoryImageViewer images={availableStoryImages} bind:image={activeStoryImage} onClose={handleImageClose} />
 {/if}
 
 {#if showAiSummary && storyContent}

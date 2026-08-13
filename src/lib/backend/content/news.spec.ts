@@ -950,6 +950,95 @@ describe('News content', () => {
         </div>
       `);
     });
+
+    test('add dimensions from lazy loading placeholder', async () => {
+      const placeholder = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5000 3333'/>",
+      )}`;
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img class="lazy-loading" src="${placeholder}"
+          data-src="https://foo.bar/crops/w=1280,q=90/example-image" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="5000"');
+      expect(content).toContain('height="3333"');
+    });
+
+    test('add dimensions from lazy loading placeholder with raw percent character', async () => {
+      const placeholder =
+        "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' viewBox='0 0 5000 3333'/>";
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img class="lazy-loading" src="${placeholder}"
+          data-src="https://foo.bar/crops/w=1280,q=90/example-image" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="5000"');
+      expect(content).toContain('height="3333"');
+    });
+
+    test('add dimensions from crop url', async () => {
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img src="https://foo.bar/crops/w=640,h=256,q=70/example-image" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="640"');
+      expect(content).toContain('height="256"');
+    });
+
+    test('add dimensions from crop url of lazy loading attributes', async () => {
+      const placeholder = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+        "<svg xmlns='http://www.w3.org/2000/svg'/>",
+      )}`;
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img class="lazy-loading" src="${placeholder}"
+          data-srcset="https://foo.bar/crops/w=640,h=256,q=70/example-image 1x" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="640"');
+      expect(content).toContain('height="256"');
+    });
+
+    test('keep existing dimensions', async () => {
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img src="https://foo.bar/crops/w=640,h=256,q=70/example-image" width="800" height="600" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="800"');
+      expect(content).toContain('height="600"');
+    });
+
+    test('keep image without any dimension information', async () => {
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img src="https://foo.bar/example-image" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('src="https://foo.bar/example-image"');
+      expect(content).not.toContain('width=');
+    });
   });
 });
 

@@ -121,6 +121,59 @@
       @apply my-2 bg-gray-100 dark:bg-gray-300 rounded-lg cursor-pointer;
     }
 
+    .image-frame {
+      @apply relative block my-2 w-fit max-w-full rounded-lg;
+
+      img {
+        @apply my-0;
+      }
+
+      &[data-image-state='loading'] {
+        @apply bg-gray-300 dark:bg-gray-600 animate-pulse;
+
+        img {
+          @apply opacity-0;
+        }
+
+        &[data-image-size='unknown'] {
+          @apply w-full min-h-32;
+
+          aspect-ratio: 16 / 9;
+        }
+      }
+
+      &[data-image-state='loaded'] {
+        img {
+          @apply opacity-100 transition-opacity ease-out;
+
+          transition-duration: var(--oa-transition-duration);
+        }
+      }
+
+      &[data-image-state='error'] {
+        @apply flex w-full justify-center items-center min-h-32 bg-gray-100 dark:bg-gray-800 cursor-auto;
+
+        img {
+          @apply hidden;
+        }
+      }
+    }
+
+    .image-error {
+      @apply flex flex-col justify-center items-center gap-2 p-4 text-sm text-gray-600 dark:text-gray-400 text-center;
+
+      &::before {
+        content: '';
+        width: 2rem;
+        height: 2rem;
+        background-color: currentcolor;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: contain;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='black'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M18 14.25l-4.5 4.5m0-4.5 4.5 4.5M3.75 19.5h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Z'/%3E%3C/svg%3E");
+      }
+    }
+
     p {
       @apply my-2;
     }

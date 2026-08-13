@@ -3,6 +3,11 @@ import { test } from '../fixtures';
 import {
   contentMock,
   contentMockText,
+  contentMockWithImages,
+  imageMockCaption,
+  imageMockCredit,
+  imageMockErrorMessage,
+  imageMockSources,
   newsMock,
   newsMockMore,
   newsMockNoContent,
@@ -260,6 +265,192 @@ test.describe('NewsPage', () => {
 
       const storyContent = newsPage.getStoryContent(storyIndex);
       await expect(storyContent).toContainText(contentMockText);
+    });
+  });
+
+  test.describe('Content images', () => {
+    const storyIndex = 0;
+
+    test('image shows skeleton while loading', async ({ newsPage }) => {
+      const releaseImages = await newsPage.mockImageApi({ hold: true });
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.first);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loading');
+      await expect(imageFrame).toHaveCSS('animation-name', 'pulse');
+
+      releaseImages();
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+    });
+
+    test('image is shown after loading', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.first);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+      await expect(imageFrame).toHaveCSS('animation-name', 'none');
+      await expect(newsPage.getStoryImage(storyIndex, imageMockSources.first)).toBeVisible();
+    });
+
+    test('image without figure is handled as well', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      await expect(newsPage.getStoryImageFrames(storyIndex)).toHaveCount(5);
+      await expect(newsPage.getStoryImageFrame(storyIndex, imageMockSources.last)).toHaveAttribute(
+        'data-image-state',
+        'loaded',
+      );
+    });
+
+    test('loading indicator covers the box of the loaded image', async ({ newsPage }) => {
+      const releaseImages = await newsPage.mockImageApi({ hold: true });
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.small);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loading');
+      const loadingBox = await imageFrame.boundingBox();
+
+      releaseImages();
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+      const loadedBox = await newsPage.getStoryImage(storyIndex, imageMockSources.small).boundingBox();
+
+      expect(loadingBox?.width).toBeCloseTo(loadedBox?.width ?? 0, 0);
+      expect(loadingBox?.height).toBeCloseTo(loadedBox?.height ?? 0, 0);
+    });
+
+    test('image without dimensions uses a default box while loading', async ({ newsPage }) => {
+      const releaseImages = await newsPage.mockImageApi({ hold: true });
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.withoutSize);
+      await expect(imageFrame).toHaveAttribute('data-image-size', 'unknown');
+
+      const loadingBox = await imageFrame.boundingBox();
+      expect(loadingBox?.width).toBeGreaterThan(0);
+      expect(loadingBox?.height).toBeGreaterThan(0);
+
+      releaseImages();
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+    });
+
+    test('image shows error placeholder', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.broken);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'error');
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toHaveText(imageMockErrorMessage);
+      await expect(newsPage.getStoryImage(storyIndex, imageMockSources.broken)).toBeHidden();
+    });
+
+    test('error placeholder keeps caption and credit', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeVisible();
+      await expect(newsPage.getStoryImageCaption(storyIndex, imageMockSources.broken)).toHaveText(imageMockCaption);
+      await expect(newsPage.getStoryImageCredit(storyIndex, imageMockSources.broken)).toHaveText(imageMockCredit);
+    });
+
+    test('broken image is not interactive', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const brokenImage = newsPage.getStoryImage(storyIndex, imageMockSources.broken);
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeVisible();
+      await expect(brokenImage).not.toHaveAttribute('tabindex');
+
+      await brokenImage.dispatchEvent('click');
+      await expect(newsPage.imageViewer).toBeHidden();
+    });
+
+    test('image viewer opens for loaded image', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.first);
+
+      await expect(newsPage.imageViewer).toBeVisible();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.first);
+    });
+
+    test('image viewer skips broken image', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeVisible();
+
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.first);
+      await newsPage.imageViewerNextButton.click();
+
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.last);
+    });
+
+    test('image viewer navigates on when shown image fails', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.last);
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.last);
+
+      await newsPage.failStoryImage(storyIndex, imageMockSources.last);
+
+      await newsPage.imageViewerNextButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.small);
+
+      await newsPage.imageViewerPrevButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.first);
+    });
+
+    test('recovered image clears the error state', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeVisible();
+
+      await newsPage.recoverStoryImage(storyIndex, imageMockSources.broken);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.broken);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeHidden();
+      await expect(newsPage.getStoryImage(storyIndex, imageMockSources.broken)).toHaveAttribute('tabindex', '0');
+
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.first);
+      await newsPage.imageViewerNextButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.broken);
+    });
+
+    test('cached image is marked as loaded', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await expect(newsPage.getStoryImageFrame(storyIndex, imageMockSources.first)).toHaveAttribute(
+        'data-image-state',
+        'loaded',
+      );
+
+      await newsPage.toggleStoryContent(storyIndex);
+      await expect(newsPage.getStoryContent(storyIndex)).toBeHidden();
+      await newsPage.toggleStoryContent(storyIndex);
+
+      await expect(newsPage.getStoryImageFrame(storyIndex, imageMockSources.first)).toHaveAttribute(
+        'data-image-state',
+        'loaded',
+      );
+      await expect(newsPage.getStoryImageFrame(storyIndex, imageMockSources.broken)).toHaveAttribute(
+        'data-image-state',
+        'error',
+      );
     });
   });
 

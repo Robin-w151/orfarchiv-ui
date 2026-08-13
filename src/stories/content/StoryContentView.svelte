@@ -54,6 +54,20 @@
       <figcaption>Ein historischer Turm in einer italienischen Stadt bei Sonnenuntergang</figcaption>
     </figure>
 
+    <h2>Bild, das nicht geladen werden kann</h2>
+    <figure>
+      <div class="image-container">
+        <img
+          src="https://images.example.invalid/nicht-vorhanden.jpg"
+          width="1280"
+          height="720"
+          alt="Bild, das nicht geladen werden kann"
+        />
+        <span class="image-credit-tag">Foto: Pexels</span>
+      </div>
+      <figcaption>Die Bildunterschrift bleibt auch bei einem fehlerhaften Bild erhalten</figcaption>
+    </figure>
+
     <h2>Zitat</h2>
     <blockquote>
       &quot;Die Entwicklung der vergangenen Monate zeigt deutlich, dass wir umdenken müssen&quot;, sagte die
@@ -104,7 +118,7 @@
         <tr>
           <td>Oberösterreich</td>
           <td>243.100</td>
-          <td>−1,2 %</td>
+          <td>-1,2 %</td>
         </tr>
         <tr>
           <td>Burgenland</td>
@@ -129,7 +143,7 @@
       <tr>
         <td>Oberösterreich</td>
         <td>243.100</td>
-        <td>−1,2 %</td>
+        <td>-1,2 %</td>
       </tr>
       <tr>
         <td>Burgenland</td>
@@ -144,7 +158,7 @@
         src="https://images.pexels.com/photos/28518085/pexels-photo-28518085/free-photo-of-colorful-european-houses-with-tiled-roofs.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         alt="Bunte Häuser mit Ziegeldächern"
       />
-      <figcaption>Bunte europäische Häuser mit Ziegeldächern – anklickbar für den Bildbetrachter</figcaption>
+      <figcaption>Bunte europäische Häuser mit Ziegeldächern - anklickbar für den Bildbetrachter</figcaption>
     </figure>
 
     <h2>Video</h2>

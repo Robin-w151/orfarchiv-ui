@@ -1,6 +1,18 @@
 import type { Locator, Page } from '@playwright/test';
-import { newsMockEmptyUpdate } from '../mocks/news.mocks';
+import {
+  imageMockBaseUrl,
+  imageMockHeight,
+  imageMockSmallHeight,
+  imageMockSmallWidth,
+  imageMockSources,
+  imageMockWidth,
+  newsMockEmptyUpdate,
+} from '../mocks/news.mocks';
 import { waitForTestReady } from '../shared/waitForTestReady';
+
+function toImageMockSvg(width: number, height: number): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#1d4ed8"/></svg>`;
+}
 
 export class NewsPage {
   log: unknown[] = [];
@@ -83,6 +95,26 @@ export class NewsPage {
     return this.page.getByRole('link', { name: 'Zu den Einstellungen' });
   }
 
+  get imageViewer(): Locator {
+    return this.page.getByRole('region', { name: 'Bildanzeige' });
+  }
+
+  get imageViewerImage(): Locator {
+    return this.imageViewer.locator('img');
+  }
+
+  get imageViewerNextButton(): Locator {
+    return this.imageViewer.getByTitle('Nächstes Bild anzeigen');
+  }
+
+  get imageViewerPrevButton(): Locator {
+    return this.imageViewer.getByTitle('Vorheriges Bild anzeigen');
+  }
+
+  get imageViewerCloseButton(): Locator {
+    return this.imageViewer.getByTitle('Bild schließen');
+  }
+
   get popover(): Locator {
     return this.page.locator('div[data-testid="popover"]');
   }
@@ -124,6 +156,30 @@ export class NewsPage {
 
   getStoryContent(index: number): Locator {
     return this.getNewsListItem(index).locator('article');
+  }
+
+  getStoryImageFrames(storyIndex: number): Locator {
+    return this.getStoryContent(storyIndex).locator('[data-testid="story-image-frame"]');
+  }
+
+  getStoryImageFrame(storyIndex: number, src: string): Locator {
+    return this.getStoryImageFrames(storyIndex).and(this.page.locator(`[data-image-src="${src}"]`));
+  }
+
+  getStoryImage(storyIndex: number, src: string): Locator {
+    return this.getStoryImageFrame(storyIndex, src).locator('img');
+  }
+
+  getStoryImageError(storyIndex: number, src: string): Locator {
+    return this.getStoryImageFrame(storyIndex, src).locator('[data-testid="story-image-error"]');
+  }
+
+  getStoryImageCaption(storyIndex: number, src: string): Locator {
+    return this.getStoryImageFrame(storyIndex, src).locator('xpath=ancestor::figure').locator('figcaption');
+  }
+
+  getStoryImageCredit(storyIndex: number, src: string): Locator {
+    return this.getStoryImageFrame(storyIndex, src).locator('xpath=ancestor::figure').locator('.image-credit-tag');
   }
 
   async mockSearchNewsApi(
@@ -175,6 +231,35 @@ export class NewsPage {
         });
       }
     });
+  }
+
+  async mockImageApi({ hold = false }: { hold?: boolean } = {}): Promise<() => void> {
+    let releaseImages = (): void => {};
+    const imagesReleased = new Promise<void>((resolve) => {
+      releaseImages = resolve;
+    });
+
+    await this.page.route(`${imageMockBaseUrl}/**`, async (route) => {
+      if (route.request().url() === imageMockSources.broken) {
+        await route.abort('failed');
+        return;
+      }
+
+      if (hold) {
+        await imagesReleased;
+      }
+
+      const isSmallImage = route.request().url() === imageMockSources.small;
+      await route.fulfill({
+        status: 200,
+        contentType: 'image/svg+xml',
+        body: isSmallImage
+          ? toImageMockSvg(imageMockSmallWidth, imageMockSmallHeight)
+          : toImageMockSvg(imageMockWidth, imageMockHeight),
+      });
+    });
+
+    return releaseImages;
   }
 
   async mockAiSummaryApi(data: Record<string, unknown> | Record<string, unknown>[]): Promise<void> {
@@ -252,6 +337,18 @@ export class NewsPage {
     const request = this.waitForStoryContent();
     await this.toggleStoryContent(index);
     await request;
+  }
+
+  async openStoryImageViewer(storyIndex: number, src: string): Promise<void> {
+    await this.getStoryImage(storyIndex, src).click();
+  }
+
+  async failStoryImage(storyIndex: number, src: string): Promise<void> {
+    await this.getStoryImage(storyIndex, src).dispatchEvent('error');
+  }
+
+  async recoverStoryImage(storyIndex: number, src: string): Promise<void> {
+    await this.getStoryImage(storyIndex, src).dispatchEvent('load');
   }
 
   async toggleStoryContent(index: number): Promise<void> {

@@ -44,6 +44,7 @@
   let prevPanzoomZoom: number | undefined;
 
   let isNavigationEnabled = $derived(images.length > 1);
+  let lastImageIndex = $state(0);
   let visibilityClass = $derived(`${showControls ? 'visible' : 'invisible'}`);
 
   const preloadedImages = new SvelteMap<string, boolean>();
@@ -112,6 +113,13 @@
     if (image) {
       resetPanzoom(false);
       preloadImages(image);
+    }
+  });
+
+  $effect(() => {
+    const index = images.findIndex(({ src }) => src === image.src);
+    if (index >= 0) {
+      lastImageIndex = index;
     }
   });
 
@@ -226,11 +234,11 @@
     image: StoryImage,
     count?: TCount,
   ): ImageLookup<TCount> {
-    const index = images.findIndex(({ src }) => src === image.src);
+    const start = findImageBounds(image).next;
     if (count === undefined || count === 1) {
-      return images[index + 1] as any;
+      return images[start] as any;
     } else {
-      return images.slice(index + 1, Math.min(index + count + 1, images.length)) as any;
+      return images.slice(start, Math.min(start + count, images.length)) as any;
     }
   }
 
@@ -238,12 +246,17 @@
     image: StoryImage,
     count?: TCount,
   ): ImageLookup<TCount> {
-    const index = images.findIndex(({ src }) => src === image.src);
+    const end = findImageBounds(image).prev;
     if (count === undefined || count === 1) {
-      return images[index - 1] as any;
+      return images[end - 1] as any;
     } else {
-      return images.slice(Math.max(index - count, 0), index) as any;
+      return images.slice(Math.max(end - count, 0), end) as any;
     }
+  }
+
+  function findImageBounds(image: StoryImage): { next: number; prev: number } {
+    const index = images.findIndex(({ src }) => src === image.src);
+    return index >= 0 ? { next: index + 1, prev: index } : { next: lastImageIndex, prev: lastImageIndex };
   }
 
   function gotoNextImage(): void {
