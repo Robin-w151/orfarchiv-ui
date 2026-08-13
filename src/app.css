@@ -139,6 +139,7 @@
       &[data-image-state='loaded'] {
         img {
           @apply opacity-100 transition-opacity ease-out;
+
           transition-duration: var(--oa-transition-duration);
         }
       }
@@ -159,7 +160,7 @@
         content: '';
         width: 2rem;
         height: 2rem;
-        background-color: currentColor;
+        background-color: currentcolor;
         mask-repeat: no-repeat;
         mask-position: center;
         mask-size: contain;
