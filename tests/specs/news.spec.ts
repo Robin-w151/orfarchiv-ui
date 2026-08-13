@@ -396,6 +396,40 @@ test.describe('NewsPage', () => {
       await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.last);
     });
 
+    test('image viewer navigates on when shown image fails', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.last);
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.last);
+
+      await newsPage.failStoryImage(storyIndex, imageMockSources.last);
+
+      await newsPage.imageViewerNextButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.small);
+
+      await newsPage.imageViewerPrevButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.first);
+    });
+
+    test('recovered image clears the error state', async ({ newsPage }) => {
+      await newsPage.mockImageApi();
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeVisible();
+
+      await newsPage.recoverStoryImage(storyIndex, imageMockSources.broken);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.broken);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+      await expect(newsPage.getStoryImageError(storyIndex, imageMockSources.broken)).toBeHidden();
+      await expect(newsPage.getStoryImage(storyIndex, imageMockSources.broken)).toHaveAttribute('tabindex', '0');
+
+      await newsPage.openStoryImageViewer(storyIndex, imageMockSources.first);
+      await newsPage.imageViewerNextButton.click();
+      await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.broken);
+    });
+
     test('cached image is marked as loaded', async ({ newsPage }) => {
       await newsPage.mockImageApi();
       await newsPage.mockFetchContentApi(contentMockWithImages);

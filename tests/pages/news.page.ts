@@ -343,6 +343,14 @@ export class NewsPage {
     await this.getStoryImage(storyIndex, src).click();
   }
 
+  async failStoryImage(storyIndex: number, src: string): Promise<void> {
+    await this.getStoryImage(storyIndex, src).dispatchEvent('error');
+  }
+
+  async recoverStoryImage(storyIndex: number, src: string): Promise<void> {
+    await this.getStoryImage(storyIndex, src).dispatchEvent('load');
+  }
+
   async toggleStoryContent(index: number): Promise<void> {
     const storyHeader = this.getNewsListItem(index).locator('header');
     await storyHeader.click();

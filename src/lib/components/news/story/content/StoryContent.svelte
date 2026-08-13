@@ -310,15 +310,24 @@
 
   function applyImageState(image: HTMLImageElement, frame: HTMLElement, state: ImageState): void {
     frame.dataset.imageState = state;
+    const src = frame.dataset.imageSrc;
 
     if (state === 'error') {
       image.removeAttribute('tabindex');
       showImageError(frame);
 
-      const src = frame.dataset.imageSrc;
       if (src) {
         failedImageSources.add(src);
       }
+
+      return;
+    }
+
+    image.tabIndex = 0;
+    hideImageError(frame);
+
+    if (src) {
+      failedImageSources.delete(src);
     }
   }
 
@@ -332,6 +341,10 @@
     imageError.dataset.testid = 'story-image-error';
     imageError.textContent = IMAGE_ERROR_MESSAGE;
     frame.appendChild(imageError);
+  }
+
+  function hideImageError(frame: HTMLElement): void {
+    frame.querySelector(`.${IMAGE_ERROR_CLASS}`)?.remove();
   }
 
   function querySelectorAll<T extends Element>(element: Element | null | undefined, selector: string): Array<T> {
