@@ -300,9 +300,7 @@
 
     const width = Number(image.getAttribute('width'));
     const height = Number(image.getAttribute('height'));
-    if (width > 0 && height > 0) {
-      frame.style.aspectRatio = `${width} / ${height}`;
-    }
+    frame.dataset.imageSize = width > 0 && height > 0 ? 'intrinsic' : 'unknown';
 
     parent?.insertBefore(frame, element);
     frame.appendChild(element);
@@ -327,7 +325,6 @@
     }
 
     if (state === 'error') {
-      frame.style.aspectRatio = '';
       image.removeAttribute('tabindex');
       showImageError(frame);
 

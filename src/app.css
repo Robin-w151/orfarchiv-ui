@@ -122,17 +122,23 @@
     }
 
     .image-frame {
-      @apply relative block my-2 rounded-lg;
+      @apply relative block my-2 w-fit max-w-full rounded-lg;
 
       img {
         @apply my-0;
       }
 
       &[data-image-state='loading'] {
-        @apply min-h-32 bg-gray-300 dark:bg-gray-600;
+        @apply bg-gray-300 dark:bg-gray-600;
 
         img {
           @apply opacity-0;
+        }
+
+        &[data-image-size='unknown'] {
+          @apply w-full min-h-32;
+
+          aspect-ratio: 16 / 9;
         }
       }
 
@@ -145,7 +151,7 @@
       }
 
       &[data-image-state='error'] {
-        @apply flex justify-center items-center min-h-32 bg-gray-100 dark:bg-gray-800 cursor-auto;
+        @apply flex w-full justify-center items-center min-h-32 bg-gray-100 dark:bg-gray-800 cursor-auto;
 
         img {
           @apply hidden;

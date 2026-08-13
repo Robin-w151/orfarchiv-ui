@@ -1,9 +1,18 @@
 import type { Locator, Page } from '@playwright/test';
-import { imageMockBaseUrl, imageMockSources, newsMockEmptyUpdate } from '../mocks/news.mocks';
+import {
+  imageMockBaseUrl,
+  imageMockHeight,
+  imageMockSmallHeight,
+  imageMockSmallWidth,
+  imageMockSources,
+  imageMockWidth,
+  newsMockEmptyUpdate,
+} from '../mocks/news.mocks';
 import { waitForTestReady } from '../shared/waitForTestReady';
 
-const TRANSPARENT_PNG_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+function toImageMockSvg(width: number, height: number): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#1d4ed8"/></svg>`;
+}
 
 export class NewsPage {
   log: unknown[] = [];
@@ -240,10 +249,13 @@ export class NewsPage {
         await imagesReleased;
       }
 
+      const isSmallImage = route.request().url() === imageMockSources.small;
       await route.fulfill({
         status: 200,
-        contentType: 'image/png',
-        body: Buffer.from(TRANSPARENT_PNG_BASE64, 'base64'),
+        contentType: 'image/svg+xml',
+        body: isSmallImage
+          ? toImageMockSvg(imageMockSmallWidth, imageMockSmallHeight)
+          : toImageMockSvg(imageMockWidth, imageMockHeight),
       });
     });
 

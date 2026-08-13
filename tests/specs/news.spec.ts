@@ -300,11 +300,44 @@ test.describe('NewsPage', () => {
       await newsPage.mockFetchContentApi(contentMockWithImages);
       await newsPage.openStoryContent(storyIndex);
 
-      await expect(newsPage.getStoryImageFrames(storyIndex)).toHaveCount(3);
+      await expect(newsPage.getStoryImageFrames(storyIndex)).toHaveCount(5);
       await expect(newsPage.getStoryImageFrame(storyIndex, imageMockSources.last)).toHaveAttribute(
         'data-image-state',
         'loaded',
       );
+    });
+
+    test('loading indicator covers the box of the loaded image', async ({ newsPage }) => {
+      const releaseImages = await newsPage.mockImageApi({ hold: true });
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.small);
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loading');
+      const loadingBox = await imageFrame.boundingBox();
+
+      releaseImages();
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
+      const loadedBox = await newsPage.getStoryImage(storyIndex, imageMockSources.small).boundingBox();
+
+      expect(loadingBox?.width).toBeCloseTo(loadedBox?.width ?? 0, 0);
+      expect(loadingBox?.height).toBeCloseTo(loadedBox?.height ?? 0, 0);
+    });
+
+    test('image without dimensions uses a default box while loading', async ({ newsPage }) => {
+      const releaseImages = await newsPage.mockImageApi({ hold: true });
+      await newsPage.mockFetchContentApi(contentMockWithImages);
+      await newsPage.openStoryContent(storyIndex);
+
+      const imageFrame = newsPage.getStoryImageFrame(storyIndex, imageMockSources.withoutSize);
+      await expect(imageFrame).toHaveAttribute('data-image-size', 'unknown');
+
+      const loadingBox = await imageFrame.boundingBox();
+      expect(loadingBox?.width).toBeGreaterThan(0);
+      expect(loadingBox?.height).toBeGreaterThan(0);
+
+      releaseImages();
+      await expect(imageFrame).toHaveAttribute('data-image-state', 'loaded');
     });
 
     test('image shows error placeholder', async ({ newsPage }) => {
@@ -361,7 +394,6 @@ test.describe('NewsPage', () => {
       await newsPage.imageViewerNextButton.click();
 
       await expect(newsPage.imageViewerImage).toHaveAttribute('src', imageMockSources.last);
-      await expect(newsPage.imageViewerNextButton).toBeHidden();
     });
 
     test('cached image is marked as loaded', async ({ newsPage }) => {

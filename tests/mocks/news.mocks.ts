@@ -144,7 +144,13 @@ export const imageMockSources = {
   first: `${imageMockBaseUrl}/first.jpg`,
   broken: `${imageMockBaseUrl}/broken.jpg`,
   last: `${imageMockBaseUrl}/last.jpg`,
+  small: `${imageMockBaseUrl}/small.jpg`,
+  withoutSize: `${imageMockBaseUrl}/without-size.jpg`,
 };
+export const imageMockWidth = 1280;
+export const imageMockHeight = 720;
+export const imageMockSmallWidth = 240;
+export const imageMockSmallHeight = 160;
 export const imageMockCaption = 'Bildunterschrift des fehlerhaften Bildes';
 export const imageMockCredit = 'Foto: Testquelle';
 export const imageMockErrorMessage = 'Bild konnte nicht geladen werden';
@@ -154,19 +160,36 @@ export const contentMockWithImages = {
     <p>${contentMockText}</p>
     <figure>
       <div class="image-container">
-        <img src="${imageMockSources.first}" width="1280" height="720" alt="Erstes Bild" />
+        <img
+          src="${imageMockSources.first}"
+          width="${imageMockWidth}"
+          height="${imageMockHeight}"
+          alt="Erstes Bild"
+        />
         <span class="image-credit-tag">Foto: Erste Testquelle</span>
       </div>
       <figcaption>Bildunterschrift des ersten Bildes</figcaption>
     </figure>
     <figure>
       <div class="image-container">
-        <img src="${imageMockSources.broken}" width="1280" height="720" alt="Fehlerhaftes Bild" />
+        <img
+          src="${imageMockSources.broken}"
+          width="${imageMockWidth}"
+          height="${imageMockHeight}"
+          alt="Fehlerhaftes Bild"
+        />
         <span class="image-credit-tag">${imageMockCredit}</span>
       </div>
       <figcaption>${imageMockCaption}</figcaption>
     </figure>
-    <img src="${imageMockSources.last}" width="1280" height="720" alt="Letztes Bild" />
+    <img src="${imageMockSources.last}" width="${imageMockWidth}" height="${imageMockHeight}" alt="Letztes Bild" />
+    <img
+      src="${imageMockSources.small}"
+      width="${imageMockSmallWidth}"
+      height="${imageMockSmallHeight}"
+      alt="Kleines Bild"
+    />
+    <img src="${imageMockSources.withoutSize}" alt="Bild ohne Abmessungen" />
   </div>`,
   contentText: contentMockText,
 };
