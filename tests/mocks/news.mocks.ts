@@ -138,3 +138,35 @@ export const contentMock = {
   content: `<div><p>${contentMockText}</p></div>`,
   contentText: contentMockText,
 };
+
+export const imageMockBaseUrl = 'https://images.test';
+export const imageMockSources = {
+  first: `${imageMockBaseUrl}/first.jpg`,
+  broken: `${imageMockBaseUrl}/broken.jpg`,
+  last: `${imageMockBaseUrl}/last.jpg`,
+};
+export const imageMockCaption = 'Bildunterschrift des fehlerhaften Bildes';
+export const imageMockCredit = 'Foto: Testquelle';
+export const imageMockErrorMessage = 'Bild konnte nicht geladen werden';
+
+export const contentMockWithImages = {
+  content: `<div>
+    <p>${contentMockText}</p>
+    <figure>
+      <div class="image-container">
+        <img src="${imageMockSources.first}" width="1280" height="720" alt="Erstes Bild" />
+        <span class="image-credit-tag">Foto: Erste Testquelle</span>
+      </div>
+      <figcaption>Bildunterschrift des ersten Bildes</figcaption>
+    </figure>
+    <figure>
+      <div class="image-container">
+        <img src="${imageMockSources.broken}" width="1280" height="720" alt="Fehlerhaftes Bild" />
+        <span class="image-credit-tag">${imageMockCredit}</span>
+      </div>
+      <figcaption>${imageMockCaption}</figcaption>
+    </figure>
+    <img src="${imageMockSources.last}" width="1280" height="720" alt="Letztes Bild" />
+  </div>`,
+  contentText: contentMockText,
+};

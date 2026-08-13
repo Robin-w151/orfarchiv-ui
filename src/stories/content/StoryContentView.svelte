@@ -54,6 +54,20 @@
       <figcaption>Ein historischer Turm in einer italienischen Stadt bei Sonnenuntergang</figcaption>
     </figure>
 
+    <h2>Bild, das nicht geladen werden kann</h2>
+    <figure>
+      <div class="image-container">
+        <img
+          src="https://images.example.invalid/nicht-vorhanden.jpg"
+          width="1280"
+          height="720"
+          alt="Bild, das nicht geladen werden kann"
+        />
+        <span class="image-credit-tag">Foto: Pexels</span>
+      </div>
+      <figcaption>Die Bildunterschrift bleibt auch bei einem fehlerhaften Bild erhalten</figcaption>
+    </figure>
+
     <h2>Zitat</h2>
     <blockquote>
       &quot;Die Entwicklung der vergangenen Monate zeigt deutlich, dass wir umdenken müssen&quot;, sagte die
