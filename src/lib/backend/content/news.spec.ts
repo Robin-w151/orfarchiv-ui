@@ -997,6 +997,23 @@ describe('News content', () => {
       expect(content).toContain('height="256"');
     });
 
+    test('add dimensions from crop url of lazy loading attributes', async () => {
+      const placeholder = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+        "<svg xmlns='http://www.w3.org/2000/svg'/>",
+      )}`;
+      mockArticle(`
+        <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>
+        <img class="lazy-loading" src="${placeholder}"
+          data-srcset="https://foo.bar/crops/w=640,h=256,q=70/example-image 1x" alt="Test alt text">
+      `);
+
+      const result = await fetchStoryContent(mockArticleUrl);
+      const content = Either.isRight(result) ? result.right.content : '';
+
+      expect(content).toContain('width="640"');
+      expect(content).toContain('height="256"');
+    });
+
     test('keep existing dimensions', async () => {
       mockArticle(`
         <p>${'Lorem ipsum dolor sit amet. '.repeat(20)}</p>

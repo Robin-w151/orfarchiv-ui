@@ -75,8 +75,12 @@ function findImageUrls(image: HTMLImageElement): Array<string> {
   const sources = [image.getAttribute('src'), image.dataset.src, image.getAttribute('srcset'), image.dataset.srcset];
   return sources
     .filter((source): source is string => Predicate.isNotNullable(source) && !source.startsWith('data:'))
-    .flatMap((source) => source.split(',').map((candidate) => candidate.trim().split(/\s+/)[0]))
+    .flatMap((source) => splitSourceSet(source))
     .filter((url) => !!url);
+}
+
+function splitSourceSet(sourceSet: string): Array<string> {
+  return sourceSet.split(/,(?=\s*(?:https?:|\/))/).map((candidate) => candidate.trim().split(/\s+/)[0]);
 }
 
 function findImageSize(
@@ -125,8 +129,13 @@ function decodePlaceholder(placeholder: string): string {
 }
 
 function findImageSizeFromCropUrl(image: HTMLImageElement): { width: number; height: number } | undefined {
-  const source = image.getAttribute('src') ?? '';
-  const width = Number(/[/,]w=(\d+)/.exec(source)?.[1]);
-  const height = Number(/[/,]h=(\d+)/.exec(source)?.[1]);
-  return width > 0 && height > 0 ? { width, height } : undefined;
+  for (const source of findImageUrls(image)) {
+    const width = Number(/[/,]w=(\d+)/.exec(source)?.[1]);
+    const height = Number(/[/,]h=(\d+)/.exec(source)?.[1]);
+    if (width > 0 && height > 0) {
+      return { width, height };
+    }
+  }
+
+  return undefined;
 }
