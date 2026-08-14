@@ -74,7 +74,7 @@ function mapImagesByUrl(originalDocument: Document): Map<string, HTMLImageElemen
 function findImageUrls(image: HTMLImageElement): Array<string> {
   const sources = [image.getAttribute('src'), image.dataset.src, image.getAttribute('srcset'), image.dataset.srcset];
   return sources
-    .filter((source): source is string => Predicate.isNotNullable(source) && !source.startsWith('data:'))
+    .filter((source): source is string => Predicate.isNotNullish(source) && !source.startsWith('data:'))
     .flatMap((source) => splitSourceSet(source))
     .filter((url) => !!url);
 }
@@ -89,7 +89,7 @@ function findImageSize(
 ): { width: number; height: number } | undefined {
   const originalImage = findImageUrls(image)
     .map((url) => originalImages.get(url))
-    .find((image) => Predicate.isNotNullable(image));
+    .find((image) => Predicate.isNotNullish(image));
 
   return (
     findImageSizeFromAttributes(originalImage) ??

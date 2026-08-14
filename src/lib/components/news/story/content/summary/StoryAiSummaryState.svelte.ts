@@ -111,7 +111,7 @@ export class StoryAiSummaryState {
 
     this.aiSummaryCancel?.();
 
-    const effect = Effect.gen(this, function* () {
+    const effect = Effect.gen({ self: this }, function* () {
       yield* Effect.sync(() => {
         this.aiSummaryLoading = true;
         this.aiSummaryError = undefined;

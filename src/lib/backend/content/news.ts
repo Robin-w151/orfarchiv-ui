@@ -13,7 +13,7 @@ import type { Story, StoryContent, StorySource } from '$lib/models/story';
 import { isOrfStoryUrl } from '$lib/utils/urls';
 import { Readability } from '@mozilla/readability';
 import createDOMPurify, { type WindowLike } from 'dompurify';
-import { Effect, Either, Predicate } from 'effect';
+import { Effect, Predicate, Result } from 'effect';
 import { JSDOM } from 'jsdom';
 import { removeCharts } from './transform/chart';
 import { adjustImages, injectSlideShowImages } from './transform/image';
@@ -26,7 +26,7 @@ const VUE_SCOPE_ATTRIBUTE_REGEXP = /data-v-\w+/;
 export function fetchStoryContent(
   url: string,
   fetchReadMoreContent = false,
-): Promise<Either.Either<StoryContent, FetchStoryContentError>> {
+): Promise<Result.Result<StoryContent, FetchStoryContentError>> {
   const program = Effect.gen(function* () {
     logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
 
@@ -47,11 +47,11 @@ export function fetchStoryContent(
         logger.info(`Fetch content with readMore url='${readMoreUrl}'`);
 
         const result = yield* Effect.all([fetchStoryMetadata(readMoreUrl), fetchSiteHtmlText(readMoreUrl)]).pipe(
-          Effect.either,
+          Effect.result,
         );
 
-        if (Either.isRight(result)) {
-          const [story, data] = result.right;
+        if (Result.isSuccess(result)) {
+          const [story, data] = result.success;
           currentUrl = readMoreUrl;
           currentStory = story;
           currentData = data;
@@ -59,7 +59,7 @@ export function fetchStoryContent(
           source = story?.source ?? findSourceFromUrl(currentUrl);
           originalDocument = createDom(currentData, currentUrl);
         } else {
-          logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.left.tags)}`);
+          logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.failure.tags)}`);
         }
       }
     }
@@ -102,7 +102,7 @@ export function fetchStoryContent(
 
   return program.pipe(
     Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch content: ${formatTags(error.tags)}`))),
-    Effect.either,
+    Effect.result,
     Effect.runPromise,
   );
 }
@@ -122,7 +122,7 @@ function fetchStoryMetadata(
         ],
         cause,
       }),
-  }).pipe(Effect.filterOrFail(Predicate.isNotNullable, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
+  }).pipe(Effect.filterOrFail(Predicate.isNotNullish, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
 }
 
 function fetchSiteHtmlText(url: string): Effect.Effect<string, FetchError | ParseError | ContentNotFoundError> {

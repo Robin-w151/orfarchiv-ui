@@ -19,7 +19,7 @@ export class AiService {
   }
 
   sendMessage<T>(message: string, schema: ZodType<T>): Effect.Effect<T, AiServiceError> {
-    return Effect.gen(this, function* () {
+    return Effect.gen({ self: this }, function* () {
       const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
 
       yield* Effect.sync(() => {
@@ -63,7 +63,7 @@ export class AiService {
           while: (error) => this.isErrorRetryable(error),
         }),
         Effect.catchTag(
-          'TimeoutException',
+          'TimeoutError',
           (error) => new AiServiceError({ message: 'Response generation timed out', type: 'TIMEOUT', cause: error }),
         ),
       );
@@ -104,7 +104,7 @@ export class AiService {
   }
 
   countWords(message: string): Effect.Effect<number> {
-    return Effect.gen(this, function* () {
+    return Effect.gen({ self: this }, function* () {
       const totalWords = message.split(/\s+/).filter(Boolean).length;
 
       yield* Effect.sync(() => {

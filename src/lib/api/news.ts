@@ -8,7 +8,7 @@ import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import { uuid } from '$lib/utils/uuid';
 import type { TRPCClient } from '@trpc/client';
-import { Effect, Either } from 'effect';
+import { Effect, Result } from 'effect';
 import type { ZodType } from 'zod';
 import { createTRPC } from './trpc';
 
@@ -99,7 +99,7 @@ export class NewsApi {
     requestId: I,
     schema: ZodType<T>,
   ): Promise<T> {
-    const program = Effect.gen(this, function* () {
+    const program = Effect.gen({ self: this }, function* () {
       yield* Effect.addFinalizer((_exit) => {
         if (requestId) {
           this.abortControllers.delete(requestId);
@@ -141,12 +141,12 @@ export class NewsApi {
       return validationResult.data;
     });
 
-    const result = await program.pipe(Effect.scoped, Effect.either, Effect.runPromise);
+    const result = await program.pipe(Effect.scoped, Effect.result, Effect.runPromise);
 
-    if (Either.isRight(result)) {
-      return result.right;
+    if (Result.isSuccess(result)) {
+      return result.success;
     } else {
-      throw result.left;
+      throw result.failure;
     }
   }
 }

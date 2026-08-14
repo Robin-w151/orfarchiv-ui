@@ -1,7 +1,9 @@
 import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import { AiServiceError } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
-import { Effect, Either } from 'effect';
+import { it } from '@effect/vitest';
+import { Duration, Effect, Fiber, Result } from 'effect';
+import { TestClock } from 'effect/testing';
 import { APIError } from 'openai';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
@@ -44,8 +46,8 @@ describe('AI service', () => {
 
       const result = await sendMessage();
 
-      expect(Either.isRight(result)).toBe(true);
-      expect(Either.isRight(result) ? result.right : undefined).toEqual({ summary: 'Hello World' });
+      expect(Result.isSuccess(result)).toBe(true);
+      expect(Result.isSuccess(result) ? result.success : undefined).toEqual({ summary: 'Hello World' });
     });
 
     test('sends the model configuration of the selected model', async () => {
@@ -120,6 +122,59 @@ describe('AI service', () => {
         expect(mockedCreate).toHaveBeenCalledTimes(1);
       });
     });
+
+    describe('Retrying', () => {
+      it.effect('retries a rate limited request once', () =>
+        Effect.gen(function* () {
+          mockApiError(429, 'Rate limit exceeded');
+
+          const error = yield* runWithClock(retryDelay);
+
+          expect(error?.type).toBe('RATE_LIMIT');
+          expect(mockedCreate).toHaveBeenCalledTimes(2);
+        }),
+      );
+
+      it.effect('retries an overloaded model once', () =>
+        Effect.gen(function* () {
+          mockApiError(503, 'Model overloaded');
+
+          const error = yield* runWithClock(retryDelay);
+
+          expect(error?.type).toBe('MODEL_OVERLOADED');
+          expect(mockedCreate).toHaveBeenCalledTimes(2);
+        }),
+      );
+
+      it.effect('retries an unrecognised error shape and leaves the type undefined', () =>
+        Effect.gen(function* () {
+          mockedCreate.mockRejectedValue(new Error('boom'));
+
+          const error = yield* runWithClock(retryDelay);
+
+          expect(error).toBeInstanceOf(AiServiceError);
+          expect(error?.type).toBeUndefined();
+          expect(mockedCreate).toHaveBeenCalledTimes(2);
+        }),
+      );
+    });
+
+    describe('Timing out', () => {
+      it.effect('fails with TIMEOUT when the response never arrives', () =>
+        Effect.gen(function* () {
+          mockedCreate.mockImplementation(() => new Promise(() => {}));
+
+          // The timeout sits inside the retry, so the request has to time out
+          // twice (with the retry delay in between) before the error surfaces.
+          const error = yield* runWithClock(requestTimeout, retryDelay, requestTimeout);
+
+          expect(error).toBeInstanceOf(AiServiceError);
+          expect(error?.type).toBe('TIMEOUT');
+          expect(error?.message).toBe('Response generation timed out');
+          expect(mockedCreate).toHaveBeenCalledTimes(2);
+        }),
+      );
+    });
   });
 
   describe('countWords', () => {
@@ -143,17 +198,40 @@ describe('AI service', () => {
   });
 });
 
+// `Effect.timeout('2 minutes')`, and `Schedule.exponential(5000).pipe(Schedule.jittered)`
+// which scales the delay by a 0.8-1.2 factor — so advance past the upper bound.
+const requestTimeout: Duration.Input = '2 minutes';
+const retryDelay: Duration.Input = '10 seconds';
+
 function newService(): AiService {
   return new AiService(mockApiKey, mockModel);
 }
 
-function sendMessage(): Promise<Either.Either<z.infer<typeof TestSchema>, AiServiceError>> {
-  return Effect.runPromise(Effect.either(newService().sendMessage(mockMessage, TestSchema)));
+/**
+ * Runs `sendMessage` on a forked fiber, advancing the `TestClock` by each of the
+ * given durations, and returns the resulting error. Lets the timeout and retry
+ * delays elapse instantly instead of in real time.
+ */
+function runWithClock(...durations: ReadonlyArray<Duration.Input>): Effect.Effect<AiServiceError | undefined> {
+  return Effect.gen(function* () {
+    const fiber = yield* Effect.forkChild(Effect.result(newService().sendMessage(mockMessage, TestSchema)));
+
+    for (const duration of durations) {
+      yield* TestClock.adjust(duration);
+    }
+
+    const result = yield* Fiber.join(fiber);
+    return Result.isFailure(result) ? result.failure : undefined;
+  });
+}
+
+function sendMessage(): Promise<Result.Result<z.infer<typeof TestSchema>, AiServiceError>> {
+  return Effect.runPromise(Effect.result(newService().sendMessage(mockMessage, TestSchema)));
 }
 
 async function sendMessageError(): Promise<AiServiceError | undefined> {
   const result = await sendMessage();
-  return Either.isLeft(result) ? result.left : undefined;
+  return Result.isFailure(result) ? result.failure : undefined;
 }
 
 function mockCompletion(content: string | null): void {

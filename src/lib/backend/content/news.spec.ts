@@ -1,5 +1,5 @@
 import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
-import { Either } from 'effect';
+import { Result } from 'effect';
 import prettier from 'prettier';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { fetchStoryContent } from './news';
@@ -93,7 +93,7 @@ describe('News content', () => {
       mockArticle('<p>Hello World</p>');
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -102,7 +102,7 @@ describe('News content', () => {
       mockArticle('');
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const error = Either.isLeft(result) ? result.left : undefined;
+      const error = Result.isFailure(result) ? result.failure : undefined;
 
       expect(error).toEqual(
         new OptimizedContentIsEmptyError({
@@ -121,7 +121,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const error = Either.isLeft(result) ? result.left : undefined;
+      const error = Result.isFailure(result) ? result.failure : undefined;
 
       expect(error).toEqual(
         new ContentNotFoundError({
@@ -145,7 +145,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -166,7 +166,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -185,7 +185,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -199,7 +199,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -213,7 +213,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -227,7 +227,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -239,7 +239,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -325,9 +325,9 @@ describe('News content', () => {
       );
 
       const result = await fetchStoryContent(mockArticleUrl, fetchReadMore);
-      const content = Either.isRight(result) ? result.right.content : undefined;
-      const id = Either.isRight(result) ? result.right.id : undefined;
-      const source = Either.isRight(result) ? result.right.source : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const id = Result.isSuccess(result) ? result.success.id : undefined;
+      const source = Result.isSuccess(result) ? result.success.source : undefined;
 
       await expect(content).toBeHtml(expected);
       expect(id).toBe(expectedId);
@@ -809,7 +809,7 @@ describe('News content', () => {
       mockArticle(article);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(expected);
     });
@@ -839,7 +839,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -872,7 +872,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -905,7 +905,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -933,7 +933,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.content : undefined;
 
       await expect(content).toBeHtml(`<div id="readability-page-1" class="page">
           <figure>
@@ -962,7 +962,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('width="5000"');
       expect(content).toContain('height="3333"');
@@ -978,7 +978,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('width="5000"');
       expect(content).toContain('height="3333"');
@@ -991,7 +991,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('width="640"');
       expect(content).toContain('height="256"');
@@ -1008,7 +1008,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('width="640"');
       expect(content).toContain('height="256"');
@@ -1021,7 +1021,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('width="800"');
       expect(content).toContain('height="600"');
@@ -1034,7 +1034,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Either.isRight(result) ? result.right.content : '';
+      const content = Result.isSuccess(result) ? result.success.content : '';
 
       expect(content).toContain('src="https://foo.bar/example-image"');
       expect(content).not.toContain('width=');
