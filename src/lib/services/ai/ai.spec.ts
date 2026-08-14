@@ -30,7 +30,7 @@ vi.mock('$lib/utils/logger', () => {
 });
 
 const mockApiKey = 'test-api-key';
-const mockModel: AiModel = 'gemini-3.5-flash';
+const mockModel = 'gemini-3.5-flash' satisfies AiModel;
 const mockMessage = 'Summarize this story';
 
 const TestSchema = z.object({ summary: z.string() });
@@ -95,30 +95,16 @@ describe('AI service', () => {
     });
 
     describe('Error types', () => {
-      test('maps a 400 response to INVALID_REQUEST and does not retry', async () => {
-        mockApiError(400, 'Bad request');
+      test.for([
+        { name: 'a 400 response', status: 400, message: 'Bad request', type: 'INVALID_REQUEST' },
+        { name: 'a 404 response', status: 404, message: 'Not found', type: 'INVALID_REQUEST' },
+        { name: 'an invalid API key', status: 400, message: 'Please pass a valid API key', type: 'API_KEY_INVALID' },
+      ])('maps $name to $type and does not retry', async ({ status, message, type }) => {
+        mockApiError(status, message);
 
         const error = await sendMessageError();
 
-        expect(error?.type).toBe('INVALID_REQUEST');
-        expect(mockedCreate).toHaveBeenCalledTimes(1);
-      });
-
-      test('maps a 404 response to INVALID_REQUEST and does not retry', async () => {
-        mockApiError(404, 'Not found');
-
-        const error = await sendMessageError();
-
-        expect(error?.type).toBe('INVALID_REQUEST');
-        expect(mockedCreate).toHaveBeenCalledTimes(1);
-      });
-
-      test('maps an invalid API key to API_KEY_INVALID and does not retry', async () => {
-        mockApiError(400, 'Please pass a valid API key');
-
-        const error = await sendMessageError();
-
-        expect(error?.type).toBe('API_KEY_INVALID');
+        expect(error?.type).toBe(type);
         expect(mockedCreate).toHaveBeenCalledTimes(1);
       });
     });
@@ -164,8 +150,6 @@ describe('AI service', () => {
         Effect.gen(function* () {
           mockedCreate.mockImplementation(() => new Promise(() => {}));
 
-          // The timeout sits inside the retry, so the request has to time out
-          // twice (with the retry delay in between) before the error surfaces.
           const error = yield* runWithClock(requestTimeout, retryDelay, requestTimeout);
 
           expect(error).toBeInstanceOf(AiServiceError);
@@ -198,20 +182,13 @@ describe('AI service', () => {
   });
 });
 
-// `Effect.timeout('2 minutes')`, and `Schedule.exponential(5000).pipe(Schedule.jittered)`
-// which scales the delay by a 0.8-1.2 factor — so advance past the upper bound.
-const requestTimeout: Duration.Input = '2 minutes';
-const retryDelay: Duration.Input = '10 seconds';
+const requestTimeout = '2 minutes' satisfies Duration.Input;
+const retryDelay = '10 seconds' satisfies Duration.Input;
 
 function newService(): AiService {
   return new AiService(mockApiKey, mockModel);
 }
 
-/**
- * Runs `sendMessage` on a forked fiber, advancing the `TestClock` by each of the
- * given durations, and returns the resulting error. Lets the timeout and retry
- * delays elapse instantly instead of in real time.
- */
 function runWithClock(...durations: ReadonlyArray<Duration.Input>): Effect.Effect<AiServiceError | undefined> {
   return Effect.gen(function* () {
     const fiber = yield* Effect.forkChild(Effect.result(newService().sendMessage(mockMessage, TestSchema)));
