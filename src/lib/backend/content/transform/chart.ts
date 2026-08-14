@@ -59,6 +59,6 @@ function fetchChartData(url: string | undefined): Effect.Effect<ChartData | unde
     return parsedData.data;
   }).pipe(
     Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch chart data: ${formatTags(error.tags)}`))),
-    Effect.catchAll(() => Effect.succeed(undefined)),
+    Effect.catch(() => Effect.succeed(undefined)),
   );
 }

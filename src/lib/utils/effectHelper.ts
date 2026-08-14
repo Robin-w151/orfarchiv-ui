@@ -6,6 +6,6 @@ export function runEffect<A, E>(
   const fiber = Effect.runFork(effect);
   return {
     complete: () => Effect.runPromise(Fiber.await(fiber).pipe(Effect.ignore)),
-    cancel: () => Effect.runSync(Fiber.interruptFork(fiber)),
+    cancel: () => fiber.interruptUnsafe(),
   };
 }

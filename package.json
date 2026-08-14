@@ -23,6 +23,7 @@
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
     "@commitlint/config-conventional": "21.2.0",
+    "@effect/vitest": "4.0.0-rc.108",
     "@eslint/js": "10.0.1",
     "@mozilla/readability": "0.5.0",
     "@panzoom/panzoom": "4.6.2",
@@ -60,7 +61,7 @@
     "dompurify": "3.4.13",
     "dotenv-flow": "4.1.0",
     "easy-speech": "2.4.0",
-    "effect": "3.22.1",
+    "effect": "4.0.0-rc.108",
     "escodegen": "2.1.0",
     "eslint": "10.8.1",
     "eslint-config-prettier": "10.1.8",
