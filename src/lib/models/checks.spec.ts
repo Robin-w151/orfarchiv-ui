@@ -1,8 +1,9 @@
 import { Schema } from 'effect';
 import { describe, expect, test } from 'vitest';
-import { isIsoDateTime, isUrl } from './checks';
+import { isIsoDateTime, isOrfUrl, isUrl } from './checks';
 
 const isValidUrl = Schema.is(Schema.String.check(isUrl));
+const isValidOrfUrl = Schema.is(Schema.String.check(isUrl, isOrfUrl));
 const isValidIsoDateTime = Schema.is(Schema.String.check(isIsoDateTime));
 
 describe('checks', () => {
@@ -18,6 +19,26 @@ describe('checks', () => {
 
     test.each(['', 'orf.at/stories/1234567', 'not a url'])('rejects %s', (value) => {
       expect(isValidUrl(value)).toBe(false);
+    });
+  });
+
+  describe('isOrfUrl', () => {
+    test.each([
+      ['https://orf.at/stories/1234567', 'story url'],
+      ['https://salzburg.orf.at/stories/1234567', 'regional subdomain'],
+      ['https://ORF.AT/stories/1234567', 'case insensitive'],
+      ['https://orf.at', 'any orf.at url'],
+    ])('accepts %s (%s)', (value) => {
+      expect(isValidOrfUrl(value)).toBe(true);
+    });
+
+    test.each([
+      ['https://example.com/stories/1234567', 'other host'],
+      ['http://orf.at/stories/1234567', 'https is required'],
+      ['orf.at/stories/1234567', 'not a url'],
+      ['', 'empty'],
+    ])('rejects %s (%s)', (value) => {
+      expect(isValidOrfUrl(value)).toBe(false);
     });
   });
 

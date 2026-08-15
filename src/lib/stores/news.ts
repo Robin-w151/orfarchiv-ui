@@ -93,7 +93,6 @@ function createStoryBuckets(stories: ReadonlyArray<Story>): ReadonlyArray<NewsBu
     return undefined;
   }
 
-  // Buckets are collected mutably and only exposed as (readonly) NewsBuckets on return
   type StoryBucket = { name: string; date: string; stories: Array<Story> };
 
   const buckets: Map<string, StoryBucket> = new Map();

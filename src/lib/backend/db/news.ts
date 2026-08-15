@@ -28,7 +28,7 @@ export async function searchNews(searchRequest: SearchRequest): Promise<News> {
   const newsCollection = orfArchivDb.newsCollection();
   const stories = await executeQuery(newsCollection, paginatedQuery, sort, limit);
   const orderedStories = correctOrder(stories, pageKey);
-  const { prevKey, nextKey } = getPageKeys(stories, prevKeyFn, nextKeyFn, pageKey);
+  const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
 
   return {
     stories: orderedStories
