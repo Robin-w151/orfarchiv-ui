@@ -18,7 +18,6 @@ import {
 
 const MODULE = 'GeminiLanguageModel';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
-const TEXT_PART_ID = 'text';
 const INVALID_API_KEY_MESSAGE = 'Please pass a valid API key';
 
 const ChatCompletion = Schema.Struct({
@@ -118,9 +117,12 @@ export const make = Effect.fnUntraced(function* (options: GeminiLanguageModelOpt
   });
 
   const streamText = (
-    providerOptions: LanguageModel.ProviderOptions,
-  ): Stream.Stream<AiResponse.StreamPartEncoded, AiError.AiError> =>
-    Stream.unwrap(Effect.map(generateText(providerOptions), (parts) => Stream.fromArray(toStreamParts(parts))));
+    _providerOptions: LanguageModel.ProviderOptions,
+  ): Stream.Stream<AiResponse.StreamPartEncoded, AiError.AiError> => {
+    return Stream.unwrap(
+      Effect.fail(makeError(new AiError.UnknownError({ description: 'Streaming is not supported!' }))),
+    );
+  };
 
   return yield* LanguageModel.make({
     codecTransformer: OpenAiStructuredOutput.toCodecOpenAI,
@@ -226,20 +228,6 @@ function toFinishReason(finishReason: string | null | undefined): AiResponse.Fin
     default:
       return 'other';
   }
-}
-
-function toStreamParts(parts: ReadonlyArray<AiResponse.PartEncoded>): Array<AiResponse.StreamPartEncoded> {
-  return parts.flatMap((part) => {
-    if (part.type !== 'text') {
-      return [part as AiResponse.StreamPartEncoded];
-    }
-
-    return [
-      { type: 'text-start', id: TEXT_PART_ID },
-      { type: 'text-delta', id: TEXT_PART_ID, delta: part.text },
-      { type: 'text-end', id: TEXT_PART_ID },
-    ];
-  });
 }
 
 function failWithStatus(response: HttpClientResponse.HttpClientResponse): Effect.Effect<never, AiError.AiError> {
