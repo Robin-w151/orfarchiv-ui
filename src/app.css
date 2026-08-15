@@ -122,10 +122,10 @@
     }
 
     .image-frame {
-      @apply relative block my-2 w-fit max-w-full rounded-lg;
+      @apply relative block my-2 w-fit max-w-full rounded-lg pointer-events-none;
 
       img {
-        @apply my-0;
+        @apply my-0 pointer-events-auto;
       }
 
       &[data-image-state='loading'] {
