@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { Schema } from 'effect';
 
-export const ChartData = z.object({
-  title: z.string(),
+export const ChartData = Schema.Struct({
+  title: Schema.String,
 });
-export type ChartData = z.infer<typeof ChartData>;
+export type ChartData = typeof ChartData.Type;

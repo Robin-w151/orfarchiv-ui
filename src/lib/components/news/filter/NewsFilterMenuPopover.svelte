@@ -8,6 +8,7 @@
   import { SearchMatchMode } from '$lib/models/searchRequest';
   import { Calendar, Funnel, MagnifyingGlass } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
+  import { Schema } from 'effect';
   import type { DateTime } from 'luxon';
 
   interface Props {
@@ -71,8 +72,7 @@
   }
 
   function handleMatchModeChange(matchMode?: string): void {
-    const parsedMatchMode = SearchMatchMode.safeParse(matchMode);
-    onMatchModeChange?.(parsedMatchMode?.data ?? 'anyOf');
+    onMatchModeChange?.(Schema.is(SearchMatchMode)(matchMode) ? matchMode : 'anyOf');
   }
 
   function handleApplyClick(): void {

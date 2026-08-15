@@ -1,56 +1,56 @@
+import { isIsoDateTime, isUrl } from '$lib/models/checks';
 import { Schema } from 'effect';
-import { z } from 'zod';
 
-export const Story = z.object({
-  id: z.string(),
-  title: z.string(),
-  category: z.string().optional(),
-  url: z.url(),
-  timestamp: z.iso.datetime({ offset: true }),
-  source: z.string(),
+export const Story = Schema.Struct({
+  id: Schema.String,
+  title: Schema.String,
+  category: Schema.optional(Schema.String),
+  url: Schema.String.check(isUrl),
+  timestamp: Schema.String.check(isIsoDateTime),
+  source: Schema.String,
   // Flags MUST be of type number to allow querying with IndexedDB
-  isBookmarked: z.number().optional(),
-  isViewed: z.number().optional(),
+  isBookmarked: Schema.optional(Schema.Number),
+  isViewed: Schema.optional(Schema.Number),
 });
-export type Story = z.infer<typeof Story>;
+export type Story = typeof Story.Type;
 
-export const StoryEntity = z.object({
-  _id: z.unknown(),
-  id: z.string(),
-  title: z.string(),
-  category: z.string().nullish(),
-  url: z.url(),
-  timestamp: z.date(),
-  source: z.string(),
+export const StoryEntity = Schema.Struct({
+  _id: Schema.Unknown,
+  id: Schema.String,
+  title: Schema.String,
+  category: Schema.optional(Schema.NullOr(Schema.String)),
+  url: Schema.String.check(isUrl),
+  timestamp: Schema.Date,
+  source: Schema.String,
 });
-export type StoryEntity = z.infer<typeof StoryEntity>;
+export type StoryEntity = typeof StoryEntity.Type;
 
-export const StorySource = z.object({
-  name: z.string(),
-  url: z.url(),
+export const StorySource = Schema.Struct({
+  name: Schema.String,
+  url: Schema.String.check(isUrl),
 });
-export type StorySource = z.infer<typeof StorySource>;
+export type StorySource = typeof StorySource.Type;
 
-export const StoryContent = z.object({
-  content: z.string(),
-  contentText: z.string(),
-  id: z.string().optional(),
-  timestamp: z.iso.datetime({ offset: true }).optional(),
-  source: StorySource.optional(),
+export const StoryContent = Schema.Struct({
+  content: Schema.String,
+  contentText: Schema.String,
+  id: Schema.optional(Schema.String),
+  timestamp: Schema.optional(Schema.String.check(isIsoDateTime)),
+  source: Schema.optional(StorySource),
 });
-export type StoryContent = z.infer<typeof StoryContent>;
+export type StoryContent = typeof StoryContent.Type;
 
-export const StoryImage = z.object({
-  src: z.string(),
-  alt: z.string(),
-  caption: z.string().optional(),
+export const StoryImage = Schema.Struct({
+  src: Schema.String,
+  alt: Schema.String,
+  caption: Schema.optional(Schema.String),
 });
-export type StoryImage = z.infer<typeof StoryImage>;
+export type StoryImage = typeof StoryImage.Type;
 
-export const SearchStoryOptions = z.object({
-  includeOesterreichSource: z.boolean().optional(),
+export const SearchStoryOptions = Schema.Struct({
+  includeOesterreichSource: Schema.optional(Schema.Boolean),
 });
-export type SearchStoryOptions = z.infer<typeof SearchStoryOptions>;
+export type SearchStoryOptions = typeof SearchStoryOptions.Type;
 
 export const StorySummarySimple = Schema.Struct({
   title: Schema.String,

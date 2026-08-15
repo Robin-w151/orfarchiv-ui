@@ -12,7 +12,7 @@ export interface SelectStoryStore extends Observable<string | undefined> {
 }
 
 export interface SelectStory {
-  stories: Array<Story>;
+  stories: ReadonlyArray<Story>;
   id: string;
   next: boolean;
 }

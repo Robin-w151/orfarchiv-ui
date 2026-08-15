@@ -45,15 +45,12 @@ function addNews(news: News, append = true): void {
 
   update((oldNews) => {
     const newStories = append ? oldNews.stories.concat(stories) : stories.concat(oldNews.stories);
-    const newNews = { ...oldNews, stories: newStories };
-
-    const deduplicatedStories = deduplicateStories(newStories);
-    newNews.stories = deduplicatedStories;
+    const newNews = { ...oldNews, stories: deduplicateStories(newStories) };
 
     if (append) {
-      newNews.nextKey = nextKey;
+      return { ...newNews, nextKey };
     } else if (prevKey) {
-      newNews.prevKey = prevKey;
+      return { ...newNews, prevKey };
     }
     return newNews;
   });
@@ -91,13 +88,16 @@ async function cacheForOfflineUse(
   );
 }
 
-function createStoryBuckets(stories: Array<Story>): Array<NewsBucket> | undefined {
+function createStoryBuckets(stories: ReadonlyArray<Story>): ReadonlyArray<NewsBucket> | undefined {
   if (!stories) {
     return undefined;
   }
 
-  const buckets: Map<string, NewsBucket> = new Map();
-  function addToBucket(buckets: Map<string, NewsBucket>, story: Story): void {
+  // Buckets are collected mutably and only exposed as (readonly) NewsBuckets on return
+  type StoryBucket = { name: string; date: string; stories: Array<Story> };
+
+  const buckets: Map<string, StoryBucket> = new Map();
+  function addToBucket(buckets: Map<string, StoryBucket>, story: Story): void {
     const timestamp = DateTime.fromISO(story.timestamp);
     const date = timestamp.toISODate() ?? '1970-01-01T00:00:00Z';
     if (buckets.has(date)) {
@@ -127,12 +127,12 @@ function createStoryBuckets(stories: Array<Story>): Array<NewsBucket> | undefine
   return Array.from(buckets.values()).sort(compareBuckets);
 }
 
-function setBookmarkStatus(stories: Array<Story>, bookmarkStories: Array<Story>): Array<Story> {
+function setBookmarkStatus(stories: ReadonlyArray<Story>, bookmarkStories: ReadonlyArray<Story>): ReadonlyArray<Story> {
   const bookmarkIds = new Set(bookmarkStories.map((b) => b.id));
   return stories.map((story) => ({ ...story, isBookmarked: +bookmarkIds.has(story.id) }));
 }
 
-function deduplicateStories(stories: Array<Story>): Array<Story> {
+function deduplicateStories(stories: ReadonlyArray<Story>): ReadonlyArray<Story> {
   const storyIds = new Set<string>();
   return stories.filter((story) => {
     if (storyIds.has(story.id)) {
@@ -145,10 +145,10 @@ function deduplicateStories(stories: Array<Story>): Array<Story> {
   });
 }
 
-let oldStories: Array<Story>;
-let oldBookmarkStories: Array<Story>;
-let cachedStories: Array<Story>;
-let cachedStoryBuckets: Array<NewsBucket> | undefined;
+let oldStories: ReadonlyArray<Story>;
+let oldBookmarkStories: ReadonlyArray<Story>;
+let cachedStories: ReadonlyArray<Story>;
+let cachedStoryBuckets: ReadonlyArray<NewsBucket> | undefined;
 
 function combineNewsAndBookmarks([news, bookmarks]: [News, Bookmarks]): News {
   const stories = news.stories;

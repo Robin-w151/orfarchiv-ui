@@ -3,6 +3,7 @@ import { AI_MODEL_DEFAULT, SETTINGS_STORE_NAME } from '$lib/configs/client';
 import { AiModel } from '$lib/models/ai';
 import type { Settings } from '$lib/models/settings';
 import { sources } from '$lib/models/settings';
+import { Schema } from 'effect';
 import { BehaviorSubject, type Observable } from 'rxjs';
 import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
@@ -73,7 +74,7 @@ function sanitizeLocalStorage(): void {
       settings.aiSummaryEnabled = initialState.aiSummaryEnabled;
     }
 
-    if (!('aiModel' in settings) || !AiModel.safeParse(settings.aiModel).success) {
+    if (!('aiModel' in settings) || !Schema.is(AiModel)(settings.aiModel)) {
       settings.aiModel = initialState.aiModel;
     }
 

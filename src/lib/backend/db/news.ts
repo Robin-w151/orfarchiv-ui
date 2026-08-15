@@ -4,6 +4,7 @@ import type { News, NewsUpdates } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
 import type { SearchMatchMode, SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
 import { StoryEntity, type SearchStoryOptions, type Story } from '$lib/models/story';
+import { Schema } from 'effect';
 import type { Collection, Sort } from 'mongodb';
 
 type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
@@ -177,7 +178,7 @@ function executeQuery(
 }
 
 function correctOrder<T>(stories: Array<T>, pageKey?: PageKey): Array<T> {
-  return pageKey?.type === 'prev' ? stories.reverse() : stories;
+  return pageKey?.type === 'prev' ? stories.toReversed() : stories;
 }
 
 function getPageKeys(
@@ -202,9 +203,7 @@ function mapToStory(entry: StoryEntity): Story {
   };
 }
 
-function isStoryEntity(story: unknown): story is StoryEntity {
-  return StoryEntity.safeParse(story).success;
-}
+const isStoryEntity = Schema.is(StoryEntity);
 
 function parseDate(date: string | null | undefined): Date | undefined {
   if (!date) {

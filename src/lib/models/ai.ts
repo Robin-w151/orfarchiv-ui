@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { Schema } from 'effect';
 
 export const AiModels = [
   'gemini-3.6-flash',
@@ -9,8 +9,8 @@ export const AiModels = [
   'gemini-2.5-flash-lite',
 ] as const;
 
-export const AiModel = z.enum(AiModels);
-export type AiModel = z.infer<typeof AiModel>;
+export const AiModel = Schema.Literals(AiModels);
+export type AiModel = typeof AiModel.Type;
 
 export interface AiModelConfig {
   readonly name: string;

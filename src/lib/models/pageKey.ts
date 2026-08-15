@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { Schema } from 'effect';
 
-export const PageKey = z.object({
-  id: z.string(),
-  timestamp: z.string(),
-  type: z.enum(['prev', 'next']),
+export const PageKey = Schema.Struct({
+  id: Schema.String,
+  timestamp: Schema.String,
+  type: Schema.Literals(['prev', 'next']),
 });
-export type PageKey = z.infer<typeof PageKey>;
+export type PageKey = typeof PageKey.Type;

@@ -8,8 +8,7 @@ import { StoryContent } from '$lib/models/story';
 import { logger } from '$lib/utils/logger';
 import { uuid } from '$lib/utils/uuid';
 import type { TRPCClient } from '@trpc/client';
-import { Effect, Result } from 'effect';
-import type { ZodType } from 'zod';
+import { Effect, Result, Schema } from 'effect';
 import { createTRPC } from './trpc';
 
 const searchNewsRequest = 'search-news-controller';
@@ -97,7 +96,7 @@ export class NewsApi {
   private async makeRequest<T, I extends RequestId | undefined>(
     request: (abortController: RequestController<I>) => Promise<T>,
     requestId: I,
-    schema: ZodType<T>,
+    schema: Schema.Codec<T>,
   ): Promise<T> {
     const program = Effect.gen({ self: this }, function* () {
       yield* Effect.addFinalizer((_exit) => {
@@ -130,15 +129,15 @@ export class NewsApi {
         },
       });
 
-      const validationResult = schema.safeParse(response);
-      if (validationResult.error) {
-        return yield* new NewsApiError({
-          message: `Invalid response from server: ${validationResult.error.message}`,
-          type: 'error',
-        });
-      }
-
-      return validationResult.data;
+      return yield* Schema.decodeUnknownEffect(schema)(response).pipe(
+        Effect.mapError(
+          (error) =>
+            new NewsApiError({
+              message: `Invalid response from server: ${error.message}`,
+              type: 'error',
+            }),
+        ),
+      );
     });
 
     const result = await program.pipe(Effect.scoped, Effect.result, Effect.runPromise);
