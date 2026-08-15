@@ -27,7 +27,6 @@ export class AiService {
             ['model', modelConfig.modelCode],
             ['reasoning-effort', modelConfig.reasoningEffort],
             ['message', message],
-            ['response-schema', Schema.toJsonSchemaDocument(schema).schema],
           ],
           true,
         );
