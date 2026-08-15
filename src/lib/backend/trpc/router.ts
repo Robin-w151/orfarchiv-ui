@@ -4,7 +4,6 @@ import {
   STORY_CONTENT_NEW_STORY_THRESHOLD,
 } from '$lib/configs/server';
 import { API_VERSION } from '$lib/configs/shared';
-import { isOrfUrl, isUrl } from '$lib/models/checks';
 import { SearchRequest } from '$lib/models/searchRequest';
 import { TRPCError } from '@trpc/server';
 import { Result, Schema } from 'effect';
@@ -12,15 +11,11 @@ import { DateTime } from 'luxon';
 import { fetchStoryContent } from '../content/news';
 import { checkNewsUpdatesAvailable, searchNews } from '../db/news';
 import { publicProcedure, router } from './init';
+import { StoryContentRequest } from '$lib/models/storyContentRequest';
 
 const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,
 }));
-
-const StoryContentRequest = Schema.Struct({
-  url: Schema.String.check(isUrl, isOrfUrl),
-  fetchReadMoreContent: Schema.optional(Schema.Boolean),
-});
 
 const news = {
   search: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
