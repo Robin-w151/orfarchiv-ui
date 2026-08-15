@@ -1,3 +1,4 @@
+import { Schema } from 'effect';
 import { z } from 'zod';
 
 export const Story = z.object({
@@ -51,32 +52,24 @@ export const SearchStoryOptions = z.object({
 });
 export type SearchStoryOptions = z.infer<typeof SearchStoryOptions>;
 
-export const StorySummarySimple = z.object({
-  title: z.string(),
-  points: z.array(z.string()),
-  text: z.string(),
+export const StorySummarySimple = Schema.Struct({
+  title: Schema.String,
+  points: Schema.Array(Schema.String),
+  text: Schema.String,
 });
-export type StorySummarySimple = z.infer<typeof StorySummarySimple>;
+export type StorySummarySimple = typeof StorySummarySimple.Type;
 
-export const StorySummaryExtended = z.object({
-  title: z.string(),
-  points: z.array(
-    z.object({
-      title: z.string(),
-      text: z.string(),
+export const StorySummaryExtended = Schema.Struct({
+  title: Schema.String,
+  points: Schema.Array(
+    Schema.Struct({
+      title: Schema.String,
+      text: Schema.String,
     }),
   ),
 });
-export type StorySummaryExtended = z.infer<typeof StorySummaryExtended>;
+export type StorySummaryExtended = typeof StorySummaryExtended.Type;
 
-export const StorySummary = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal('simple'),
-    summary: StorySummarySimple,
-  }),
-  z.object({
-    type: z.literal('extended'),
-    summary: StorySummaryExtended,
-  }),
-]);
-export type StorySummary = z.infer<typeof StorySummary>;
+export type StorySummary =
+  | { readonly type: 'simple'; readonly summary: StorySummarySimple }
+  | { readonly type: 'extended'; readonly summary: StorySummaryExtended };

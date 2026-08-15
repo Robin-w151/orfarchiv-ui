@@ -1,24 +1,22 @@
 import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
-import { OpenAIError, type AiModel } from '$lib/models/ai';
+import type { AiModel } from '$lib/models/ai';
+import * as GeminiLanguageModel from '$lib/services/ai/gemini/geminiLanguageModel';
 import { logger } from '$lib/utils/logger';
-import { Effect, Schedule } from 'effect';
-import OpenAI, { APIError } from 'openai';
-import { makeParseableResponseFormat, type AutoParseableResponseFormat } from 'openai/lib/parser';
-import type { ResponseFormatJSONSchema } from 'openai/resources';
-import { z, type ZodType } from 'zod';
+import { Effect, Schedule, Schema } from 'effect';
+import { AiError, LanguageModel } from 'effect/unstable/ai';
+import { FetchHttpClient } from 'effect/unstable/http';
 
 export class AiService {
-  private readonly ai: OpenAI;
-
   constructor(
     private readonly apiKey: string,
     private readonly model: AiModel,
-  ) {
-    this.ai = this.newClient();
-  }
+  ) {}
 
-  sendMessage<T>(message: string, schema: ZodType<T>): Effect.Effect<T, AiServiceError> {
+  sendMessage<S extends Schema.Codec<unknown, Record<string, unknown>>>(
+    message: string,
+    schema: S,
+  ): Effect.Effect<S['Type'], AiServiceError> {
     return Effect.gen({ self: this }, function* () {
       const modelConfig = AI_MODEL_CONFIG_MAP[this.model];
 
@@ -29,33 +27,20 @@ export class AiService {
             ['model', modelConfig.modelCode],
             ['reasoning-effort', modelConfig.reasoningEffort],
             ['message', message],
-            ['response-schema', schema],
+            ['response-schema', Schema.toJsonSchemaDocument(schema).schema],
           ],
           true,
         );
       });
 
-      const response = yield* Effect.tryPromise({
-        try: (abortSignal) => {
-          return this.ai.chat.completions.create(
-            {
-              model: modelConfig.modelCode,
-              messages: [{ role: 'user', content: message }],
-              response_format: this.zodResponseFormat(schema, 'json_object'),
-              reasoning_effort: modelConfig.reasoningEffort,
-            },
-            { signal: abortSignal, maxRetries: 0 },
-          );
-        },
-        catch: (error) => {
-          let type: AiServiceErrorType | undefined;
-          if (error instanceof APIError) {
-            type = this.getErrorType(error);
-          }
-
-          return new AiServiceError({ message: 'Failed to send message', type, cause: error });
-        },
+      const response = yield* LanguageModel.generateObject({
+        prompt: message,
+        schema,
+        objectName: 'json_object',
       }).pipe(
+        Effect.provide(GeminiLanguageModel.layer({ apiKey: this.apiKey, model: this.model })),
+        Effect.provide(FetchHttpClient.layer),
+        Effect.catchTag('AiError', (error) => this.toAiServiceError(error)),
         Effect.timeout('2 minutes'),
         Effect.retry({
           times: 1,
@@ -68,38 +53,21 @@ export class AiService {
         ),
       );
 
-      const responseText = response?.choices[0]?.message.content;
-      if (!responseText) {
-        return yield* Effect.fail(new AiServiceError({ message: 'No response from AI' }));
-      }
-
-      const parsedResponse = yield* Effect.try({
-        try: () => JSON.parse(responseText),
-        catch: (error) => new AiServiceError({ message: 'Failed to parse response', cause: error }),
+      const { inputTokens, outputTokens } = response.usage;
+      yield* Effect.sync(() => {
+        logger.infoGroup(
+          'ai-message-response',
+          [
+            ['response', response.value],
+            ['total-tokens', (inputTokens.total ?? 0) + (outputTokens.total ?? 0)],
+            ['prompt-tokens', inputTokens.total],
+            ['completion-tokens', outputTokens.total],
+          ],
+          true,
+        );
       });
 
-      const validationResponse = yield* Effect.try({
-        try: () => schema.safeParse(parsedResponse),
-        catch: (error) => new AiServiceError({ message: 'Failed to validate response', cause: error }),
-      });
-
-      if (parsedResponse && validationResponse.success) {
-        yield* Effect.sync(() => {
-          logger.infoGroup(
-            'ai-message-response',
-            [
-              ['response', validationResponse.data],
-              ['total-tokens', response.usage?.total_tokens],
-              ['prompt-tokens', response.usage?.prompt_tokens],
-              ['completion-tokens', response.usage?.completion_tokens],
-            ],
-            true,
-          );
-        });
-        return validationResponse.data;
-      } else {
-        return yield* Effect.fail(new AiServiceError({ message: 'Invalid response', cause: validationResponse.error }));
-      }
+      return response.value;
     });
   }
 
@@ -115,65 +83,25 @@ export class AiService {
     });
   }
 
-  private newClient(): OpenAI {
-    return new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
-      dangerouslyAllowBrowser: true,
-      defaultHeaders: {
-        'x-stainless-arch': null,
-        'x-stainless-lang': null,
-        'x-stainless-os': null,
-        'x-stainless-package-version': null,
-        'x-stainless-retry-count': null,
-        'x-stainless-runtime': null,
-        'x-stainless-runtime-version': null,
-        'x-stainless-timeout': null,
-      },
-    });
+  private toAiServiceError(error: AiError.AiError): Effect.Effect<never, AiServiceError> {
+    const message = this.isResponseError(error) ? 'Invalid response' : 'Failed to send message';
+    return Effect.fail(new AiServiceError({ message, type: this.getErrorType(error), cause: error }));
   }
 
-  private zodResponseFormat<ZodInput extends ZodType>(
-    zodObject: ZodInput,
-    name: string,
-    props?: Omit<ResponseFormatJSONSchema.JSONSchema, 'schema' | 'strict' | 'name'>,
-  ): AutoParseableResponseFormat<z.infer<ZodInput>> {
-    return makeParseableResponseFormat(
-      {
-        type: 'json_schema',
-        json_schema: {
-          ...props,
-          name,
-          strict: true,
-          schema: z.toJSONSchema(zodObject, { target: 'draft-7' }),
-        },
-      },
-      (content) => zodObject.parse(JSON.parse(content)),
-    );
-  }
-
-  private getErrorType(error: APIError): AiServiceErrorType | undefined {
-    const parsedError = OpenAIError.safeParse(error);
-    if (!parsedError.success) {
-      return undefined;
-    }
-
-    const { message } = parsedError.data.error[0].error;
-    if (message === 'Please pass a valid API key') {
-      return 'API_KEY_INVALID';
-    }
-
-    switch (parsedError.data.status) {
-      case 400:
-      case 404:
+  private getErrorType(error: AiError.AiError): AiServiceErrorType | undefined {
+    switch (error.reason._tag) {
+      case 'AuthenticationError':
+        return 'API_KEY_INVALID';
+      case 'InvalidRequestError':
         return 'INVALID_REQUEST';
-      case 429:
+      case 'RateLimitError':
+      case 'QuotaExhaustedError':
         return 'RATE_LIMIT';
-      case 503:
-        return 'MODEL_OVERLOADED';
+      case 'InternalProviderError':
+        return error.reason.http?.response?.status === 503 ? 'MODEL_OVERLOADED' : undefined;
+      default:
+        return undefined;
     }
-
-    return undefined;
   }
 
   private isErrorRetryable(error: unknown): boolean {
@@ -184,11 +112,27 @@ export class AiService {
           return false;
         }
         default: {
-          return true;
+          return !this.isResponseError(error.cause);
         }
       }
     }
 
     return true;
+  }
+
+  private isResponseError(error: unknown): boolean {
+    if (!(error instanceof AiError.AiError)) {
+      return false;
+    }
+
+    switch (error.reason._tag) {
+      case 'InvalidOutputError':
+      case 'StructuredOutputError':
+      case 'UnsupportedSchemaError':
+      case 'InvalidUserInputError':
+        return true;
+      default:
+        return false;
+    }
   }
 }

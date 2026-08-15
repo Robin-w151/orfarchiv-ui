@@ -1,14 +1,13 @@
 import { browser } from '$app/env';
 import { STORY_SUMMARY_EXTENDED_WORD_LIMIT } from '$lib/configs/client';
 import type { AiServiceError } from '$lib/errors/errors';
-import { StorySummary, StorySummaryExtended, StorySummarySimple, type StoryContent } from '$lib/models/story';
+import { StorySummaryExtended, StorySummarySimple, type StoryContent, type StorySummary } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
 import settings from '$lib/stores/settings';
 import { runEffect } from '$lib/utils/effectHelper';
 import { logger } from '$lib/utils/logger';
 import { Effect } from 'effect';
 import { get } from 'svelte/store';
-import type { ZodType } from 'zod';
 
 function messageTemplate(storyContent: StoryContent, extended = false): string {
   return `
@@ -121,10 +120,9 @@ export class StoryAiSummaryState {
       const extended = this.isExtended(messageWords);
       const message = messageTemplate(storyContent, extended);
 
-      const summary = yield* aiService.sendMessage(
-        message,
-        (extended ? StorySummaryExtended : StorySummarySimple) as ZodType<StorySummary['summary']>,
-      );
+      const summary = extended
+        ? yield* aiService.sendMessage(message, StorySummaryExtended)
+        : yield* aiService.sendMessage(message, StorySummarySimple);
 
       yield* Effect.sync(() => {
         this.aiSummary = {

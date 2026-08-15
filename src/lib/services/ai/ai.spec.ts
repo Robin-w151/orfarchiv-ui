@@ -2,26 +2,11 @@ import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import { AiServiceError } from '$lib/errors/errors';
 import type { AiModel } from '$lib/models/ai';
 import { it } from '@effect/vitest';
-import { Duration, Effect, Fiber, Result } from 'effect';
+import { Duration, Effect, Fiber, Result, Schema } from 'effect';
 import { TestClock } from 'effect/testing';
-import { APIError } from 'openai';
+import { FetchHttpClient } from 'effect/unstable/http';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { z } from 'zod';
 import { AiService } from './ai';
-
-const { mockedCreate } = vi.hoisted(() => {
-  return { mockedCreate: vi.fn() };
-});
-
-vi.mock('openai', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('openai')>();
-
-  class MockOpenAI {
-    readonly chat = { completions: { create: mockedCreate } };
-  }
-
-  return { ...actual, default: MockOpenAI };
-});
 
 vi.mock('$lib/utils/logger', () => {
   return {
@@ -33,11 +18,13 @@ const mockApiKey = 'test-api-key';
 const mockModel = 'gemini-3.5-flash' satisfies AiModel;
 const mockMessage = 'Summarize this story';
 
-const TestSchema = z.object({ summary: z.string() });
+const TestSchema = Schema.Struct({ summary: Schema.String });
+
+const mockedFetch = vi.fn<typeof globalThis.fetch>();
 
 describe('AI service', () => {
   beforeEach(() => {
-    mockedCreate.mockReset();
+    mockedFetch.mockReset();
   });
 
   describe('sendMessage', () => {
@@ -56,15 +43,46 @@ describe('AI service', () => {
       await sendMessage();
 
       const modelConfig = AI_MODEL_CONFIG_MAP[mockModel];
-      expect(mockedCreate).toHaveBeenCalledTimes(1);
-      expect(mockedCreate).toHaveBeenCalledWith(
+      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(requestBody()).toEqual(
         expect.objectContaining({
           model: modelConfig.modelCode,
           reasoning_effort: modelConfig.reasoningEffort,
           messages: [{ role: 'user', content: mockMessage }],
         }),
-        expect.objectContaining({ maxRetries: 0 }),
       );
+    });
+
+    test('requests the response as a strict json schema', async () => {
+      mockCompletion('{"summary":"Hello World"}');
+
+      await sendMessage();
+
+      expect(requestBody().response_format).toEqual(
+        expect.objectContaining({
+          type: 'json_schema',
+          json_schema: expect.objectContaining({ name: 'json_object', strict: true }),
+        }),
+      );
+    });
+
+    test('sends the api key as a bearer token', async () => {
+      mockCompletion('{"summary":"Hello World"}');
+
+      await sendMessage();
+
+      const [url, init] = mockedFetch.mock.calls[0] ?? [];
+      expect(String(url)).toBe('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions');
+      expect((init?.headers as Record<string, string>).authorization).toBe(`Bearer ${mockApiKey}`);
+    });
+
+    test('sends no headers that gemini rejects in the cors preflight', async () => {
+      mockCompletion('{"summary":"Hello World"}');
+
+      await sendMessage();
+
+      const headers = mockedFetch.mock.calls[0]?.[1]?.headers as Record<string, string>;
+      expect(Object.keys(headers).sort()).toEqual(['accept', 'authorization', 'content-type']);
     });
 
     test('fails when the response has no content', async () => {
@@ -73,7 +91,7 @@ describe('AI service', () => {
       const error = await sendMessageError();
 
       expect(error).toBeInstanceOf(AiServiceError);
-      expect(error?.message).toBe('No response from AI');
+      expect(error?.type).toBeUndefined();
     });
 
     test('fails when the response is not valid JSON', async () => {
@@ -82,7 +100,7 @@ describe('AI service', () => {
       const error = await sendMessageError();
 
       expect(error).toBeInstanceOf(AiServiceError);
-      expect(error?.message).toBe('Failed to parse response');
+      expect(error?.type).toBeUndefined();
     });
 
     test('fails when the response does not match the schema', async () => {
@@ -91,7 +109,7 @@ describe('AI service', () => {
       const error = await sendMessageError();
 
       expect(error).toBeInstanceOf(AiServiceError);
-      expect(error?.message).toBe('Invalid response');
+      expect(error?.type).toBeUndefined();
     });
 
     describe('Error types', () => {
@@ -105,7 +123,7 @@ describe('AI service', () => {
         const error = await sendMessageError();
 
         expect(error?.type).toBe(type);
-        expect(mockedCreate).toHaveBeenCalledTimes(1);
+        expect(mockedFetch).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -117,7 +135,7 @@ describe('AI service', () => {
           const error = yield* runWithClock(retryDelay);
 
           expect(error?.type).toBe('RATE_LIMIT');
-          expect(mockedCreate).toHaveBeenCalledTimes(2);
+          expect(mockedFetch).toHaveBeenCalledTimes(2);
         }),
       );
 
@@ -128,19 +146,19 @@ describe('AI service', () => {
           const error = yield* runWithClock(retryDelay);
 
           expect(error?.type).toBe('MODEL_OVERLOADED');
-          expect(mockedCreate).toHaveBeenCalledTimes(2);
+          expect(mockedFetch).toHaveBeenCalledTimes(2);
         }),
       );
 
       it.effect('retries an unrecognised error shape and leaves the type undefined', () =>
         Effect.gen(function* () {
-          mockedCreate.mockRejectedValue(new Error('boom'));
+          mockedFetch.mockRejectedValue(new Error('boom'));
 
           const error = yield* runWithClock(retryDelay);
 
           expect(error).toBeInstanceOf(AiServiceError);
           expect(error?.type).toBeUndefined();
-          expect(mockedCreate).toHaveBeenCalledTimes(2);
+          expect(mockedFetch).toHaveBeenCalledTimes(2);
         }),
       );
     });
@@ -148,14 +166,14 @@ describe('AI service', () => {
     describe('Timing out', () => {
       it.effect('fails with TIMEOUT when the response never arrives', () =>
         Effect.gen(function* () {
-          mockedCreate.mockImplementation(() => new Promise(() => {}));
+          mockedFetch.mockImplementation(() => new Promise(() => {}));
 
           const error = yield* runWithClock(requestTimeout, retryDelay, requestTimeout);
 
           expect(error).toBeInstanceOf(AiServiceError);
           expect(error?.type).toBe('TIMEOUT');
           expect(error?.message).toBe('Response generation timed out');
-          expect(mockedCreate).toHaveBeenCalledTimes(2);
+          expect(mockedFetch).toHaveBeenCalledTimes(2);
         }),
       );
     });
@@ -189,9 +207,15 @@ function newService(): AiService {
   return new AiService(mockApiKey, mockModel);
 }
 
+function sendMessageEffect(): Effect.Effect<{ readonly summary: string }, AiServiceError> {
+  return newService()
+    .sendMessage(mockMessage, TestSchema)
+    .pipe(Effect.provideService(FetchHttpClient.Fetch, mockedFetch));
+}
+
 function runWithClock(...durations: ReadonlyArray<Duration.Input>): Effect.Effect<AiServiceError | undefined> {
   return Effect.gen(function* () {
-    const fiber = yield* Effect.forkChild(Effect.result(newService().sendMessage(mockMessage, TestSchema)));
+    const fiber = yield* Effect.forkChild(Effect.result(sendMessageEffect()));
 
     for (const duration of durations) {
       yield* TestClock.adjust(duration);
@@ -202,8 +226,8 @@ function runWithClock(...durations: ReadonlyArray<Duration.Input>): Effect.Effec
   });
 }
 
-function sendMessage(): Promise<Result.Result<z.infer<typeof TestSchema>, AiServiceError>> {
-  return Effect.runPromise(Effect.result(newService().sendMessage(mockMessage, TestSchema)));
+function sendMessage(): Promise<Result.Result<{ readonly summary: string }, AiServiceError>> {
+  return Effect.runPromise(Effect.result(sendMessageEffect()));
 }
 
 async function sendMessageError(): Promise<AiServiceError | undefined> {
@@ -211,14 +235,27 @@ async function sendMessageError(): Promise<AiServiceError | undefined> {
   return Result.isFailure(result) ? result.failure : undefined;
 }
 
+function requestBody(): Record<string, unknown> {
+  const body = mockedFetch.mock.calls[0]?.[1]?.body as Uint8Array;
+  return JSON.parse(new TextDecoder().decode(body)) as Record<string, unknown>;
+}
+
 function mockCompletion(content: string | null): void {
-  mockedCreate.mockResolvedValue({
-    choices: [{ message: { content } }],
-    usage: { total_tokens: 30, prompt_tokens: 10, completion_tokens: 20 },
-  });
+  mockedFetch.mockResolvedValue(
+    jsonResponse(200, {
+      choices: [{ index: 0, finish_reason: 'stop', message: { role: 'assistant', content } }],
+      usage: { total_tokens: 30, prompt_tokens: 10, completion_tokens: 20 },
+    }),
+  );
 }
 
 function mockApiError(status: number, message: string): void {
-  const body = [{ error: { code: status, message, status: 'ERROR' } }];
-  mockedCreate.mockRejectedValue(new APIError(status, body, message, undefined));
+  mockedFetch.mockResolvedValue(jsonResponse(status, [{ error: { code: status, message, status: 'ERROR' } }]));
+}
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
 }
