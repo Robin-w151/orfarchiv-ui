@@ -4,12 +4,11 @@ import {
   STORY_CONTENT_NEW_STORY_THRESHOLD,
 } from '$lib/configs/server';
 import { API_VERSION } from '$lib/configs/shared';
-import { isUrl } from '$lib/models/checks';
+import { isOrfUrl, isUrl } from '$lib/models/checks';
 import { SearchRequest } from '$lib/models/searchRequest';
 import { TRPCError } from '@trpc/server';
 import { Result, Schema } from 'effect';
 import { DateTime } from 'luxon';
-import { isOrfUrl } from '../../utils/urls';
 import { fetchStoryContent } from '../content/news';
 import { checkNewsUpdatesAvailable, searchNews } from '../db/news';
 import { publicProcedure, router } from './init';
@@ -18,10 +17,8 @@ const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,
 }));
 
-const isOrfUrlFilter = Schema.makeFilter<string>((value) => isOrfUrl(value) || 'URL is not a valid ORF URL');
-
 const StoryContentRequest = Schema.Struct({
-  url: Schema.String.check(isUrl, isOrfUrlFilter),
+  url: Schema.String.check(isUrl, isOrfUrl),
   fetchReadMoreContent: Schema.optional(Schema.Boolean),
 });
 

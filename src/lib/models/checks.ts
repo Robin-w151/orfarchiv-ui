@@ -1,3 +1,4 @@
+import { isOrfUrl as isOrfUrlFn } from '$lib/utils/urls';
 import { Schema } from 'effect';
 import { DateTime } from 'luxon';
 
@@ -8,6 +9,8 @@ export const isUrl = Schema.makeFilter<string>(
   undefined,
   true,
 );
+
+export const isOrfUrl = Schema.makeFilter<string>((value) => isOrfUrlFn(value) || 'URL is not a valid ORF URL');
 
 export const isIsoDateTime = Schema.makeFilter<string>(
   (value) => (ISO_OFFSET.test(value) && DateTime.fromISO(value).isValid) || 'must be an ISO 8601 date-time with offset',
