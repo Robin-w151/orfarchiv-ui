@@ -5,7 +5,7 @@
   import type { NewsBucket } from '$lib/models/news';
 
   interface Props {
-    storyBuckets?: Array<NewsBucket>;
+    storyBuckets?: ReadonlyArray<NewsBucket>;
     isLoading?: boolean;
     onSelectStory?: ({ id, next }: { id: string; next: boolean }) => void;
   }

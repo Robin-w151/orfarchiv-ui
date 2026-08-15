@@ -1,30 +1,32 @@
+import { isIsoDateTime } from '$lib/models/checks';
 import { PageKey } from '$lib/models/pageKey';
-import { z } from 'zod';
+import { Schema } from 'effect';
 
-export const DateFilter = z.object({
-  from: z.iso.datetime({ offset: true }).optional(),
-  to: z.iso.datetime({ offset: true }).optional(),
+export const DateFilter = Schema.Struct({
+  from: Schema.optional(Schema.String.check(isIsoDateTime)),
+  to: Schema.optional(Schema.String.check(isIsoDateTime)),
 });
-export type DateFilter = z.infer<typeof DateFilter>;
+export type DateFilter = typeof DateFilter.Type;
 
-export const SearchMatchMode = z.enum(['anyOf', 'allOf']);
-export type SearchMatchMode = z.infer<typeof SearchMatchMode>;
+export const SearchMatchMode = Schema.Literals(['anyOf', 'allOf']);
+export type SearchMatchMode = typeof SearchMatchMode.Type;
 
-export const SearchFilter = z.object({
-  tag: z.string().optional(),
-  textFilter: z.string().optional(),
-  dateFilter: DateFilter.optional(),
-  matchMode: SearchMatchMode.optional(),
+export const SearchFilter = Schema.Struct({
+  tag: Schema.optional(Schema.String),
+  textFilter: Schema.optional(Schema.String),
+  dateFilter: Schema.optional(DateFilter),
+  matchMode: Schema.optional(SearchMatchMode),
 });
-export type SearchFilter = z.infer<typeof SearchFilter>;
+export type SearchFilter = typeof SearchFilter.Type;
 
-export const SearchRequestParameters = SearchFilter.extend({
-  sources: z.array(z.string()).optional(),
+export const SearchRequestParameters = Schema.Struct({
+  ...SearchFilter.fields,
+  sources: Schema.optional(Schema.Array(Schema.String)),
 });
-export type SearchRequestParameters = z.infer<typeof SearchRequestParameters>;
+export type SearchRequestParameters = typeof SearchRequestParameters.Type;
 
-export const SearchRequest = z.object({
+export const SearchRequest = Schema.Struct({
   searchRequestParameters: SearchRequestParameters,
-  pageKey: PageKey.optional(),
+  pageKey: Schema.optional(PageKey),
 });
-export type SearchRequest = z.infer<typeof SearchRequest>;
+export type SearchRequest = typeof SearchRequest.Type;

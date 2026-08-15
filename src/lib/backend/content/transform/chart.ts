@@ -1,7 +1,7 @@
 import { FetchError, formatTags, ParseError } from '$lib/errors/errors';
 import { ChartData } from '$lib/models/charts';
 import { logger } from '$lib/utils/logger';
-import { Effect } from 'effect';
+import { Effect, Schema } from 'effect';
 
 export function removeCharts(document: Document, url: string): Effect.Effect<void> {
   return Effect.gen(function* () {
@@ -55,8 +55,9 @@ function fetchChartData(url: string | undefined): Effect.Effect<ChartData | unde
       catch: (cause) => new ParseError({ url, tags: [['url', url]], cause }),
     });
 
-    const parsedData = ChartData.safeParse(data);
-    return parsedData.data;
+    return yield* Schema.decodeUnknownEffect(ChartData)(data).pipe(
+      Effect.mapError((cause) => new ParseError({ url, tags: [['url', url]], cause })),
+    );
   }).pipe(
     Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch chart data: ${formatTags(error.tags)}`))),
     Effect.catch(() => Effect.succeed(undefined)),

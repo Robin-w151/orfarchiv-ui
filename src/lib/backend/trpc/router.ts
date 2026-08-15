@@ -6,68 +6,60 @@ import {
 import { API_VERSION } from '$lib/configs/shared';
 import { SearchRequest } from '$lib/models/searchRequest';
 import { TRPCError } from '@trpc/server';
-import { Result } from 'effect';
+import { Result, Schema } from 'effect';
 import { DateTime } from 'luxon';
-import { z } from 'zod';
-import { isOrfUrl } from '../../utils/urls';
 import { fetchStoryContent } from '../content/news';
 import { checkNewsUpdatesAvailable, searchNews } from '../db/news';
 import { publicProcedure, router } from './init';
+import { StoryContentRequest } from '$lib/models/storyContentRequest';
 
 const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,
 }));
 
 const news = {
-  search: publicProcedure.input(SearchRequest).query(async ({ input, ctx }) => {
+  search: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
     const news = await searchNews(input);
     ctx.event.setHeaders({
       'Cache-Control': 'max-age=0, s-maxage=300',
     });
     return news;
   }),
-  checkUpdates: publicProcedure.input(SearchRequest).query(async ({ input, ctx }) => {
+  checkUpdates: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
     const newsUpdates = await checkNewsUpdatesAvailable(input);
     ctx.event.setHeaders({
       'Cache-Control': 'max-age=0, s-maxage=300',
     });
     return newsUpdates;
   }),
-  content: publicProcedure
-    .input(
-      z.object({
-        url: z.url().refine(isOrfUrl, { message: 'URL is not a valid ORF URL' }),
-        fetchReadMoreContent: z.boolean().optional(),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const { url, fetchReadMoreContent } = input;
-      const content = await fetchStoryContent(url, fetchReadMoreContent);
-      if (Result.isFailure(content)) {
-        switch (content.failure._tag) {
-          case 'MetaDataNotFoundError':
-          case 'ContentNotFoundError': {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: content.failure.message,
-            });
-          }
-          default: {
-            throw new TRPCError({
-              code: 'INTERNAL_SERVER_ERROR',
-              message: 'Unknown error',
-              cause: content.failure,
-            });
-          }
+  content: publicProcedure.input(Schema.toStandardSchemaV1(StoryContentRequest)).query(async ({ input, ctx }) => {
+    const { url, fetchReadMoreContent } = input;
+    const content = await fetchStoryContent(url, fetchReadMoreContent);
+    if (Result.isFailure(content)) {
+      switch (content.failure._tag) {
+        case 'MetaDataNotFoundError':
+        case 'ContentNotFoundError': {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: content.failure.message,
+          });
+        }
+        default: {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Unknown error',
+            cause: content.failure,
+          });
         }
       }
+    }
 
-      const maxage = getMaxAge(content.success.timestamp);
-      ctx.event.setHeaders({
-        'Cache-Control': `max-age=0, s-maxage=${maxage}`,
-      });
-      return content.success;
-    }),
+    const maxage = getMaxAge(content.success.timestamp);
+    ctx.event.setHeaders({
+      'Cache-Control': `max-age=0, s-maxage=${maxage}`,
+    });
+    return content.success;
+  }),
 };
 
 export const appRouter = router({

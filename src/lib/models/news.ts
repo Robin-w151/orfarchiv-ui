@@ -1,25 +1,25 @@
+import { Schema } from 'effect';
 import { PageKey } from './pageKey';
 import { Story } from './story';
-import { z } from 'zod';
 
-export const NewsBucket = z.object({
-  name: z.string(),
-  date: z.string().optional(),
-  stories: z.array(Story),
+export const NewsBucket = Schema.Struct({
+  name: Schema.String,
+  date: Schema.optional(Schema.String),
+  stories: Schema.Array(Story),
 });
-export type NewsBucket = z.infer<typeof NewsBucket>;
+export type NewsBucket = typeof NewsBucket.Type;
 
-export const News = z.object({
-  stories: z.array(Story),
-  isLoading: z.boolean().optional(),
-  storyBuckets: z.array(NewsBucket).optional(),
-  search: z.string().optional(),
-  prevKey: PageKey.optional().nullable(),
-  nextKey: PageKey.optional().nullable(),
+export const News = Schema.Struct({
+  stories: Schema.Array(Story),
+  isLoading: Schema.optional(Schema.Boolean),
+  storyBuckets: Schema.optional(Schema.Array(NewsBucket)),
+  search: Schema.optional(Schema.String),
+  prevKey: Schema.optional(Schema.NullOr(PageKey)),
+  nextKey: Schema.optional(Schema.NullOr(PageKey)),
 });
-export type News = z.infer<typeof News>;
+export type News = typeof News.Type;
 
-export const NewsUpdates = z.object({
-  updateAvailable: z.boolean(),
+export const NewsUpdates = Schema.Struct({
+  updateAvailable: Schema.Boolean,
 });
-export type NewsUpdates = z.infer<typeof NewsUpdates>;
+export type NewsUpdates = typeof NewsUpdates.Type;

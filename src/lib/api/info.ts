@@ -3,6 +3,7 @@ import type { AppRouter } from '$lib/backend/trpc/router';
 import type { TRPCClient } from '@trpc/client';
 import { Info } from '$lib/models/info';
 import { logger } from '$lib/utils/logger';
+import { Result, Schema } from 'effect';
 
 export class InfoApi {
   private readonly trpc: TRPCClient<AppRouter>;
@@ -21,11 +22,11 @@ export class InfoApi {
     const response = await this.trpc.info.query(undefined, { signal: this.abortController.signal });
     this.abortController = null;
 
-    const validationResult = await Info.safeParseAsync(response);
-    if (validationResult.error) {
-      throw new Error(`Invalid response from server: ${validationResult.error.message}`);
+    const validationResult = Schema.decodeUnknownResult(Info)(response);
+    if (Result.isFailure(validationResult)) {
+      throw new Error(`Invalid response from server: ${validationResult.failure.message}`);
     }
 
-    return response;
+    return validationResult.success;
   }
 }

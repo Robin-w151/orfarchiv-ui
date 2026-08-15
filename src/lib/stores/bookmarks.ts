@@ -53,21 +53,11 @@ function removeAllViewed(): void {
 }
 
 function setIsViewed(story: Story): void {
-  db?.stories
-    .where('id')
-    .equals(story.id)
-    .modify((s) => {
-      s.isViewed = 1;
-    });
+  db?.stories.where('id').equals(story.id).modify({ isViewed: 1 });
 }
 
 function setIsNotViewed(story: Story): void {
-  db?.stories
-    .where('id')
-    .equals(story.id)
-    .modify((s) => {
-      s.isViewed = 0;
-    });
+  db?.stories.where('id').equals(story.id).modify({ isViewed: 0 });
 }
 
 function setTextFilter(textFilter: string): void {

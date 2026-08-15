@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { Schema } from 'effect';
 
-export const Info = z.object({
-  apiVersion: z.number(),
+export const Info = Schema.Struct({
+  apiVersion: Schema.Number,
 });
-export type Info = z.infer<typeof Info>;
+export type Info = typeof Info.Type;

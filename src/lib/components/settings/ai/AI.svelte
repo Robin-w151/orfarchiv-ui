@@ -13,14 +13,14 @@
   import settings from '$lib/stores/settings';
   import { BookOpen, Key } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
+  import { Schema } from 'effect';
 
   function handleAiSummaryEnabledChange(event: Event & { currentTarget: HTMLInputElement }): void {
     settings.setAiSummaryEnabled(event.currentTarget.checked);
   }
 
   function handleAiModelChange(value?: string): void {
-    const parsed = AiModel.safeParse(value);
-    settings.setAiModel(parsed.success ? parsed.data : AI_MODEL_DEFAULT);
+    settings.setAiModel(Schema.is(AiModel)(value) ? value : AI_MODEL_DEFAULT);
   }
 
   function handleGeminiApiKeyChange(value?: string): void {
