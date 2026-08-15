@@ -18,10 +18,10 @@ const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,
 }));
 
-const isOrfStoryUrl = Schema.makeFilter<string>((value) => isOrfUrl(value) || 'URL is not a valid ORF URL');
+const isOrfUrlFilter = Schema.makeFilter<string>((value) => isOrfUrl(value) || 'URL is not a valid ORF URL');
 
 const StoryContentRequest = Schema.Struct({
-  url: Schema.String.check(isUrl, isOrfStoryUrl),
+  url: Schema.String.check(isUrl, isOrfUrlFilter),
   fetchReadMoreContent: Schema.optional(Schema.Boolean),
 });
 
