@@ -69,10 +69,10 @@ export function fetchStoryContent(
       if (readMoreUrl) {
         logger.info(`Fetch content with readMore url='${readMoreUrl}'`);
 
-        const result = yield* Effect.all([
-          metaDataService.fetchStoryMetadata(readMoreUrl),
-          siteService.fetchSiteHtmlText(readMoreUrl),
-        ]).pipe(Effect.result);
+        const result = yield* Effect.all(
+          [metaDataService.fetchStoryMetadata(readMoreUrl), siteService.fetchSiteHtmlText(readMoreUrl)],
+          { concurrency: 'unbounded' },
+        ).pipe(Effect.result);
 
         if (Result.isSuccess(result)) {
           const [story, data] = result.success;
@@ -80,7 +80,7 @@ export function fetchStoryContent(
           currentStory = story;
           currentData = data;
           id = story?.id;
-          source = story?.source ?? metaDataService.findSourceFromUrl(currentUrl);
+          source = story?.source ?? (yield* metaDataService.findSourceFromUrl(currentUrl));
           originalDocument = yield* domService.createDom(currentData, currentUrl);
         } else {
           logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.failure.tags)}`);

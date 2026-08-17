@@ -29,6 +29,8 @@ function fetchStoryMetadata(url: string, includeOesterreichSource = false) {
   }).pipe(Effect.filterOrFail(Predicate.isNotNullish, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
 }
 
-function findSourceFromUrl(url: string): string | undefined {
-  return SOURCE_URL_REGEXP.exec(url)?.groups?.source;
+function findSourceFromUrl(url: string) {
+  return Effect.sync(() => {
+    return SOURCE_URL_REGEXP.exec(url)?.groups?.source;
+  });
 }
