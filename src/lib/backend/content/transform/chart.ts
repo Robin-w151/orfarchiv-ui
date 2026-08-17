@@ -1,9 +1,16 @@
 import { FetchError, formatTags, ParseError } from '$lib/errors/errors';
 import { ChartData } from '$lib/models/charts';
 import { logger } from '$lib/utils/logger';
-import { Effect, Schema } from 'effect';
+import { Context, Effect, Layer, Schema } from 'effect';
 
-export function removeCharts(document: Document, url: string): Effect.Effect<void> {
+export class ChartService extends Context.Service<ChartService>()('ChartService', {
+  make: Effect.succeed({ removeCharts }),
+}) {
+  static readonly layerWithoutDependencies = Layer.effect(this, this.make);
+  static readonly layer = this.layerWithoutDependencies.pipe();
+}
+
+function removeCharts(document: Document, url: string): Effect.Effect<void> {
   return Effect.gen(function* () {
     const charts = yield* Effect.all(
       [...document.querySelectorAll('div.embed.migsys')].map((chart) => {
