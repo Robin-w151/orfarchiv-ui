@@ -4,7 +4,7 @@ import { Context, Effect, Layer, Predicate } from 'effect';
 
 const SOURCE_URL_REGEXP = /^https:\/\/(?<source>\w+)\.orf\.at/i;
 
-export class MetaDataService extends Context.Service<MetaDataService>()('MetaDataService', {
+export class MetaDataService extends Context.Service<MetaDataService>()('content/MetaDataService', {
   make: Effect.succeed({
     fetchStoryMetadata,
     findSourceFromUrl,

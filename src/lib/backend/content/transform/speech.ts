@@ -1,6 +1,6 @@
 import { Context, Effect, Layer } from 'effect';
 
-export class SpeechService extends Context.Service<SpeechService>()('SpeechService', {
+export class SpeechService extends Context.Service<SpeechService>()('content/transform/SpeechService', {
   make: Effect.succeed({ extractTextForSpeechSynthesis }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

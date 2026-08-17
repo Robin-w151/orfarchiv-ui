@@ -1,6 +1,6 @@
 import { Context, Effect, Layer } from 'effect';
 
-export class TableService extends Context.Service<TableService>()('TableService', {
+export class TableService extends Context.Service<TableService>()('content/transform/TableService', {
   make: Effect.succeed({ adjustTables }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

@@ -1,6 +1,6 @@
 import { Context, Effect, Layer } from 'effect';
 
-export class CleanupService extends Context.Service<CleanupService>()('CleanupService', {
+export class CleanupService extends Context.Service<CleanupService>()('content/transform/CleanupService', {
   make: Effect.succeed({
     removePrintWarnings,
     removeVideo,

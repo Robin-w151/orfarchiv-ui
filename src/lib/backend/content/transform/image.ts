@@ -1,6 +1,6 @@
 import { Context, Effect, Layer, Predicate } from 'effect';
 
-export class ImageService extends Context.Service<ImageService>()('ImageService', {
+export class ImageService extends Context.Service<ImageService>()('content/transform/ImageService', {
   make: Effect.succeed({
     injectSlideShowImages,
     adjustImages,

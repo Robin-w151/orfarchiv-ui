@@ -2,7 +2,7 @@ import { STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
 import { isOrfStoryUrl } from '$lib/utils/urls';
 import { Context, Effect, Layer } from 'effect';
 
-export class AnchorService extends Context.Service<AnchorService>()('AnchorService', {
+export class AnchorService extends Context.Service<AnchorService>()('content/transform/AnchorService', {
   make: Effect.succeed({
     findReadMoreUrl,
     adjustAnchorTags,

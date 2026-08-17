@@ -1,7 +1,7 @@
 import { ContentNotFoundError, FetchError, ParseError } from '$lib/errors/errors';
 import { Context, Effect, Layer } from 'effect';
 
-export class SiteService extends Context.Service<SiteService>()('SiteService', {
+export class SiteService extends Context.Service<SiteService>()('content/SiteService', {
   make: Effect.succeed({ fetchSiteHtmlText }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

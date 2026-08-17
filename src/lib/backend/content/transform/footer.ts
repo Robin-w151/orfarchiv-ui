@@ -1,6 +1,6 @@
 import { Context, Effect, Layer } from 'effect';
 
-export class FooterService extends Context.Service<FooterService>()('FooterService', {
+export class FooterService extends Context.Service<FooterService>()('content/transform/FooterService', {
   make: Effect.succeed({ injectStoryFooter }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

@@ -3,7 +3,7 @@ import { ChartData } from '$lib/models/charts';
 import { logger } from '$lib/utils/logger';
 import { Context, Effect, Layer, Schema } from 'effect';
 
-export class ChartService extends Context.Service<ChartService>()('ChartService', {
+export class ChartService extends Context.Service<ChartService>()('content/transform/ChartService', {
   make: Effect.succeed({ removeCharts }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

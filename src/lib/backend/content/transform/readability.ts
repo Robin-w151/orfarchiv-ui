@@ -6,7 +6,7 @@ import { DomService } from '../dom';
 
 const ALLOWED_CLASSES = ['fact', 'image-container', 'image-credit-tag', 'keyword', 'slideshow'];
 
-export class ReadabilityService extends Context.Service<ReadabilityService>()('ReadabilityService', {
+export class ReadabilityService extends Context.Service<ReadabilityService>()('content/transform/ReadabilityService', {
   make: Effect.succeed({ optimizeContent }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);

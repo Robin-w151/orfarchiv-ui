@@ -4,7 +4,7 @@ import { JSDOM } from 'jsdom';
 
 const VUE_SCOPE_ATTRIBUTE_REGEXP = /data-v-\w+/;
 
-export class SanitizeService extends Context.Service<SanitizeService>()('SanitizeService', {
+export class SanitizeService extends Context.Service<SanitizeService>()('content/transform/SanitizeService', {
   make: Effect.succeed({ sanitizeContent }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
