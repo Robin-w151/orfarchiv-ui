@@ -11,7 +11,7 @@ export class SiteService extends Context.Service<SiteService>()('content/SiteSer
 function fetchSiteHtmlText(url: string) {
   return Effect.gen(function* () {
     const response = yield* Effect.tryPromise({
-      try: () => fetch(url),
+      try: (signal) => fetch(url, { signal }),
       catch: (cause) =>
         new FetchError({
           url,

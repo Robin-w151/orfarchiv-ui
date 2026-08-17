@@ -18,8 +18,18 @@ export type NewsApiErrorType = 'error' | 'cancelled';
 
 // Story content
 export type FetchStoryContentError =
-  FetchError | ParseError | MetaDataNotFoundError | ContentNotFoundError | OptimizedContentIsEmptyError;
+  | FetchError
+  | FetchTimeoutError
+  | ParseError
+  | MetaDataNotFoundError
+  | ContentNotFoundError
+  | OptimizedContentIsEmptyError;
 export class FetchError extends Data.TaggedError('FetchError')<{ url: string; tags: Tags; cause?: unknown }> {}
+export class FetchTimeoutError extends Data.TaggedError('FetchTimeoutError')<{
+  url: string;
+  tags: Tags;
+  cause: unknown;
+}> {}
 export class ParseError extends Data.TaggedError('ParseError')<{ url: string; tags: Tags; cause?: unknown }> {}
 export class MetaDataNotFoundError extends Data.TaggedError('MetaDataNotFoundError')<{
   url: string;

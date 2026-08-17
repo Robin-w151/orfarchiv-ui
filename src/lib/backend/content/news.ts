@@ -1,5 +1,5 @@
 import { logger } from '$lib/configs/server';
-import { formatTags, type FetchStoryContentError } from '$lib/errors/errors';
+import { FetchTimeoutError, formatTags, type FetchStoryContentError } from '$lib/errors/errors';
 import type { StoryContent, StorySource } from '$lib/models/story';
 import { Effect, Layer, Result } from 'effect';
 import { DomService } from './dom';
@@ -117,6 +117,10 @@ export function fetchStoryContent(
 
   return program.pipe(
     Effect.provide(ContentLive),
+    Effect.timeout('1 minutes'),
+    Effect.catchTag('TimeoutError', (cause) =>
+      Effect.fail(new FetchTimeoutError({ url, tags: [['url', url]], cause })),
+    ),
     Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch content: ${formatTags(error.tags)}`))),
     Effect.result,
     Effect.runPromise,
