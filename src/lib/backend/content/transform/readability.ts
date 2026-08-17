@@ -2,7 +2,7 @@ import { OptimizedContentIsEmptyError } from '$lib/errors/errors';
 import { logger } from '$lib/utils/logger';
 import { Readability } from '@mozilla/readability';
 import { Context, Effect, Layer } from 'effect';
-import { createDom } from '../dom';
+import { DomService } from '../dom';
 
 const ALLOWED_CLASSES = ['fact', 'image-container', 'image-credit-tag', 'keyword', 'slideshow'];
 
@@ -10,11 +10,13 @@ export class ReadabilityService extends Context.Service<ReadabilityService>()('R
   make: Effect.succeed({ optimizeContent }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
-  static readonly layer = this.layerWithoutDependencies;
+  static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(DomService.layer));
 }
 
 function optimizeContent(document: Document, url: string) {
   return Effect.gen(function* () {
+    const domService = yield* DomService;
+
     const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
     if (!optimizedContent?.content) {
       logger.warn(`Error transforming content with url='${url}'`);
@@ -25,6 +27,6 @@ function optimizeContent(document: Document, url: string) {
       });
     }
 
-    return createDom(optimizedContent.content, url);
+    return yield* domService.createDom(optimizedContent.content, url);
   });
 }

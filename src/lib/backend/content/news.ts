@@ -2,7 +2,7 @@ import { logger } from '$lib/configs/server';
 import { formatTags, type FetchStoryContentError } from '$lib/errors/errors';
 import type { StoryContent, StorySource } from '$lib/models/story';
 import { Effect, Layer, Result } from 'effect';
-import { createDom } from './dom';
+import { DomService } from './dom';
 import { MetaDataService } from './metadata';
 import { SiteService } from './site';
 import { AnchorService } from './transform/anchor';
@@ -20,6 +20,7 @@ const ContentLive = Layer.mergeAll(
   AnchorService.layer,
   ChartService.layer,
   CleanupService.layer,
+  DomService.layer,
   FooterService.layer,
   ImageService.layer,
   ListService.layer,
@@ -39,6 +40,7 @@ export function fetchStoryContent(
     const anchorService = yield* AnchorService;
     const chartService = yield* ChartService;
     const cleanupService = yield* CleanupService;
+    const domService = yield* DomService;
     const footerService = yield* FooterService;
     const imageService = yield* ImageService;
     const listService = yield* ListService;
@@ -59,7 +61,7 @@ export function fetchStoryContent(
 
     let id: string | undefined = undefined;
     let source: string | undefined = undefined;
-    let originalDocument = createDom(currentData, currentUrl);
+    let originalDocument = yield* domService.createDom(currentData, currentUrl);
 
     if (fetchReadMoreContent) {
       const readMoreUrl = yield* anchorService.findReadMoreUrl(originalDocument);
@@ -79,14 +81,14 @@ export function fetchStoryContent(
           currentData = data;
           id = story?.id;
           source = story?.source ?? metaDataService.findSourceFromUrl(currentUrl);
-          originalDocument = createDom(currentData, currentUrl);
+          originalDocument = yield* domService.createDom(currentData, currentUrl);
         } else {
           logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.failure.tags)}`);
         }
       }
     }
 
-    const document = createDom(currentData, currentUrl);
+    const document = yield* domService.createDom(currentData, currentUrl);
     yield* cleanupService.removePrintWarnings(document);
     yield* cleanupService.removeVideo(document);
     yield* cleanupService.removeMoreToReadSection(document);
