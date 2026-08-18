@@ -117,7 +117,7 @@ export function fetchStoryContent(
 
   return program.pipe(
     Effect.provide(ContentLive),
-    Effect.timeout('1 minutes'),
+    Effect.timeout('1 minute'),
     Effect.catchTag('TimeoutError', (cause) =>
       Effect.fail(new FetchTimeoutError({ url, tags: [['url', url]], cause })),
     ),

@@ -114,11 +114,7 @@ describe('News content', () => {
     });
 
     test('content not found', async () => {
-      mockedFetch.mockResolvedValue({
-        ok: false,
-        status: 404,
-        text: () => Promise.reject(new Error('Content not found')),
-      });
+      mockedFetch.mockResolvedValue(htmlResponse('Content not found', 404));
 
       const result = await fetchStoryContent(mockArticleUrl);
       const error = Result.isFailure(result) ? result.failure : undefined;
@@ -829,10 +825,10 @@ describe('News content', () => {
         const requestedUrl = String(url);
 
         if (requestedUrl === mockArticleUrl) {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+          return Promise.resolve(htmlResponse(article));
         }
         if (requestedUrl === `${chartUrl}/config.json`) {
-          return Promise.resolve({ ok: true, json: () => Promise.resolve({ title: '  Wahl 2026  ' }) });
+          return Promise.resolve(jsonResponse({ title: '  Wahl 2026  ' }));
         }
 
         return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
@@ -862,10 +858,10 @@ describe('News content', () => {
         const requestedUrl = String(url);
 
         if (requestedUrl === mockArticleUrl) {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+          return Promise.resolve(htmlResponse(article));
         }
         if (requestedUrl === `${chartUrl}/config.json`) {
-          return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+          return Promise.resolve(jsonResponse({}));
         }
 
         return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
@@ -895,10 +891,10 @@ describe('News content', () => {
         const requestedUrl = String(url);
 
         if (requestedUrl === mockArticleUrl) {
-          return Promise.resolve({ ok: true, text: () => Promise.resolve(article) });
+          return Promise.resolve(htmlResponse(article));
         }
         if (requestedUrl === `${chartUrl}/config.json`) {
-          return Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) });
+          return Promise.resolve(jsonResponse({}, 500));
         }
 
         return Promise.reject(new Error(`Unexpected request url: ${requestedUrl}`));
@@ -1044,8 +1040,23 @@ describe('News content', () => {
 
 function mockArticle(html: string | Map<string, string>): void {
   mockedFetch.mockImplementation((url) => {
-    return Promise.resolve({ ok: true, text: () => Promise.resolve(typeof html === 'object' ? html.get(url) : html) });
+    const requestedUrl = String(url);
+    const content = typeof html === 'object' ? html.get(requestedUrl) : html;
+
+    if (content === undefined) {
+      return Promise.resolve(htmlResponse('', 404));
+    }
+
+    return Promise.resolve(htmlResponse(content));
   });
+}
+
+function htmlResponse(html: string, status = 200): Response {
+  return new Response(html, { status, headers: { 'content-type': 'text/html' } });
+}
+
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 }
 
 function formatHtml(html: string): Promise<string> {

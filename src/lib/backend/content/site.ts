@@ -1,54 +1,21 @@
-import { ContentNotFoundError, FetchError, ParseError } from '$lib/errors/errors';
 import { Context, Effect, Layer } from 'effect';
+import { FetchService, type FetchServiceShape } from './fetch';
 
 export class SiteService extends Context.Service<SiteService>()('content/SiteService', {
-  make: Effect.succeed({ fetchSiteHtmlText }),
+  make: Effect.gen(function* () {
+    const fetchService = yield* FetchService;
+
+    return defineService({ fetchService });
+  }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
-  static readonly layer = this.layerWithoutDependencies;
+  static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(FetchService.layer));
 }
 
-function fetchSiteHtmlText(url: string) {
-  return Effect.gen(function* () {
-    const response = yield* Effect.tryPromise({
-      try: (signal) => fetch(url, { signal }),
-      catch: (cause) =>
-        new FetchError({
-          url,
-          tags: [
-            ['url', url],
-            ['cause', (cause as Error).message],
-          ],
-          cause,
-        }),
-    });
+function defineService({ fetchService }: { fetchService: FetchServiceShape }) {
+  function fetchSiteHtmlText(url: string) {
+    return fetchService.fetchUrl(url, 'text');
+  }
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return yield* new ContentNotFoundError({
-          url,
-          tags: [
-            ['url', url],
-            ['status', response.status.toString()],
-          ],
-          message: `Content from url='${url}' cannot be loaded`,
-        });
-      } else {
-        return yield* new FetchError({
-          url,
-          tags: [
-            ['url', url],
-            ['status', response.status.toString()],
-          ],
-        });
-      }
-    }
-
-    const text = yield* Effect.tryPromise({
-      try: () => response.text(),
-      catch: (cause) => new ParseError({ url, tags: [['url', url]], cause }),
-    });
-
-    return text;
-  });
+  return { fetchSiteHtmlText };
 }
