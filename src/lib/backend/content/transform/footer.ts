@@ -13,7 +13,7 @@ function injectStoryFooter(optimizedDocument: Document, originalDocument: Docume
 
     const storyFooterCandidates = optimizedDocument.querySelectorAll('div > div > p');
     for (const storyFooterCandidate of storyFooterCandidates) {
-      if (storyFooterCandidate.textContent.trim() === originalStoryFooter?.textContent?.trim()) {
+      if (storyFooterCandidate.textContent?.trim() === originalStoryFooter?.textContent?.trim()) {
         storyFooterCandidate.remove();
       }
     }
