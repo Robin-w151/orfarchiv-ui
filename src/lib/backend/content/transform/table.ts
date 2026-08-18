@@ -1,44 +1,55 @@
-export function adjustTables(optimizedDocument: Document): void {
-  for (const table of optimizedDocument.querySelectorAll('table')) {
-    adjustTable(table);
-  }
+import { Context, Effect, Layer } from 'effect';
+
+export class TableService extends Context.Service<TableService>()('content/transform/TableService', {
+  make: Effect.succeed({ adjustTables }),
+}) {
+  static readonly layerWithoutDependencies = Layer.effect(this, this.make);
+  static readonly layer = this.layerWithoutDependencies;
 }
 
-function adjustTable(table: HTMLTableElement): void {
-  const { isValid, columnHasContent, rowHasContent } = checkTableValidity(table);
-  if (!isValid) {
-    table.remove();
-    return;
-  }
+function adjustTables(optimizedDocument: Document) {
+  return Effect.gen(function* () {
+    yield* Effect.forEach(optimizedDocument.querySelectorAll('table'), adjustTable);
+  });
+}
 
-  for (const { rowIndex, rowSpan, columnIndex, colSpan, tableCell } of tableIterator(table)) {
-    const columnsWithContent = new Array(colSpan)
-      .fill(null)
-      .reduce((count, _, i) => count + (columnHasContent[columnIndex + i] ? 1 : 0), 0);
-
-    if (columnsWithContent === 0) {
-      tableCell.remove();
-      continue;
-    } else if (columnsWithContent < colSpan) {
-      tableCell.colSpan = columnsWithContent;
+function adjustTable(table: HTMLTableElement) {
+  return Effect.sync(() => {
+    const { isValid, columnHasContent, rowHasContent } = checkTableValidity(table);
+    if (!isValid) {
+      table.remove();
+      return;
     }
 
-    const rowsWithContent = new Array(rowSpan)
-      .fill(null)
-      .reduce((count, _, i) => count + (rowHasContent[rowIndex + i] ? 1 : 0), 0);
+    for (const { rowIndex, rowSpan, columnIndex, colSpan, tableCell } of tableIterator(table)) {
+      const columnsWithContent = new Array(colSpan)
+        .fill(null)
+        .reduce((count, _, i) => count + (columnHasContent[columnIndex + i] ? 1 : 0), 0);
 
-    if (rowsWithContent === 0) {
-      tableCell.remove();
-    } else if (rowsWithContent < rowSpan) {
-      tableCell.rowSpan = rowsWithContent;
-    }
-  }
+      if (columnsWithContent === 0) {
+        tableCell.remove();
+        continue;
+      } else if (columnsWithContent < colSpan) {
+        tableCell.colSpan = columnsWithContent;
+      }
 
-  for (const row of [...table.rows]) {
-    if (row.cells.length === 0) {
-      row.remove();
+      const rowsWithContent = new Array(rowSpan)
+        .fill(null)
+        .reduce((count, _, i) => count + (rowHasContent[rowIndex + i] ? 1 : 0), 0);
+
+      if (rowsWithContent === 0) {
+        tableCell.remove();
+      } else if (rowsWithContent < rowSpan) {
+        tableCell.rowSpan = rowsWithContent;
+      }
     }
-  }
+
+    for (const row of [...table.rows]) {
+      if (row.cells.length === 0) {
+        row.remove();
+      }
+    }
+  });
 }
 
 function checkTableValidity(table: HTMLTableElement): {

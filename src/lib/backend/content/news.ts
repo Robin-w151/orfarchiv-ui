@@ -1,54 +1,79 @@
-import { searchStory } from '$lib/backend/db/news';
-import { logger, STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
-import {
-  ContentNotFoundError,
-  FetchError,
-  formatTags,
-  MetaDataNotFoundError,
-  OptimizedContentIsEmptyError,
-  ParseError,
-  type FetchStoryContentError,
-} from '$lib/errors/errors';
-import type { Story, StoryContent, StorySource } from '$lib/models/story';
-import { isOrfStoryUrl } from '$lib/utils/urls';
-import { Readability } from '@mozilla/readability';
-import createDOMPurify, { type WindowLike } from 'dompurify';
-import { Effect, Predicate, Result } from 'effect';
-import { JSDOM } from 'jsdom';
-import { removeCharts } from './transform/chart';
-import { adjustImages, injectSlideShowImages } from './transform/image';
-import { extractTextForSpeechSynthesis } from './transform/speech';
-import { adjustTables } from './transform/table';
+import { logger } from '$lib/configs/server';
+import { FetchTimeoutError, formatTags, type FetchStoryContentError } from '$lib/errors/errors';
+import type { StoryContent, StorySource } from '$lib/models/story';
+import { Effect, Layer, ManagedRuntime, Result } from 'effect';
+import { DomService } from './dom';
+import { MetaDataService } from './metadata';
+import { SiteService } from './site';
+import { AnchorService } from './transform/anchor';
+import { ChartService } from './transform/chart';
+import { CleanupService } from './transform/cleanup';
+import { FooterService } from './transform/footer';
+import { ImageService } from './transform/image';
+import { ListService } from './transform/list';
+import { ReadabilityService } from './transform/readability';
+import { SanitizeService } from './transform/sanitize';
+import { SpeechService } from './transform/speech';
+import { TableService } from './transform/table';
 
-const ALLOWED_CLASSES = ['fact', 'image-container', 'image-credit-tag', 'keyword', 'slideshow'];
-const VUE_SCOPE_ATTRIBUTE_REGEXP = /data-v-\w+/;
+const ContentLive = Layer.mergeAll(
+  AnchorService.layer,
+  ChartService.layer,
+  CleanupService.layer,
+  DomService.layer,
+  FooterService.layer,
+  ImageService.layer,
+  ListService.layer,
+  MetaDataService.layer,
+  ReadabilityService.layer,
+  SanitizeService.layer,
+  SiteService.layer,
+  SpeechService.layer,
+  TableService.layer,
+);
+const Runtime = ManagedRuntime.make(ContentLive);
 
 export function fetchStoryContent(
   url: string,
   fetchReadMoreContent = false,
 ): Promise<Result.Result<StoryContent, FetchStoryContentError>> {
   const program = Effect.gen(function* () {
+    const anchorService = yield* AnchorService;
+    const chartService = yield* ChartService;
+    const cleanupService = yield* CleanupService;
+    const domService = yield* DomService;
+    const footerService = yield* FooterService;
+    const imageService = yield* ImageService;
+    const listService = yield* ListService;
+    const metaDataService = yield* MetaDataService;
+    const readabilityService = yield* ReadabilityService;
+    const sanitizeService = yield* SanitizeService;
+    const siteService = yield* SiteService;
+    const speechService = yield* SpeechService;
+    const tableService = yield* TableService;
+
     logger.info(`Fetch content with url='${url}' and fetchReadMoreContent='${fetchReadMoreContent}'`);
 
     let currentUrl = url;
     let [currentStory, currentData] = yield* Effect.all([
-      fetchStoryMetadata(currentUrl, true),
-      fetchSiteHtmlText(currentUrl),
+      metaDataService.fetchStoryMetadata(currentUrl, true),
+      siteService.fetchSiteHtmlText(currentUrl),
     ]);
 
     let id: string | undefined = undefined;
     let source: string | undefined = undefined;
-    let originalDocument = createDom(currentData, currentUrl);
+    let originalDocument = yield* domService.createDom(currentData, currentUrl);
 
     if (fetchReadMoreContent) {
-      const readMoreUrl = findReadMoreUrl(originalDocument);
+      const readMoreUrl = yield* anchorService.findReadMoreUrl(originalDocument);
 
       if (readMoreUrl) {
         logger.info(`Fetch content with readMore url='${readMoreUrl}'`);
 
-        const result = yield* Effect.all([fetchStoryMetadata(readMoreUrl), fetchSiteHtmlText(readMoreUrl)]).pipe(
-          Effect.result,
-        );
+        const result = yield* Effect.all(
+          [metaDataService.fetchStoryMetadata(readMoreUrl), siteService.fetchSiteHtmlText(readMoreUrl)],
+          { concurrency: 'unbounded' },
+        ).pipe(Effect.result);
 
         if (Result.isSuccess(result)) {
           const [story, data] = result.success;
@@ -56,227 +81,49 @@ export function fetchStoryContent(
           currentStory = story;
           currentData = data;
           id = story?.id;
-          source = story?.source ?? findSourceFromUrl(currentUrl);
-          originalDocument = createDom(currentData, currentUrl);
+          source = story?.source ?? (yield* metaDataService.findSourceFromUrl(currentUrl));
+          originalDocument = yield* domService.createDom(currentData, currentUrl);
         } else {
           logger.warn(`Failed to fetch content from readMore url: ${formatTags(result.failure.tags)}`);
         }
       }
     }
 
-    const document = createDom(currentData, currentUrl);
-    removePrintWarnings(document);
-    removeVideo(document);
-    removeMoreToReadSection(document);
-    yield* removeCharts(document, currentUrl);
-    const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
-    if (!optimizedContent?.content) {
-      logger.warn(`Error transforming content with url='${currentUrl}'`);
-      return yield* new OptimizedContentIsEmptyError({
-        url: currentUrl,
-        tags: [['url', currentUrl]],
-        message: `Optimized content from url='${currentUrl}' is empty`,
-      });
-    }
+    const document = yield* domService.createDom(currentData, currentUrl);
+    yield* cleanupService.removePrintWarnings(document);
+    yield* cleanupService.removeVideo(document);
+    yield* cleanupService.removeMoreToReadSection(document);
+    yield* chartService.removeCharts(document, currentUrl);
 
-    const optimizedDocument = createDom(optimizedContent.content, currentUrl);
-    removeSiteNavigation(optimizedDocument);
-    removeSiteAnchors(optimizedDocument);
-    injectSlideShowImages(optimizedDocument, originalDocument);
-    injectStoryFooter(optimizedDocument, originalDocument);
-    adjustImages(optimizedDocument, originalDocument);
-    adjustAnchorTags(optimizedDocument);
-    adjustLists(optimizedDocument);
-    adjustTables(optimizedDocument);
+    const optimizedDocument = yield* readabilityService.optimizeContent(document, currentUrl);
+    yield* cleanupService.removeSiteNavigation(optimizedDocument);
+    yield* anchorService.removeSiteAnchors(optimizedDocument);
+    yield* imageService.injectSlideShowImages(optimizedDocument, originalDocument);
+    yield* footerService.injectStoryFooter(optimizedDocument, originalDocument);
+    yield* imageService.adjustImages(optimizedDocument, originalDocument);
+    yield* anchorService.adjustAnchorTags(optimizedDocument);
+    yield* listService.adjustLists(optimizedDocument);
+    yield* tableService.adjustTables(optimizedDocument);
 
     const storySource = source ? ({ name: source, url: currentUrl } satisfies StorySource) : undefined;
 
     return {
-      content: sanitizeContent(optimizedDocument.body.innerHTML),
-      contentText: extractTextForSpeechSynthesis(optimizedDocument, originalDocument),
+      content: yield* sanitizeService.sanitizeContent(optimizedDocument.body.innerHTML),
+      contentText: yield* speechService.extractTextForSpeechSynthesis(optimizedDocument, originalDocument),
       id,
       timestamp: currentStory?.timestamp,
       source: storySource,
     };
   });
 
-  return program.pipe(
-    Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch content: ${formatTags(error.tags)}`))),
-    Effect.result,
-    Effect.runPromise,
+  return Runtime.runPromise(
+    program.pipe(
+      Effect.timeout('1 minute'),
+      Effect.catchTag('TimeoutError', (cause) =>
+        Effect.fail(new FetchTimeoutError({ url, tags: [['url', url]], cause })),
+      ),
+      Effect.tapError((error) => Effect.sync(() => logger.warn(`Failed to fetch content: ${formatTags(error.tags)}`))),
+      Effect.result,
+    ),
   );
-}
-
-function fetchStoryMetadata(
-  url: string,
-  includeOesterreichSource = false,
-): Effect.Effect<Story, MetaDataNotFoundError> {
-  return Effect.tryPromise({
-    try: () => searchStory(url, { includeOesterreichSource }),
-    catch: (cause) =>
-      new MetaDataNotFoundError({
-        url,
-        tags: [
-          ['url', url],
-          ['cause', (cause as Error).message],
-        ],
-        cause,
-      }),
-  }).pipe(Effect.filterOrFail(Predicate.isNotNullish, () => new MetaDataNotFoundError({ url, tags: [['url', url]] })));
-}
-
-function fetchSiteHtmlText(url: string): Effect.Effect<string, FetchError | ParseError | ContentNotFoundError> {
-  return Effect.gen(function* () {
-    const response = yield* Effect.tryPromise({
-      try: () => fetch(url),
-      catch: (cause) =>
-        new FetchError({
-          url,
-          tags: [
-            ['url', url],
-            ['cause', (cause as Error).message],
-          ],
-          cause,
-        }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return yield* new ContentNotFoundError({
-          url,
-          tags: [
-            ['url', url],
-            ['status', response.status.toString()],
-          ],
-          message: `Content from url='${url}' cannot be loaded`,
-        });
-      } else {
-        return yield* new FetchError({
-          url,
-          tags: [
-            ['url', url],
-            ['status', response.status.toString()],
-          ],
-        });
-      }
-    }
-
-    const text = yield* Effect.tryPromise({
-      try: () => response.text(),
-      catch: (cause) => new ParseError({ url, tags: [['url', url]], cause }),
-    });
-
-    return text;
-  });
-}
-
-function createDom(data: string, url: string): Document {
-  return new JSDOM(data, { url }).window.document;
-}
-
-function findReadMoreUrl(originalDocument: Document): string | null {
-  const paragraphs = [...originalDocument.querySelectorAll('p')];
-  if (paragraphs.length > 4) {
-    return null;
-  }
-
-  return paragraphs
-    .filter((p) => {
-      const text = p.textContent;
-      if (!text) {
-        return false;
-      }
-      if (!STORY_CONTENT_READ_MORE_REGEXPS.some((regexp) => regexp.test(text))) {
-        return false;
-      }
-
-      const anchor = p.querySelector('a');
-      return isOrfStoryUrl(anchor?.href);
-    })
-    .map((p) => p.querySelector('a')?.href ?? '')[0];
-}
-
-function findSourceFromUrl(url: string): string | undefined {
-  return /^https:\/\/(?<source>\w+)\.orf\.at/i.exec(url)?.groups?.source;
-}
-
-function removePrintWarnings(document: Document): void {
-  for (const element of document.querySelectorAll('.print-warning')) {
-    element.remove();
-  }
-}
-
-function removeVideo(document: Document): void {
-  for (const stripeCredits of document.querySelectorAll('p.caption.stripe-credits')) {
-    stripeCredits.remove();
-  }
-
-  for (const stripe of document.querySelectorAll('section.stripe')) {
-    stripe.remove();
-  }
-}
-
-function removeMoreToReadSection(document: Document): void {
-  for (const element of document.querySelectorAll('#more-to-read')) {
-    element.remove();
-  }
-}
-
-function removeSiteNavigation(optimizedDocument: Document): void {
-  for (const navigation of optimizedDocument.querySelectorAll('nav')) {
-    navigation.remove();
-  }
-}
-
-function removeSiteAnchors(optimizedDocument: Document): void {
-  for (const anchor of optimizedDocument.querySelectorAll('a')) {
-    if (new RegExp(/orf\.at.*#/i).exec(anchor.href)) {
-      anchor.remove();
-    }
-  }
-}
-
-function injectStoryFooter(optimizedDocument: Document, originalDocument: Document): void {
-  const originalStoryFooter = originalDocument.querySelector('.story-footer');
-
-  const storyFooterCandidates = optimizedDocument.querySelectorAll('div > div > p');
-  for (const storyFooterCandidate of storyFooterCandidates) {
-    if (storyFooterCandidate.textContent.trim() === originalStoryFooter?.textContent?.trim()) {
-      storyFooterCandidate.remove();
-    }
-  }
-
-  if (originalStoryFooter) {
-    optimizedDocument.body.appendChild(originalStoryFooter);
-  }
-}
-
-function adjustAnchorTags(optimizedDocument: Document): void {
-  for (const anchor of optimizedDocument.querySelectorAll('a')) {
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-  }
-}
-
-function adjustLists(optimizedDocument: Document): void {
-  for (const li of optimizedDocument.querySelectorAll('li')) {
-    if (!li.innerHTML) {
-      li.remove();
-    }
-  }
-}
-
-function sanitizeContent(html: string): string {
-  const DOMPurify = createDOMPurify(new JSDOM('').window as unknown as WindowLike);
-  DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
-    if (VUE_SCOPE_ATTRIBUTE_REGEXP.test(data.attrName)) {
-      data.keepAttr = false;
-    }
-  });
-
-  return DOMPurify.sanitize(html, {
-    USE_PROFILES: { html: true },
-    ADD_ATTR: ['target'],
-    FORBID_ATTR: ['tabindex'],
-  });
 }

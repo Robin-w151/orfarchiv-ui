@@ -1,61 +1,75 @@
-import { Predicate } from 'effect';
+import { Context, Effect, Layer, Predicate } from 'effect';
 
-export function injectSlideShowImages(optimizedDocument: Document, originalDocument: Document): void {
-  const slideShowRegexp = /^fotostrecke mit/i;
-  const slideShowElements = [...originalDocument.querySelectorAll('.oon-slideshow')] as Array<HTMLElement>;
-  const slideShowHeaders = [...optimizedDocument.querySelectorAll('h3')].filter((header) =>
-    slideShowRegexp.test(header.textContent ?? ''),
-  );
-
-  if (slideShowElements.length !== slideShowHeaders.length) {
-    return;
-  }
-
-  for (let i = 0; i < slideShowElements.length; i++) {
-    const slideShowSection = slideShowElements[i];
-    const slideShowHeader = slideShowHeaders[i];
-
-    if (slideShowHeader.parentElement?.querySelector('h3 + div')) {
-      continue;
-    }
-
-    const slideShowList = slideShowSection.querySelector('.oon-slideshow-list');
-    slideShowList?.removeAttribute('class');
-    slideShowList?.setAttribute('class', 'slideshow');
-
-    const footers = [...slideShowSection.querySelectorAll('figure > footer')];
-    for (const footer of footers) {
-      footer.remove();
-    }
-
-    const images = [...slideShowSection.querySelectorAll('img')];
-    for (const image of images) {
-      image.src = image.dataset.src ?? '';
-      image.srcset = image.dataset.srcset ?? '';
-      image.removeAttribute('class');
-      image.setAttribute('loading', 'lazy');
-    }
-
-    if (slideShowList) {
-      slideShowHeader.after(slideShowList);
-    }
-  }
+export class ImageService extends Context.Service<ImageService>()('content/transform/ImageService', {
+  make: Effect.succeed({
+    injectSlideShowImages,
+    adjustImages,
+  }),
+}) {
+  static readonly layerWithoutDependencies = Layer.effect(this, this.make);
+  static readonly layer = this.layerWithoutDependencies;
 }
 
-export function adjustImages(optimizedDocument: Document, originalDocument: Document): void {
-  const originalImages = mapImagesByUrl(originalDocument);
+function injectSlideShowImages(optimizedDocument: Document, originalDocument: Document) {
+  return Effect.sync(() => {
+    const slideShowRegexp = /^fotostrecke mit/i;
+    const slideShowElements = [...originalDocument.querySelectorAll('.oon-slideshow')] as Array<HTMLElement>;
+    const slideShowHeaders = [...optimizedDocument.querySelectorAll('h3')].filter((header) =>
+      slideShowRegexp.test(header.textContent ?? ''),
+    );
 
-  for (const image of optimizedDocument.querySelectorAll('img')) {
-    if (Number(image.getAttribute('width')) > 0 && Number(image.getAttribute('height')) > 0) {
-      continue;
+    if (slideShowElements.length !== slideShowHeaders.length) {
+      return;
     }
 
-    const size = findImageSize(image, originalImages);
-    if (size) {
-      image.setAttribute('width', `${size.width}`);
-      image.setAttribute('height', `${size.height}`);
+    for (let i = 0; i < slideShowElements.length; i++) {
+      const slideShowSection = slideShowElements[i];
+      const slideShowHeader = slideShowHeaders[i];
+
+      if (slideShowHeader.parentElement?.querySelector('h3 + div')) {
+        continue;
+      }
+
+      const slideShowList = slideShowSection.querySelector('.oon-slideshow-list');
+      slideShowList?.removeAttribute('class');
+      slideShowList?.setAttribute('class', 'slideshow');
+
+      const footers = [...slideShowSection.querySelectorAll('figure > footer')];
+      for (const footer of footers) {
+        footer.remove();
+      }
+
+      const images = [...slideShowSection.querySelectorAll('img')];
+      for (const image of images) {
+        image.src = image.dataset.src ?? '';
+        image.srcset = image.dataset.srcset ?? '';
+        image.removeAttribute('class');
+        image.setAttribute('loading', 'lazy');
+      }
+
+      if (slideShowList) {
+        slideShowHeader.after(slideShowList);
+      }
     }
-  }
+  });
+}
+
+function adjustImages(optimizedDocument: Document, originalDocument: Document) {
+  return Effect.sync(() => {
+    const originalImages = mapImagesByUrl(originalDocument);
+
+    for (const image of optimizedDocument.querySelectorAll('img')) {
+      if (Number(image.getAttribute('width')) > 0 && Number(image.getAttribute('height')) > 0) {
+        continue;
+      }
+
+      const size = findImageSize(image, originalImages);
+      if (size) {
+        image.setAttribute('width', `${size.width}`);
+        image.setAttribute('height', `${size.height}`);
+      }
+    }
+  });
 }
 
 function mapImagesByUrl(originalDocument: Document): Map<string, HTMLImageElement> {
