@@ -11,14 +11,12 @@ function extractTextForSpeechSynthesis(optimizedDocument: Document, originalDocu
   return Effect.sync(() => {
     const unwantetPatterns = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i, /^online\s+seit/i];
     const keywordText = originalDocument.querySelector('div.keyword')?.textContent?.trim();
-    if (keywordText) {
-      unwantetPatterns.push(new RegExp(`^${keywordText}$`));
-    }
 
     const document = optimizedDocument.cloneNode(true) as Document;
     for (const element of document.querySelectorAll('p')) {
       const text = element.textContent?.trim() ?? '';
-      if (unwantetPatterns.some((pattern) => pattern.test(text))) {
+      const isKeyword = keywordText ? text === keywordText : false;
+      if (isKeyword || unwantetPatterns.some((pattern) => pattern.test(text))) {
         element.remove();
       }
     }
