@@ -33,6 +33,18 @@ export function rollDown(node: Element, options: TransitionConfig): TransitionCo
   };
 }
 
+export function rollUp(node: Element, options: TransitionConfig): TransitionConfig {
+  // Grows the element from its own height, so a bottom anchored container expands upwards
+  const height = node.clientHeight || node.scrollHeight;
+  const opacity = +getComputedStyle(node).opacity;
+
+  return {
+    ...transitionDefaults,
+    ...options,
+    css: (t: number) => `max-height: ${t * height}px; opacity: ${t * opacity}; overflow: hidden`,
+  };
+}
+
 export function scaleFade(node: Element, options: TransitionConfig): TransitionConfig {
   const opacity = +getComputedStyle(node).opacity;
 

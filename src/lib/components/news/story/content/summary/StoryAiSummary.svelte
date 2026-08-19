@@ -26,8 +26,7 @@
   const aiSummaryState = new StoryAiSummaryState(storyContent);
 
   onMount(async () => {
-    const contentText = storyContent?.contentText;
-    if (!contentText) {
+    if (!storyContent?.contentChapters?.length) {
       onClose?.();
       return;
     }

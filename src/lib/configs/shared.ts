@@ -1,5 +1,8 @@
 // Api version
-export const API_VERSION = 3;
+export const API_VERSION = 4;
+
+// Chapters
+export const CHAPTER_MAX_SEGMENT_BYTES = 3000;
 
 // URLs
 export const URL_ORF_REGEXP = /^https:\/\/.*orf\.at.*/i;

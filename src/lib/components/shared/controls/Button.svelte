@@ -14,6 +14,7 @@
     round?: boolean;
     disabled?: boolean;
     title?: string;
+    ariaCurrent?: boolean;
     class?: string | Array<string>;
     customStyle?: boolean;
     children?: Snippet;
@@ -29,6 +30,7 @@
     round = false,
     disabled = undefined,
     title = undefined,
+    ariaCurrent = undefined,
     class: clazz = undefined,
     customStyle = false,
     children,
@@ -58,6 +60,7 @@
   {disabled}
   {title}
   aria-label={iconOnly ? title : undefined}
+  aria-current={ariaCurrent ? 'true' : undefined}
   {onclick}
   {onkeydown}
   bind:this={buttonRef}

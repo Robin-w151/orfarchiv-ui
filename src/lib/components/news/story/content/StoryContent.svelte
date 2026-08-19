@@ -26,6 +26,7 @@
   import { getAudioStore } from '$lib/stores/runes/audio.svelte';
   import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
   import settings from '$lib/stores/settings';
+  import { getContentText } from '$lib/utils/chapter';
   import { logger } from '$lib/utils/logger';
   import { runViewTransition } from '$lib/utils/viewTransition';
   import { ChevronUp, ExclamationCircle, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
@@ -93,7 +94,7 @@
       storyContent = await request;
       if (storyContent) {
         contentStore.setContent(story.id, storyContent);
-        logger.infoGroup('text-content', [[storyContent.contentText]], true);
+        logger.infoGroup('text-content', [[getContentText(storyContent.contentChapters)]], true);
 
         if (storyContent.id) {
           const originalContent = { ...storyContent };
@@ -220,7 +221,7 @@
   }
 
   function handleGenerateAiSummary(): void {
-    if (!storyContent?.contentText) {
+    if (!storyContent?.contentChapters?.length) {
       return;
     }
 
@@ -237,11 +238,11 @@
       return;
     }
 
-    if (!storyContent?.contentText) {
+    if (!storyContent?.contentChapters?.length) {
       return;
     }
 
-    audioStore.read(story, storyContent.contentText);
+    audioStore.read($state.snapshot(story), $state.snapshot(storyContent.contentChapters));
   }
 
   function findAllImages(ref?: HTMLElement): Map<HTMLImageElement, ImageMeta> {
@@ -386,7 +387,7 @@
           </div>
         {/if}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html storyContent.content}
+        {@html storyContent.contentHtml}
       </div>
       <div class={contentInfoClass}>Quelle: <Link href={sourceUrl}>orf.at</Link></div>
     </article>

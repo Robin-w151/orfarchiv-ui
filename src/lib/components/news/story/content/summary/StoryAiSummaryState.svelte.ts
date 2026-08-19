@@ -4,12 +4,13 @@ import type { AiServiceError } from '$lib/errors/errors';
 import { StorySummaryExtended, StorySummarySimple, type StoryContent, type StorySummary } from '$lib/models/story';
 import { AiService } from '$lib/services/ai/ai';
 import settings from '$lib/stores/settings';
+import { getContentText } from '$lib/utils/chapter';
 import { runEffect } from '$lib/utils/effectHelper';
 import { logger } from '$lib/utils/logger';
 import { Effect } from 'effect';
 import { get } from 'svelte/store';
 
-function messageTemplate(storyContent: StoryContent, extended = false): string {
+function messageTemplate(contentText: string, extended = false): string {
   return `
 Du bist ein erfahrener Nachrichtenredakteur und Analyst, spezialisiert auf die Erstellung präziser, unvoreingenommener und faktenbasierter Zusammenfassungen.
 Dein Ziel ist es, den folgenden Nachrichtenartikel objektiv und wertungsfrei zusammenzufassen.
@@ -30,7 +31,7 @@ Konzentriere dich ausschließlich auf die im Text präsentierten Informationen.
 
 **Originaltext:**
 """
-${storyContent.contentText}
+${contentText}
 """
 `;
 }
@@ -70,8 +71,11 @@ export class StoryAiSummaryState {
   aiSummaryCancel: (() => void) | undefined;
 
   private readonly aiService: AiService | undefined;
+  private readonly contentText: string;
 
   constructor(readonly storyContent: StoryContent) {
+    this.contentText = getContentText(storyContent.contentChapters);
+
     if (!browser) {
       return;
     }
@@ -102,9 +106,9 @@ export class StoryAiSummaryState {
   };
 
   generateAiSummary = async (): Promise<void> => {
-    const storyContent = this.storyContent;
+    const contentText = this.contentText;
     const aiService = this.aiService;
-    if (!storyContent?.contentText || !aiService) {
+    if (!contentText || !aiService) {
       return;
     }
 
@@ -116,9 +120,9 @@ export class StoryAiSummaryState {
         this.aiSummaryError = undefined;
       });
 
-      const messageWords = yield* aiService.countWords(storyContent.contentText);
+      const messageWords = yield* aiService.countWords(contentText);
       const extended = this.isExtended(messageWords);
-      const message = messageTemplate(storyContent, extended);
+      const message = messageTemplate(contentText, extended);
 
       const summary = extended
         ? yield* aiService.sendMessage(message, StorySummaryExtended)

@@ -69,7 +69,7 @@ function generateRouteConfig(): Array<RouteConfig> {
     {
       capture: /\/api\/trpc\/news\.content(\?.*)?$/,
       handler: new NetworkFirst({
-        cacheName: 'api-news-content',
+        cacheName: 'api-news-content-v4',
         plugins: [new ExpirationPlugin({ maxEntries: 256 })],
         networkTimeoutSeconds,
       }),
