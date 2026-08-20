@@ -25,7 +25,6 @@ interface AudioStoreInterface {
   chapterIndex: number;
   chapterTitle: string | undefined;
   hasChapters: boolean;
-  progress: number;
   read: (story: Story, chapters: ReadonlyArray<StoryContentChapter>) => void;
   play: () => void;
   playFromStart: () => void;
@@ -58,7 +57,6 @@ class AudioStore implements AudioStoreInterface {
   chapterIndex = $derived<number>(this.segments[this.segmentIndex]?.chapterIndex ?? 0);
   chapterTitle = $derived<string | undefined>(this.chapters[this.chapterIndex]?.title);
   hasChapters = $derived(this.chapters.length > 1);
-  progress = $derived<number>(this.segments.length ? this.segmentIndex / this.segments.length : 0);
 
   read = (newStory: Story, newChapters: ReadonlyArray<StoryContentChapter>): void => {
     if (!this.isAvailable) {
@@ -150,7 +148,6 @@ class AudioStore implements AudioStoreInterface {
   };
 
   previousChapter = (): void => {
-    // Restarts the current chapter when playback is already past its first segment
     const segmentIndex = this.segments.findIndex((segment) => segment.chapterIndex === this.chapterIndex);
     this.playChapter(this.segmentIndex > segmentIndex ? this.chapterIndex : this.chapterIndex - 1);
   };
