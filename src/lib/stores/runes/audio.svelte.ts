@@ -13,16 +13,18 @@ interface Segment {
 }
 
 interface AudioStoreInterface {
-  isAvailable: boolean;
   story: Story | undefined;
+  isAvailable: boolean;
   isActive: boolean;
   isPlaying: boolean;
   volume: number;
   voices: Array<SpeechSynthesisVoice>;
   voice: SpeechSynthesisVoice | undefined;
   chapters: ReadonlyArray<StoryContentChapter>;
+  chaptersExpanded: boolean;
   chapterIndex: number;
   chapterTitle: string | undefined;
+  hasChapters: boolean;
   progress: number;
   read: (story: Story, chapters: ReadonlyArray<StoryContentChapter>) => void;
   play: () => void;
@@ -37,24 +39,25 @@ interface AudioStoreInterface {
 }
 
 class AudioStore implements AudioStoreInterface {
-  isAvailable = $state(false);
   story = $state<Story | undefined>(undefined);
+  isAvailable = $state(false);
   isPlaying = $state(false);
   volume = $state(1);
   voice: SpeechSynthesisVoice | undefined;
   voices: Array<SpeechSynthesisVoice> = $state([]);
   chapters = $state<ReadonlyArray<StoryContentChapter>>([]);
+  chaptersExpanded = $state<boolean>(false);
 
   private segments = $state<Array<Segment>>([]);
   private segmentIndex = $state(0);
   private speechSynthesis: SpeechSynthesis | undefined;
   private utterance: { text: string; voice?: SpeechSynthesisVoice; rate: number; volume: number } | undefined;
-  // Incremented whenever playback is cancelled or restarted so that outdated utterances do not advance the queue
   private playbackId = 0;
 
   isActive = $derived<boolean>(!!this.story);
   chapterIndex = $derived<number>(this.segments[this.segmentIndex]?.chapterIndex ?? 0);
   chapterTitle = $derived<string | undefined>(this.chapters[this.chapterIndex]?.title);
+  hasChapters = $derived(this.chapters.length > 1);
   progress = $derived<number>(this.segments.length ? this.segmentIndex / this.segments.length : 0);
 
   read = (newStory: Story, newChapters: ReadonlyArray<StoryContentChapter>): void => {
@@ -303,7 +306,6 @@ class AudioStore implements AudioStoreInterface {
       volume: this.volume,
     };
 
-    // The end event also fires on cancel, so the queue is advanced from the speak promise guarded by the playback id
     EasySpeech.speak(this.utterance)
       .then(() => {
         if (playbackId !== this.playbackId) {
