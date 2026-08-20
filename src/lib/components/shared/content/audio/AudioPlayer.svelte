@@ -20,7 +20,7 @@
   ]);
   const playerClass = [
     'flex flex-col gap-4 mx-4 sm:mx-6 my-2 sm:my-4 p-4',
-    'w-full max-w-full overflow-hidden',
+    'w-full max-w-full overflow-hidden overscroll-contain',
     'bg-gray-100/90 dark:bg-gray-600/80',
     'rounded-xl shadow-md backdrop-blur-md',
   ];

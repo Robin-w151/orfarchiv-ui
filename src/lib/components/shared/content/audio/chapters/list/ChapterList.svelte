@@ -13,9 +13,10 @@
   const chapterListTransition = $derived(chapterListTransitionStore.accessibleTransition);
 
   const chapterListClass = [
-    'flex flex-col items-stretch gap-1 p-2 max-h-40 sm:max-h-64 overflow-y-auto',
+    'flex flex-col items-stretch gap-1 p-2 max-h-40 sm:max-h-64',
     'bg-gray-300/80 dark:bg-gray-800/60',
     'rounded-md',
+    'overflow-y-auto overscroll-contain',
   ];
   const chapterButtonClass = ['w-full justify-start text-left'];
 </script>

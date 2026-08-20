@@ -15,6 +15,7 @@
 
   const minimizedPlayerClass = [
     'flex gap-2 m-1 p-3',
+    'overflow-hidden overscroll-contain',
     'bg-gray-100/90 dark:bg-gray-600/80',
     'rounded-md shadow-md backdrop-blur-xs',
   ];
