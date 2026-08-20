@@ -7,8 +7,6 @@
 
   const audioStore = getAudioStore();
 
-  const chapters = $derived(audioStore.chapters);
-
   const chapterListTransitionStore = new AccessibleTransitionStore(() => rollUp);
   const chapterListTransition = $derived(chapterListTransitionStore.accessibleTransition);
 
@@ -22,7 +20,7 @@
 </script>
 
 <ol class={chapterListClass} transition:chapterListTransition={chapterListTransitionStore.accessibleTransitionProps}>
-  {#each chapters as chapter, index (index)}
+  {#each audioStore.chapters as chapter, index (index)}
     <li>
       <Button
         class={chapterButtonClass}
