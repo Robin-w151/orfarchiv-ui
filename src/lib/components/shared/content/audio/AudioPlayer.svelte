@@ -36,6 +36,7 @@
 
   function handleClose(): void {
     audioStore.end();
+    audioStore.chaptersExpanded = false;
     minimized = false;
   }
 </script>
