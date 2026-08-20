@@ -10,7 +10,7 @@
   const audioStore = getAudioStore();
 
   const chaptersClass = ['flex flex-col gap-2'];
-  const chaptersHeaderClass = ['flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300'];
+  const chaptersHeaderClass = ['flex items-center gap-2 text-sm'];
   const chaptersHeaderTitleClass = ['flex-1 truncate text-left'];
 
   function handleToggleChapters(): void {

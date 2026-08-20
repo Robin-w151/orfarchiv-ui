@@ -12,10 +12,10 @@
     });
   });
 
-  const chapterProgressClass = ['flex items-center gap-1 w-full h-8'];
+  const chapterProgressClass = ['flex items-center gap-1 w-full h-6'];
   const chapterProgressButtonClass = [
     'progress-button group',
-    'flex-1 min-w-2 py-2 -my-2',
+    'flex-1 min-w-2 py-1 -my-2',
     'cursor-pointer focus-visible:outline-hidden',
   ];
   const chapterProgressTrackClass = [
