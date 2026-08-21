@@ -26,7 +26,7 @@
     'outline-offset-2 outline-(--oa-outline-color-light) dark:outline-(--oa-outline-color-dark)',
     'overflow-hidden transition-all duration-(--oa-transition-duration)',
   ];
-  const chapterProgressFillClass = ['block h-full bg-gray-700 dark:bg-gray-200'];
+  const chapterProgressFillClass = ['block h-full bg-blue-700 dark:bg-blue-500'];
 </script>
 
 <div class={chapterProgressClass} role="group" aria-label="Kapitel">
@@ -66,34 +66,58 @@
   }
 
   .chapter-fill-animation {
+    --chapter-fill-from: var(--color-fuchsia-600);
+    --chapter-fill-via: var(--color-violet-600);
+    --chapter-fill-to: var(--color-blue-700);
+
+    :global(:root.dark) & {
+      --chapter-fill-from: var(--color-fuchsia-400);
+      --chapter-fill-via: var(--color-violet-400);
+      --chapter-fill-to: var(--color-blue-500);
+    }
+
     &.reduced-motion {
       animation: chapter-fill-reduced-motion 1.5s ease-in-out infinite alternate;
     }
 
     &:not(.reduced-motion) {
-      animation: chapter-fill 3s ease-out infinite;
+      animation: chapter-fill 3s linear infinite;
     }
   }
 
   @keyframes chapter-fill {
     from {
       width: 0%;
-      opacity: 0.1;
+      opacity: 0.2;
+      background-color: var(--chapter-fill-from);
+    }
+    50% {
+      width: 50%;
+      opacity: 0.5;
+      background-color: var(--chapter-fill-via);
     }
     to {
       width: 100%;
-      opacity: 0.7;
+      opacity: 0.8;
+      background-color: var(--chapter-fill-to);
     }
   }
 
   @keyframes chapter-fill-reduced-motion {
     from {
       width: 100%;
-      opacity: 0.1;
+      opacity: 0.2;
+      background-color: var(--chapter-fill-from);
+    }
+    50% {
+      width: 100%;
+      opacity: 0.5;
+      background-color: var(--chapter-fill-via);
     }
     to {
       width: 100%;
-      opacity: 0.7;
+      opacity: 0.8;
+      background-color: var(--chapter-fill-to);
     }
   }
 </style>
