@@ -76,7 +76,7 @@ describe('Chapter extraction', () => {
     test('returns the text of nested elements only once', () => {
       const chapters = extractChapters('<p>Hello <strong>World</strong>.</p>');
 
-      expect(text(chapters[0])).toBe('Hello World .');
+      expect(text(chapters[0])).toBe('Hello World.');
     });
   });
 
@@ -92,7 +92,6 @@ describe('Chapter extraction', () => {
     });
 
     test('measures the limit in bytes and not in characters', () => {
-      // Umlauts are two bytes, so the character count stays below the limit while the byte count exceeds it
       const sentence = `${'ÄÖÜ'.repeat(300)}.`;
       const chapters = extractChapters(`<p>${sentence.repeat(4)}</p>`);
 

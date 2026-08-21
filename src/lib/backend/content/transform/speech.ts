@@ -7,6 +7,7 @@ interface ChapterDraft {
   parts: Array<string>;
 }
 
+const UNWANTED_PATTERNS = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i, /^online\s+seit/i];
 const HEADER_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 const SENTENCE_SEPARATOR = /(?<=[.!?…])\s+/;
 const CLAUSE_SEPARATOR = /(?<=[,;:])\s+/;
@@ -22,50 +23,57 @@ export class SpeechService extends Context.Service<SpeechService>()('content/tra
 
 function extractChapters(optimizedDocument: Document, originalDocument: Document) {
   return Effect.sync(() => {
-    const unwantetPatterns = [/^\d+\s*\.\s+[a-zäöü]+\s+\d+,\s+\d+\.\d+\s+uhr(\s*\(update.*\))?$/i, /^online\s+seit/i];
-    const keywordText = originalDocument.querySelector('div.keyword')?.textContent?.trim();
+    const speechOptimizedDocument = optimizedDocument.cloneNode(true) as Document;
 
-    const document = optimizedDocument.cloneNode(true) as Document;
-    for (const element of document.querySelectorAll('p')) {
-      const text = element.textContent?.trim() ?? '';
-      const isKeyword = keywordText ? text === keywordText : false;
-      if (isKeyword || unwantetPatterns.some((pattern) => pattern.test(text))) {
-        element.remove();
-      }
-    }
+    cleanup(speechOptimizedDocument, originalDocument);
 
-    for (const element of document.querySelectorAll('.slideshow')) {
-      element.parentElement?.remove();
-    }
+    const headerTitles = extractHeaderTitles(speechOptimizedDocument);
 
-    for (const element of document.querySelectorAll('figcaption')) {
-      element.remove();
-    }
-
-    for (const element of document.querySelectorAll('.story-footer')) {
-      element.remove();
-    }
-
-    // The title is the header text as written, the spoken text always ends with a sentence mark so that the speech
-    // synthesis pauses instead of running the header into the following sentence.
-    const headerTitles = new Map<Element, string>();
-    for (const header of document.querySelectorAll(HEADER_SELECTOR)) {
-      const text = header.textContent?.trim() ?? '';
-      if (!text) {
-        continue;
-      }
-
-      headerTitles.set(header, text);
-      if (!SENTENCE_MARK.test(text)) {
-        header.textContent = `${text}.`;
-      }
-    }
-
-    return splitIntoChapters(document.body, headerTitles).map(({ title, text }) => ({
+    return splitIntoChapters(speechOptimizedDocument.body, headerTitles).map(({ title, text }) => ({
       title,
       segments: splitIntoSegments(text, CHAPTER_MAX_SEGMENT_BYTES),
     })) satisfies Array<StoryContentChapter>;
   });
+}
+
+function cleanup(speechOptimizedDocument: Document, originalDocument: Document): void {
+  const keywordText = originalDocument.querySelector('div.keyword')?.textContent?.trim();
+
+  for (const element of speechOptimizedDocument.querySelectorAll('p')) {
+    const text = element.textContent?.trim() ?? '';
+    const isKeyword = keywordText ? text === keywordText : false;
+    if (isKeyword || UNWANTED_PATTERNS.some((pattern) => pattern.test(text))) {
+      element.remove();
+    }
+  }
+
+  for (const element of speechOptimizedDocument.querySelectorAll('.slideshow')) {
+    element.parentElement?.remove();
+  }
+
+  for (const element of speechOptimizedDocument.querySelectorAll('figcaption')) {
+    element.remove();
+  }
+
+  for (const element of speechOptimizedDocument.querySelectorAll('.story-footer')) {
+    element.remove();
+  }
+}
+
+function extractHeaderTitles(speechOptimizedDocument: Document): Map<Element, string> {
+  const headerTitles = new Map<Element, string>();
+  for (const header of speechOptimizedDocument.querySelectorAll(HEADER_SELECTOR)) {
+    const text = header.textContent?.trim() ?? '';
+    if (!text) {
+      continue;
+    }
+
+    headerTitles.set(header, text);
+    if (!SENTENCE_MARK.test(text)) {
+      header.textContent = `${text}.`;
+    }
+  }
+  return headerTitles;
 }
 
 function splitIntoChapters(
@@ -76,7 +84,11 @@ function splitIntoChapters(
   let current: ChapterDraft = { parts: [] };
 
   function flush(): void {
-    const text = current.parts.join(' ').replaceAll(/\s+/g, ' ').trim();
+    const text = current.parts
+      .join(' ')
+      .replaceAll(/\s+/g, ' ')
+      .replaceAll(/\s([,.;:!?…])/g, '$1')
+      .trim();
     if (text) {
       chapters.push({ title: current.title, text });
     }
@@ -176,7 +188,6 @@ function splitByCharacters(text: string, maxBytes: number): Array<string> {
   const parts: Array<string> = [];
   let part = '';
 
-  // Iterating code points instead of slicing by index never cuts a multi byte character in half
   for (const character of text) {
     if (byteLength(part + character) > maxBytes) {
       parts.push(part);

@@ -1,5 +1,5 @@
 import { browser } from '$app/env';
-import type { Story, StoryContentChapter } from '$lib/models/story';
+import type { Story, StoryContent, StoryContentChapter } from '$lib/models/story';
 import { getChapterTitle } from '$lib/utils/chapter';
 import { logger } from '$lib/utils/logger';
 import { isMediaSessionAvailable } from '$lib/utils/support';
@@ -25,7 +25,7 @@ interface AudioStoreInterface {
   chapterIndex: number;
   chapterTitle: string | undefined;
   hasChapters: boolean;
-  read: (story: Story, chapters: ReadonlyArray<StoryContentChapter>) => void;
+  read: (story: Story, storyContent: StoryContent) => void;
   play: () => void;
   playFromStart: () => void;
   playChapter: (index: number) => void;
@@ -58,7 +58,7 @@ class AudioStore implements AudioStoreInterface {
   chapterTitle = $derived<string | undefined>(this.chapters[this.chapterIndex]?.title);
   hasChapters = $derived(this.chapters.length > 1);
 
-  read = (newStory: Story, newChapters: ReadonlyArray<StoryContentChapter>): void => {
+  read = (newStory: Story, newStoryContent: StoryContent): void => {
     if (!this.isAvailable) {
       return;
     }
@@ -69,8 +69,8 @@ class AudioStore implements AudioStoreInterface {
     }
 
     this.story = newStory;
-    this.chapters = newChapters;
-    this.segments = newChapters.flatMap((chapter, chapterIndex) =>
+    this.chapters = newStoryContent.contentChapters;
+    this.segments = this.chapters.flatMap((chapter, chapterIndex) =>
       chapter.segments.map((text) => ({ chapterIndex, text })),
     );
     this.segmentIndex = 0;
@@ -78,7 +78,7 @@ class AudioStore implements AudioStoreInterface {
 
     logger.infoGroup('audio-read', [
       ['story', newStory],
-      ['chapters', newChapters],
+      ['storyContent', newStoryContent],
     ]);
 
     this.startPlayback();
@@ -93,7 +93,7 @@ class AudioStore implements AudioStoreInterface {
     logger.infoGroup(
       'audio-play',
       [
-        ['story', $state.snapshot(this.story)],
+        ['story', this.story],
         ['utterance', this.utterance],
       ],
       true,
@@ -111,7 +111,7 @@ class AudioStore implements AudioStoreInterface {
       return;
     }
 
-    logger.infoGroup('audio-play-from-start', [['story', $state.snapshot(this.story)]], true);
+    logger.infoGroup('audio-play-from-start', [['story', this.story]], true);
 
     this.segmentIndex = 0;
     this.isPlaying = true;
@@ -132,7 +132,7 @@ class AudioStore implements AudioStoreInterface {
     logger.infoGroup(
       'audio-play-chapter',
       [
-        ['story', $state.snapshot(this.story)],
+        ['story', this.story],
         ['chapter', chapterIndex],
       ],
       true,
@@ -144,12 +144,15 @@ class AudioStore implements AudioStoreInterface {
   };
 
   nextChapter = (): void => {
+    if (this.chapterIndex >= this.chapters.length - 1) {
+      return;
+    }
+
     this.playChapter(this.chapterIndex + 1);
   };
 
   previousChapter = (): void => {
-    const segmentIndex = this.segments.findIndex((segment) => segment.chapterIndex === this.chapterIndex);
-    this.playChapter(this.segmentIndex > segmentIndex ? this.chapterIndex : this.chapterIndex - 1);
+    this.playChapter(this.chapterIndex - 1);
   };
 
   pause = (): void => {
@@ -161,7 +164,7 @@ class AudioStore implements AudioStoreInterface {
     logger.infoGroup(
       'audio-pause',
       [
-        ['story', $state.snapshot(this.story)],
+        ['story', this.story],
         ['utterance', this.utterance],
       ],
       true,
@@ -188,7 +191,6 @@ class AudioStore implements AudioStoreInterface {
   };
 
   mute = (): void => {
-    // Applies to the segments spoken from now on, the currently spoken segment keeps its volume
     this.volume = 0;
 
     if (this.utterance) {
@@ -196,7 +198,7 @@ class AudioStore implements AudioStoreInterface {
       logger.infoGroup(
         'audio-mute',
         [
-          ['story', $state.snapshot(this.story)],
+          ['story', this.story],
           ['utterance', this.utterance],
         ],
         true,
@@ -212,7 +214,7 @@ class AudioStore implements AudioStoreInterface {
       logger.infoGroup(
         'audio-unmute',
         [
-          ['story', $state.snapshot(this.story)],
+          ['story', this.story],
           ['utterance', this.utterance],
         ],
         true,

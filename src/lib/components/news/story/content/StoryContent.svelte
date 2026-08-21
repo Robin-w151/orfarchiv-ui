@@ -242,7 +242,7 @@
       return;
     }
 
-    audioStore.read($state.snapshot(story), $state.snapshot(storyContent.contentChapters));
+    audioStore.read($state.snapshot(story), $state.snapshot(storyContent));
   }
 
   function findAllImages(ref?: HTMLElement): Map<HTMLImageElement, ImageMeta> {
