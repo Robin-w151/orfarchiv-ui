@@ -8,6 +8,7 @@ import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute, type Route } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
 import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from './lib/configs/client';
+import { API_VERSION } from './lib/configs/shared';
 
 interface RouteConfig {
   capture: string | RegExp | RouteMatchCallback | Route;
@@ -20,6 +21,10 @@ const wbManifest = self.__WB_MANIFEST;
 
 const networkTimeoutSeconds = 5;
 const notificationsClicked: Set<string> = new Set();
+
+const searchCacheName = `api-news-search-v${API_VERSION}`;
+const contentCacheName = `api-news-content-v${API_VERSION}`;
+const apiCacheNames = new Set([searchCacheName, contentCacheName]);
 
 setupCacheAndRoutes();
 setupNotifications();
@@ -34,6 +39,10 @@ function setupCacheAndRoutes(): void {
   for (const { capture, handler } of routeConfig) {
     registerRoute(capture, handler);
   }
+
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(deleteOutdatedApiCaches());
+  });
 }
 
 function setupNotifications(): void {
@@ -54,7 +63,7 @@ function generateRouteConfig(): Array<RouteConfig> {
     {
       capture: /\/api\/trpc\/news\.search(\?.*)?$/,
       handler: new NetworkFirst({
-        cacheName: 'api-news-search',
+        cacheName: searchCacheName,
         plugins: [new ExpirationPlugin({ maxEntries: 64 }), fallbackResponsePlugin({ stories: [] })],
         networkTimeoutSeconds,
       }),
@@ -69,7 +78,7 @@ function generateRouteConfig(): Array<RouteConfig> {
     {
       capture: /\/api\/trpc\/news\.content(\?.*)?$/,
       handler: new NetworkFirst({
-        cacheName: 'api-news-content',
+        cacheName: contentCacheName,
         plugins: [new ExpirationPlugin({ maxEntries: 256 })],
         networkTimeoutSeconds,
       }),
@@ -135,4 +144,11 @@ async function handleNotificationClose(event: NotificationEvent): Promise<void> 
   }
 
   event.waitUntil(notifyClientsAndFocus(id, type));
+}
+
+async function deleteOutdatedApiCaches(): Promise<void> {
+  const cacheNames = await caches.keys();
+  const outdatedCacheNames = cacheNames.filter((name) => name.startsWith('api-') && !apiCacheNames.has(name));
+
+  await Promise.all(outdatedCacheNames.map((name) => caches.delete(name)));
 }

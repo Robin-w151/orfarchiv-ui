@@ -544,8 +544,8 @@ test.describe('NewsPage', () => {
     test('ai summary extended response', async ({ newsPage }) => {
       const longContentText = Array.from({ length: 700 }, () => 'Wort').join(' ');
       await newsPage.mockFetchContentApi({
-        content: `<div><p>${longContentText}</p></div>`,
-        contentText: longContentText,
+        contentHtml: `<div><p>${longContentText}</p></div>`,
+        contentChapters: [{ segments: [longContentText] }],
       });
 
       const aiSummary = {

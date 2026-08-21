@@ -93,7 +93,7 @@ describe('News content', () => {
       mockArticle('<p>Hello World</p>');
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -141,7 +141,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -162,7 +162,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -181,7 +181,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -195,7 +195,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -209,7 +209,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -223,7 +223,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -235,7 +235,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml('<div id="readability-page-1" class="page"><p>Hello World</p></div>');
     });
@@ -321,7 +321,7 @@ describe('News content', () => {
       );
 
       const result = await fetchStoryContent(mockArticleUrl, fetchReadMore);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
       const id = Result.isSuccess(result) ? result.success.id : undefined;
       const source = Result.isSuccess(result) ? result.success.source : undefined;
 
@@ -805,7 +805,7 @@ describe('News content', () => {
       mockArticle(article);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(expected);
     });
@@ -835,7 +835,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -868,7 +868,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -901,7 +901,7 @@ describe('News content', () => {
       });
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`
         <div id="readability-page-1" class="page">
@@ -929,7 +929,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : undefined;
+      const content = Result.isSuccess(result) ? result.success.contentHtml : undefined;
 
       await expect(content).toBeHtml(`<div id="readability-page-1" class="page">
           <figure>
@@ -958,7 +958,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('width="5000"');
       expect(content).toContain('height="3333"');
@@ -974,7 +974,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('width="5000"');
       expect(content).toContain('height="3333"');
@@ -987,7 +987,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('width="640"');
       expect(content).toContain('height="256"');
@@ -1004,7 +1004,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('width="640"');
       expect(content).toContain('height="256"');
@@ -1017,7 +1017,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('width="800"');
       expect(content).toContain('height="600"');
@@ -1030,7 +1030,7 @@ describe('News content', () => {
       `);
 
       const result = await fetchStoryContent(mockArticleUrl);
-      const content = Result.isSuccess(result) ? result.success.content : '';
+      const content = Result.isSuccess(result) ? result.success.contentHtml : '';
 
       expect(content).toContain('src="https://foo.bar/example-image"');
       expect(content).not.toContain('width=');

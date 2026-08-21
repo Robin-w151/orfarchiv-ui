@@ -175,11 +175,12 @@
   `;
 
   const storyContent: StoryContentModel = {
-    content,
-    contentText: content
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim(),
+    contentHtml: content,
+    contentChapters: [
+      { segments: ['Ein einleitender Absatz ohne Überschrift.', 'Ein weiterer Satz der Einleitung.'] },
+      { title: 'Reaktionen aus der Politik', segments: ['Reaktionen aus der Politik. Ein erster Abschnitt.'] },
+      { title: 'Ausblick', segments: ['Ausblick. Ein zweiter Abschnitt.', 'Und noch ein Satz dazu.'] },
+    ],
     id: story.id,
     timestamp: story.timestamp,
     source: { name: 'news', url: story.url },

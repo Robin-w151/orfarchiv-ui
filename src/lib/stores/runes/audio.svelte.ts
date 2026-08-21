@@ -1,22 +1,36 @@
 import { browser } from '$app/env';
-import type { Story } from '$lib/models/story';
+import type { Story, StoryContent, StoryContentChapter } from '$lib/models/story';
+import { getChapterTitle } from '$lib/utils/chapter';
 import { logger } from '$lib/utils/logger';
 import { isMediaSessionAvailable } from '$lib/utils/support';
 import EasySpeech from 'easy-speech';
 import { getContext, setContext } from 'svelte';
 import settings from '../settings';
 
+interface Segment {
+  chapterIndex: number;
+  text: string;
+}
+
 interface AudioStoreInterface {
-  isAvailable: boolean;
   story: Story | undefined;
+  isAvailable: boolean;
   isActive: boolean;
   isPlaying: boolean;
   volume: number;
   voices: Array<SpeechSynthesisVoice>;
   voice: SpeechSynthesisVoice | undefined;
-  read: (story: Story, text: string) => void;
+  chapters: ReadonlyArray<StoryContentChapter>;
+  chaptersExpanded: boolean;
+  chapterIndex: number;
+  chapterTitle: string | undefined;
+  hasChapters: boolean;
+  read: (story: Story, storyContent: StoryContent) => void;
   play: () => void;
   playFromStart: () => void;
+  playChapter: (index: number) => void;
+  nextChapter: () => void;
+  previousChapter: () => void;
   pause: () => void;
   end: () => void;
   mute: () => void;
@@ -24,18 +38,27 @@ interface AudioStoreInterface {
 }
 
 class AudioStore implements AudioStoreInterface {
-  isAvailable = $state(false);
   story = $state<Story | undefined>(undefined);
+  isAvailable = $state(false);
   isPlaying = $state(false);
   volume = $state(1);
   voice: SpeechSynthesisVoice | undefined;
   voices: Array<SpeechSynthesisVoice> = $state([]);
-  isActive = $derived<boolean>(!!this.story);
+  chapters = $state<ReadonlyArray<StoryContentChapter>>([]);
+  chaptersExpanded = $state<boolean>(false);
 
+  private segments = $state<Array<Segment>>([]);
+  private segmentIndex = $state(0);
   private speechSynthesis: SpeechSynthesis | undefined;
   private utterance: { text: string; voice?: SpeechSynthesisVoice; rate: number; volume: number } | undefined;
+  private playbackId = 0;
 
-  read = (newStory: Story, newText: string): void => {
+  isActive = $derived<boolean>(!!this.story);
+  chapterIndex = $derived<number>(this.segments[this.segmentIndex]?.chapterIndex ?? 0);
+  chapterTitle = $derived<string | undefined>(this.chapters[this.chapterIndex]?.title);
+  hasChapters = $derived(this.chapters.length > 1);
+
+  read = (newStory: Story, newStoryContent: StoryContent): void => {
     if (!this.isAvailable) {
       return;
     }
@@ -46,30 +69,19 @@ class AudioStore implements AudioStoreInterface {
     }
 
     this.story = newStory;
+    this.chapters = newStoryContent.contentChapters;
+    this.segments = this.chapters.flatMap((chapter, chapterIndex) =>
+      chapter.segments.map((text) => ({ chapterIndex, text })),
+    );
+    this.segmentIndex = 0;
     this.isPlaying = true;
 
-    if (isMediaSessionAvailable()) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: newStory.title,
-        artist: 'Text to Speech',
-      });
-    }
-
-    EasySpeech.cancel();
-
-    this.utterance = {
-      text: newText,
-      voice: this.voice,
-      rate: 1.2,
-      volume: this.volume,
-    };
     logger.infoGroup('audio-read', [
       ['story', newStory],
-      ['text', newText],
-      ['utterance', this.utterance],
+      ['storyContent', newStoryContent],
     ]);
 
-    EasySpeech.speak(this.utterance);
+    this.startPlayback();
   };
 
   play = (): void => {
@@ -81,40 +93,66 @@ class AudioStore implements AudioStoreInterface {
     logger.infoGroup(
       'audio-play',
       [
-        ['story', $state.snapshot(this.story)],
+        ['story', this.story],
         ['utterance', this.utterance],
       ],
       true,
     );
 
-    if (!this.speechSynthesis?.speaking && this.utterance) {
-      EasySpeech.speak(this.utterance);
+    if (!this.speechSynthesis?.speaking) {
+      this.startPlayback();
     } else {
       EasySpeech.resume();
     }
   };
 
   playFromStart = (): void => {
-    if (!this.isAvailable) {
+    if (!this.isAvailable || !this.segments.length) {
       return;
     }
 
-    if (!this.utterance) {
-      return;
-    }
+    logger.infoGroup('audio-play-from-start', [['story', this.story]], true);
 
+    this.segmentIndex = 0;
     this.isPlaying = true;
+    this.startPlayback();
+  };
+
+  playChapter = (index: number): void => {
+    if (!this.isAvailable || !this.segments.length) {
+      return;
+    }
+
+    const chapterIndex = Math.min(Math.max(index, 0), this.chapters.length - 1);
+    const segmentIndex = this.segments.findIndex((segment) => segment.chapterIndex === chapterIndex);
+    if (segmentIndex < 0) {
+      return;
+    }
+
     logger.infoGroup(
-      'audio-play-from-start',
+      'audio-play-chapter',
       [
-        ['story', $state.snapshot(this.story)],
-        ['utterance', this.utterance],
+        ['story', this.story],
+        ['chapter', chapterIndex],
       ],
       true,
     );
 
-    EasySpeech.cancel();
-    EasySpeech.speak(this.utterance);
+    this.segmentIndex = segmentIndex;
+    this.isPlaying = true;
+    this.startPlayback();
+  };
+
+  nextChapter = (): void => {
+    if (this.chapterIndex >= this.chapters.length - 1) {
+      return;
+    }
+
+    this.playChapter(this.chapterIndex + 1);
+  };
+
+  previousChapter = (): void => {
+    this.playChapter(this.chapterIndex - 1);
   };
 
   pause = (): void => {
@@ -126,7 +164,7 @@ class AudioStore implements AudioStoreInterface {
     logger.infoGroup(
       'audio-pause',
       [
-        ['story', $state.snapshot(this.story)],
+        ['story', this.story],
         ['utterance', this.utterance],
       ],
       true,
@@ -141,7 +179,11 @@ class AudioStore implements AudioStoreInterface {
     }
 
     this.story = undefined;
+    this.chapters = [];
+    this.segments = [];
+    this.segmentIndex = 0;
     this.isPlaying = false;
+    this.playbackId += 1;
     logger.infoGroup('audio-end', [['utterance', this.utterance]], true);
 
     EasySpeech.cancel();
@@ -156,7 +198,7 @@ class AudioStore implements AudioStoreInterface {
       logger.infoGroup(
         'audio-mute',
         [
-          ['story', $state.snapshot(this.story)],
+          ['story', this.story],
           ['utterance', this.utterance],
         ],
         true,
@@ -172,7 +214,7 @@ class AudioStore implements AudioStoreInterface {
       logger.infoGroup(
         'audio-unmute',
         [
-          ['story', $state.snapshot(this.story)],
+          ['story', this.story],
           ['utterance', this.utterance],
         ],
         true,
@@ -196,9 +238,6 @@ class AudioStore implements AudioStoreInterface {
             this.isPlaying = true;
           },
           pause: () => {
-            this.isPlaying = false;
-          },
-          end: () => {
             this.isPlaying = false;
           },
         });
@@ -232,7 +271,71 @@ class AudioStore implements AudioStoreInterface {
         logger.info('media-session action: stop');
         this.end();
       });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        logger.info('media-session action: previoustrack');
+        this.previousChapter();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        logger.info('media-session action: nexttrack');
+        this.nextChapter();
+      });
     }
+  }
+
+  private startPlayback(): void {
+    this.playbackId += 1;
+    EasySpeech.cancel();
+    this.speakCurrentSegment(this.playbackId);
+  }
+
+  private speakCurrentSegment(playbackId: number): void {
+    const segment = this.segments[this.segmentIndex];
+    if (!segment) {
+      this.isPlaying = false;
+      this.segmentIndex = 0;
+      return;
+    }
+
+    this.updateMediaSessionMetadata();
+
+    this.utterance = {
+      text: segment.text,
+      voice: this.voice,
+      rate: 1.2,
+      volume: this.volume,
+    };
+
+    EasySpeech.speak(this.utterance)
+      .then(() => {
+        if (playbackId !== this.playbackId || !this.isPlaying) {
+          return;
+        }
+
+        this.segmentIndex += 1;
+        this.speakCurrentSegment(playbackId);
+      })
+      .catch((error) => {
+        if (playbackId !== this.playbackId) {
+          return;
+        }
+
+        this.isPlaying = false;
+        logger.errorGroup('audio-error', [[(error as Error).message]]);
+      });
+  }
+
+  private updateMediaSessionMetadata(): void {
+    if (!this.story || !isMediaSessionAvailable()) {
+      return;
+    }
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: this.story.title,
+      artist:
+        this.chapters.length > 1
+          ? getChapterTitle(this.chapters[this.chapterIndex], this.chapterIndex, this.story.title)
+          : 'Text to Speech',
+    });
   }
 }
 

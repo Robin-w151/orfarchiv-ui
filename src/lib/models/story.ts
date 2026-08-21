@@ -31,9 +31,15 @@ export const StorySource = Schema.Struct({
 });
 export type StorySource = typeof StorySource.Type;
 
+export const StoryContentChapter = Schema.Struct({
+  title: Schema.optional(Schema.String),
+  segments: Schema.Array(Schema.String),
+});
+export type StoryContentChapter = typeof StoryContentChapter.Type;
+
 export const StoryContent = Schema.Struct({
-  content: Schema.String,
-  contentText: Schema.String,
+  contentHtml: Schema.String,
+  contentChapters: Schema.Array(StoryContentChapter),
   id: Schema.optional(Schema.String),
   timestamp: Schema.optional(Schema.String.check(isIsoDateTime)),
   source: Schema.optional(StorySource),

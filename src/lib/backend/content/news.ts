@@ -108,8 +108,8 @@ export function fetchStoryContent(
     const storySource = source ? ({ name: source, url: currentUrl } satisfies StorySource) : undefined;
 
     return {
-      content: yield* sanitizeService.sanitizeContent(optimizedDocument.body.innerHTML),
-      contentText: yield* speechService.extractTextForSpeechSynthesis(optimizedDocument, originalDocument),
+      contentHtml: yield* sanitizeService.sanitizeContent(optimizedDocument.body.innerHTML),
+      contentChapters: yield* speechService.extractChapters(optimizedDocument, originalDocument),
       id,
       timestamp: currentStory?.timestamp,
       source: storySource,
