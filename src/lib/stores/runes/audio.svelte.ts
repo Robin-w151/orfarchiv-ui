@@ -307,7 +307,7 @@ class AudioStore implements AudioStoreInterface {
 
     EasySpeech.speak(this.utterance)
       .then(() => {
-        if (playbackId !== this.playbackId) {
+        if (playbackId !== this.playbackId || !this.isPlaying) {
           return;
         }
 
@@ -333,7 +333,7 @@ class AudioStore implements AudioStoreInterface {
       title: this.story.title,
       artist:
         this.chapters.length > 1
-          ? getChapterTitle(this.chapters[this.chapterIndex], this.chapterIndex)
+          ? getChapterTitle(this.chapters[this.chapterIndex], this.chapterIndex, this.story.title)
           : 'Text to Speech',
     });
   }

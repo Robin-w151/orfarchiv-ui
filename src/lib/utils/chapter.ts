@@ -4,7 +4,6 @@ export function getContentText(chapters: ReadonlyArray<StoryContentChapter>): st
   return chapters.flatMap((chapter) => chapter.segments).join(' ');
 }
 
-// Only the chapter before the first header has no title, so the story title names the introduction of the story
 export function getChapterTitle(chapter: StoryContentChapter | undefined, index: number, storyTitle?: string): string {
   return chapter?.title ?? storyTitle ?? `Kapitel ${index + 1}`;
 }
