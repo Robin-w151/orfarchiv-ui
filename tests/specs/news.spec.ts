@@ -11,6 +11,7 @@ import {
   newsMock,
   newsMockMore,
   newsMockNoContent,
+  newsMockSemantic,
   newsMockUpdate,
   newsMockWithFilter,
 } from '../mocks/news.mocks';
@@ -120,6 +121,39 @@ test.describe('NewsPage', () => {
       await expect(newsPage.getDateFilterInput('Von')).toHaveValue('');
       await expect(newsPage.getDateFilterInput('Bis')).toHaveValue('');
       await expect(newsPage.matchModeFilter).toHaveValue('anyOf');
+    });
+  });
+
+  test.describe('Semantic search', () => {
+    test('renders one bucket headed with the result count, in server order', async ({ newsPage }) => {
+      await newsPage.mockSearchNewsApi(newsMockSemantic, { filter: 'Teuerung' });
+      await newsPage.searchNews('Teuerung');
+
+      await expect(newsPage.newsListSections).toHaveCount(1);
+      await expect(newsPage.getNewsListSection(0)).toContainText('3 Ergebnisse');
+
+      await expect(newsPage.newsListItems).toHaveCount(newsMockSemantic.stories.length);
+      for (const [index, story] of newsMockSemantic.stories.entries()) {
+        await expect(newsPage.getNewsListItem(index)).toContainText(story.title);
+      }
+    });
+
+    test('disables "Weitere laden" because there is no next page', async ({ newsPage }) => {
+      await newsPage.mockSearchNewsApi(newsMockSemantic, { filter: 'Teuerung' });
+      await newsPage.searchNews('Teuerung');
+
+      await expect(newsPage.loadMoreButton).toBeDisabled();
+    });
+
+    test('returns to date buckets when the search goes back to keyword results', async ({ newsPage }) => {
+      await newsPage.mockSearchNewsApi(newsMockSemantic, { filter: 'Teuerung' });
+      await newsPage.searchNews('Teuerung');
+      await expect(newsPage.newsListSections).toHaveCount(1);
+
+      await newsPage.mockSearchNewsApi(newsMock, { filter: 'Wien' });
+      await newsPage.searchNews('Wien');
+
+      await expect(newsPage.newsListSections).toHaveCount(newsMock.stories.length);
     });
   });
 

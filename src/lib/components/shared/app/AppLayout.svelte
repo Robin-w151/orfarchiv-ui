@@ -2,6 +2,7 @@
   import { onNavigate } from '$app/navigation';
   import { InfoApi } from '$lib/api/info';
   import { API_VERSION } from '$lib/configs/shared';
+  import { setInfoStore } from '$lib/stores/runes/info.svelte';
   import { setAudioStore } from '$lib/stores/runes/audio.svelte';
   import { setEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
   import { setReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
@@ -28,10 +29,11 @@
 
   let { children }: Props = $props();
 
+  const infoStore = setInfoStore();
   const reducedMotionStore = setReducedMotionStore();
-  setSkeletonStore();
   setAudioStore();
   setEffectiveColorSchemeStore();
+  setSkeletonStore();
 
   const infoApi = new InfoApi();
 
@@ -69,8 +71,9 @@
 
   async function checkApiVersion(): Promise<void> {
     try {
-      const { apiVersion } = await infoApi.fetchInfo();
-      isApiCompatible = apiVersion !== undefined && API_VERSION === apiVersion;
+      const fetchedInfo = await infoApi.fetchInfo();
+      infoStore.storeInfo(fetchedInfo);
+      isApiCompatible = fetchedInfo.apiVersion !== undefined && API_VERSION === fetchedInfo.apiVersion;
     } catch (_error) {
       logger.warn('Could not determine current API version!');
     }

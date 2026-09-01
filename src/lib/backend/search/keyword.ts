@@ -1,11 +1,12 @@
-import orfArchivDb from '$lib/backend/db/init';
-import { logger, NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/server';
-import type { News, NewsUpdates } from '$lib/models/news';
+import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
+import type { SearchError } from '$lib/errors/errors';
+import type { News } from '$lib/models/news';
 import type { PageKey } from '$lib/models/pageKey';
-import type { SearchMatchMode, SearchRequest, SearchRequestParameters } from '$lib/models/searchRequest';
-import { StoryEntity, type SearchStoryOptions, type Story } from '$lib/models/story';
-import { Schema } from 'effect';
+import type { KeywordSearchRequest, KeywordSearchRequestParameters, SearchMatchMode } from '$lib/models/searchRequest';
+import type { StoryEntity } from '$lib/models/story';
+import { Context, Effect, Layer } from 'effect';
 import type { Collection, Sort } from 'mongodb';
+import { isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
 
 type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
 
@@ -16,59 +17,43 @@ interface PaginatedQuery {
   nextKeyFn: PageKeyFn;
 }
 
-export async function searchNews(searchRequest: SearchRequest): Promise<News> {
-  logger.info(`Search news with request='${JSON.stringify(searchRequest)}'`);
-
-  const { searchRequestParameters, pageKey } = searchRequest;
-
-  const query = buildQuery(searchRequestParameters);
-  const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
-  const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
-
-  const newsCollection = orfArchivDb.newsCollection();
-  const stories = await executeQuery(newsCollection, paginatedQuery, sort, limit);
-  const orderedStories = correctOrder(stories, pageKey);
-  const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
-
-  return {
-    stories: orderedStories
-      .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
-      .map((story) => mapToStory(story)),
-    prevKey,
-    nextKey,
-  };
+export type KeywordSearchServiceShape = Context.Service.Shape<typeof KeywordSearchService>;
+export class KeywordSearchService extends Context.Service<KeywordSearchService>()('search/KeywordSearchService', {
+  make: Effect.succeed(defineService()),
+}) {
+  static readonly layerWithoutDependencies = Layer.effect(this, this.make);
+  static readonly layer = this.layerWithoutDependencies;
 }
 
-export async function checkNewsUpdatesAvailable(searchRequest: SearchRequest): Promise<NewsUpdates> {
-  logger.info(`Check if news updates with request='${JSON.stringify(searchRequest)}' are available`);
+function defineService() {
+  function searchNews(searchRequest: KeywordSearchRequest): Effect.Effect<News, SearchError> {
+    return Effect.gen(function* () {
+      const { searchRequestParameters, pageKey } = searchRequest;
 
-  if (searchRequest.pageKey?.type !== 'prev') {
-    return { updateAvailable: false };
+      const query = buildQuery(searchRequestParameters);
+      const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
+      const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
+
+      const stories = yield* useNewsCollection('Failed to search news.', (newsCollection) =>
+        executeQuery(newsCollection, paginatedQuery, sort, limit),
+      );
+      const orderedStories = correctOrder(stories, pageKey);
+      const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
+
+      return {
+        stories: orderedStories
+          .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
+          .map((story) => mapToStory(story)),
+        prevKey,
+        nextKey,
+      };
+    });
   }
 
-  const news = await searchNews(searchRequest);
-  return { updateAvailable: news.stories.length > 0 };
+  return { searchNews } as const;
 }
 
-export async function searchStory(url: string, options?: SearchStoryOptions): Promise<Story | undefined> {
-  logger.info(`Search story with url='${url}'`);
-
-  const { includeOesterreichSource = false } = options ?? {};
-  const query: { url: string; source?: unknown } = { url, source: { $ne: 'oesterreich' } };
-  if (includeOesterreichSource) {
-    delete query.source;
-  }
-
-  const newsCollection = orfArchivDb.newsCollection();
-  const story = await newsCollection.findOne(query);
-  if (isStoryEntity(story)) {
-    return mapToStory(story);
-  } else {
-    return undefined;
-  }
-}
-
-function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: SearchRequestParameters): any {
+function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: KeywordSearchRequestParameters) {
   const textFilters = textFilter
     ?.split(/\s+/)
     .filter((text) => !!text)
@@ -88,7 +73,7 @@ function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: SearchR
   return { $and: [tagQuery, textQuery, fromQuery, toQuery, sourceQuery] };
 }
 
-function buildTagQuery(tag: string | undefined): any {
+function buildTagQuery(tag: string | undefined) {
   if (!tag) {
     return {};
   }
@@ -99,7 +84,7 @@ function buildTagQuery(tag: string | undefined): any {
   };
 }
 
-function buildTextQuery(textFilters: Array<RegExp> | undefined, matchMode: SearchMatchMode = 'anyOf'): any {
+function buildTextQuery(textFilters: Array<RegExp> | undefined, matchMode: SearchMatchMode = 'anyOf') {
   if (!textFilters || textFilters.length === 0) {
     return {};
   }
@@ -190,30 +175,4 @@ function getPageKeys(
   const prevKey = !pageKey || pageKey?.type === 'prev' ? prevKeyFn(stories) : undefined;
   const nextKey = !pageKey || pageKey?.type === 'next' ? nextKeyFn(stories) : undefined;
   return { prevKey, nextKey };
-}
-
-function mapToStory(entry: StoryEntity): Story {
-  return {
-    id: entry.id,
-    title: entry.title,
-    category: entry.category ?? undefined,
-    url: entry.url,
-    timestamp: entry.timestamp.toISOString(),
-    source: entry.source,
-  };
-}
-
-const isStoryEntity = Schema.is(StoryEntity);
-
-function parseDate(date: string | null | undefined): Date | undefined {
-  if (!date) {
-    return undefined;
-  }
-
-  const dateObject = new Date(date);
-  if (Number.isNaN(dateObject.getTime())) {
-    return undefined;
-  }
-
-  return dateObject;
 }

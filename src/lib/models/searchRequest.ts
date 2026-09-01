@@ -8,7 +8,13 @@ export const DateFilter = Schema.Struct({
 });
 export type DateFilter = typeof DateFilter.Type;
 
-export const SearchMatchMode = Schema.Literals(['anyOf', 'allOf']);
+export const KeywordSearchMatchMode = Schema.Literals(['anyOf', 'allOf']);
+export type KeywordSearchMatchMode = typeof KeywordSearchMatchMode.Type;
+
+export const SemanticSearchMatchMode = Schema.Literal('semantic');
+export type SemanticSearchMatchMode = typeof SemanticSearchMatchMode.Type;
+
+export const SearchMatchMode = Schema.Literals([...KeywordSearchMatchMode.literals, SemanticSearchMatchMode.literal]);
 export type SearchMatchMode = typeof SearchMatchMode.Type;
 
 export const SearchFilter = Schema.Struct({
@@ -25,8 +31,27 @@ export const SearchRequestParameters = Schema.Struct({
 });
 export type SearchRequestParameters = typeof SearchRequestParameters.Type;
 
+export const KeywordSearchRequestParameters = Schema.Struct({
+  ...SearchRequestParameters.fields,
+  matchMode: Schema.optional(KeywordSearchMatchMode),
+});
+export type KeywordSearchRequestParameters = typeof KeywordSearchRequestParameters.Type;
+
+export const SemanticSearchRequestParameters = Schema.Struct({
+  ...SearchRequestParameters.fields,
+  textFilter: Schema.String,
+  matchMode: SemanticSearchMatchMode,
+});
+export type SemanticSearchRequestParameters = typeof SemanticSearchRequestParameters.Type;
+
 export const SearchRequest = Schema.Struct({
   searchRequestParameters: SearchRequestParameters,
   pageKey: Schema.optional(PageKey),
 });
 export type SearchRequest = typeof SearchRequest.Type;
+
+export const KeywordSearchRequest = Schema.Struct({
+  ...SearchRequest.fields,
+  searchRequestParameters: KeywordSearchRequestParameters,
+});
+export type KeywordSearchRequest = typeof KeywordSearchRequest.Type;
