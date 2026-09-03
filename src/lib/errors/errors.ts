@@ -61,3 +61,16 @@ export class AiServiceError extends Data.TaggedError('AiServiceError')<{
   type?: AiServiceErrorType;
   cause?: unknown;
 }> {}
+
+// Search
+export class SearchError extends Data.TaggedError('SearchError')<{
+  message: string;
+  cause?: unknown;
+}> {}
+export const EmbeddingErrorTypes = ['unreachable', 'timeout', 'rejected', 'malformed'] as const;
+export type EmbeddingErrorType = (typeof EmbeddingErrorTypes)[number];
+export class EmbeddingError extends Data.TaggedError('EmbeddingError')<{
+  message: string;
+  type: EmbeddingErrorType;
+  cause?: unknown;
+}> {}

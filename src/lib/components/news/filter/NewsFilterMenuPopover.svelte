@@ -6,6 +6,7 @@
   import DatePicker from '$lib/components/shared/controls/DatePicker.svelte';
   import Select from '$lib/components/shared/controls/Select.svelte';
   import { SearchMatchMode } from '$lib/models/searchRequest';
+  import { getInfoStore } from '$lib/stores/runes/info.svelte';
   import { Calendar, Funnel, MagnifyingGlass } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Schema } from 'effect';
@@ -41,7 +42,9 @@
     onSelectLastYear,
   }: Props = $props();
 
-  const searchModeOptions: Array<{ label: string; value: SearchMatchMode }> = [
+  const infoStore = getInfoStore();
+
+  const defaultSearchModeOptions: Array<{ label: string; value: SearchMatchMode }> = [
     {
       label: 'Mindestens eines',
       value: 'anyOf',
@@ -51,6 +54,11 @@
       value: 'allOf',
     },
   ];
+  const availableSearchModeOptions = $derived(
+    infoStore.semanticSearchEnabled
+      ? [...defaultSearchModeOptions, { label: 'Relevanz', value: 'semantic' }]
+      : defaultSearchModeOptions,
+  );
 
   const menuClass = `
     flex flex-col items-center gap-5
@@ -140,7 +148,7 @@
           <TextGradient>Suchmodus</TextGradient>
         </span>
         <Select id="search-mode" value={matchMode} onchange={handleMatchModeChange} placeholder="Suchmodus">
-          {#each searchModeOptions as option (option.value)}
+          {#each availableSearchModeOptions as option (option.value)}
             <option value={option.value}>{option.label}</option>
           {/each}
         </Select>

@@ -6,20 +6,23 @@ import {
 import { API_VERSION } from '$lib/configs/shared';
 import { SearchRequest } from '$lib/models/searchRequest';
 import { TRPCError } from '@trpc/server';
+import type { RequestEvent } from '@sveltejs/kit';
 import { Result, Schema } from 'effect';
 import { DateTime } from 'luxon';
 import { fetchStoryContent } from '../content/news';
-import { checkNewsUpdatesAvailable, searchNews } from '../db/news';
+import { checkNewsUpdatesAvailable, searchNews } from '../search/news';
+import { isEmbeddingConfigured } from '../search/embedding';
 import { publicProcedure, router } from './init';
 import { StoryContentRequest } from '$lib/models/storyContentRequest';
 
 const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,
+  semanticSearchEnabled: isEmbeddingConfigured(),
 }));
 
 const news = {
   search: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
-    const news = await searchNews(input);
+    const news = await searchNews(input, getClientId(ctx.event));
     ctx.event.setHeaders({
       'Cache-Control': 'max-age=0, s-maxage=300',
     });
@@ -85,5 +88,13 @@ function getMaxAge(timestamp?: string): number {
     return STORY_CONTENT_NEW_STORY_MAXAGE;
   } else {
     return STORY_CONTENT_DEFAULT_MAXAGE;
+  }
+}
+
+function getClientId(event: RequestEvent): string {
+  try {
+    return event.getClientAddress();
+  } catch {
+    return 'unknown';
   }
 }

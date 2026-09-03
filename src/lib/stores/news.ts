@@ -1,10 +1,11 @@
 import type { Bookmarks } from '$lib/models/bookmarks';
-import type { News, NewsBucket } from '$lib/models/news';
+import type { News, NewsBucket, NewsOrdering } from '$lib/models/news';
 import type { Story, StoryContent } from '$lib/models/story';
 import { DateTime } from 'luxon';
 import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
+import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
 import { logger } from '$lib/utils/logger';
 import type { Request } from '$lib/models/request';
 
@@ -27,13 +28,13 @@ function setNews(news: News, newNews?: News): void {
     return;
   }
 
-  const { stories, prevKey, nextKey } = news;
+  const { stories, prevKey, nextKey, ordering } = news;
   const { stories: newStories = [], prevKey: newPrevKey } = newNews ?? {};
   const combinedStories = newStories.concat(stories);
   const deduplicatedStories = deduplicateStories(combinedStories);
 
   update((oldNews) => {
-    return { ...oldNews, stories: deduplicatedStories, prevKey: newPrevKey ?? prevKey, nextKey };
+    return { ...oldNews, stories: deduplicatedStories, prevKey: newPrevKey ?? prevKey, nextKey, ordering };
   });
 }
 
@@ -41,11 +42,11 @@ function addNews(news: News, append = true): void {
   if (!news) {
     return;
   }
-  const { stories, prevKey, nextKey } = news;
+  const { stories, prevKey, nextKey, ordering } = news;
 
   update((oldNews) => {
     const newStories = append ? oldNews.stories.concat(stories) : stories.concat(oldNews.stories);
-    const newNews = { ...oldNews, stories: deduplicateStories(newStories) };
+    const newNews = { ...oldNews, stories: deduplicateStories(newStories), ordering };
 
     if (append) {
       return { ...newNews, nextKey };
@@ -88,9 +89,16 @@ async function cacheForOfflineUse(
   );
 }
 
-function createStoryBuckets(stories: ReadonlyArray<Story>): ReadonlyArray<NewsBucket> | undefined {
+function createStoryBuckets(
+  stories: ReadonlyArray<Story>,
+  ordering?: NewsOrdering,
+): ReadonlyArray<NewsBucket> | undefined {
   if (!stories) {
     return undefined;
+  }
+
+  if (ordering === 'relevance') {
+    return [{ name: formatResultCount(stories.length), date: undefined, stories: [...stories] }];
   }
 
   type StoryBucket = { name: string; date: string; stories: Array<Story> };
@@ -126,6 +134,14 @@ function createStoryBuckets(stories: ReadonlyArray<Story>): ReadonlyArray<NewsBu
   return Array.from(buckets.values()).sort(compareBuckets);
 }
 
+function formatResultCount(count: number): string {
+  if (count === 1) {
+    return '1 Ergebnis';
+  }
+
+  return count >= NEWS_QUERY_PAGE_LIMIT ? `${count}+ Ergebnisse` : `${count} Ergebnisse`;
+}
+
 function setBookmarkStatus(stories: ReadonlyArray<Story>, bookmarkStories: ReadonlyArray<Story>): ReadonlyArray<Story> {
   const bookmarkIds = new Set(bookmarkStories.map((b) => b.id));
   return stories.map((story) => ({ ...story, isBookmarked: +bookmarkIds.has(story.id) }));
@@ -146,6 +162,7 @@ function deduplicateStories(stories: ReadonlyArray<Story>): ReadonlyArray<Story>
 
 let oldStories: ReadonlyArray<Story>;
 let oldBookmarkStories: ReadonlyArray<Story>;
+let oldOrdering: NewsOrdering | undefined;
 let cachedStories: ReadonlyArray<Story>;
 let cachedStoryBuckets: ReadonlyArray<NewsBucket> | undefined;
 
@@ -156,12 +173,13 @@ function combineNewsAndBookmarks([news, bookmarks]: [News, Bookmarks]): News {
   let newStories = cachedStories;
   let newStoryBuckets = cachedStoryBuckets;
 
-  if (oldStories !== stories || oldBookmarkStories !== bookmarkStories) {
+  if (oldStories !== stories || oldBookmarkStories !== bookmarkStories || oldOrdering !== news.ordering) {
     oldStories = stories;
     oldBookmarkStories = bookmarkStories;
+    oldOrdering = news.ordering;
 
     newStories = setBookmarkStatus(stories, bookmarkStories);
-    newStoryBuckets = createStoryBuckets(newStories);
+    newStoryBuckets = createStoryBuckets(newStories, news.ordering);
 
     cachedStories = newStories;
     cachedStoryBuckets = newStoryBuckets;

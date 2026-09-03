@@ -63,7 +63,7 @@ const {
   };
 });
 
-vi.mock('$lib/backend/db/news', () => {
+vi.mock('$lib/backend/search/news', () => {
   return {
     searchStory: mockedSearchStory,
   };

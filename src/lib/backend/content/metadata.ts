@@ -1,4 +1,4 @@
-import { searchStory } from '$lib/backend/db/news';
+import { searchStory } from '$lib/backend/search/news';
 import { MetaDataNotFoundError } from '$lib/errors/errors';
 import { Context, Effect, Layer, Predicate } from 'effect';
 

@@ -9,6 +9,7 @@
     NEWS_CHECK_UPDATES_INTERVAL_IN_MS,
     NOTIFICATION_NEWS_UPDATES_AVAILABLE,
   } from '$lib/configs/client';
+  import { NewsApiError } from '$lib/errors/errors';
   import type { News } from '$lib/models/news';
   import type { SearchRequestParameters } from '$lib/models/searchRequest';
   import type { Settings } from '$lib/models/settings';
@@ -39,11 +40,10 @@
   import SpinningDotsIndicator from '../shared/loading/SpinningDotsIndicator.svelte';
   import NewsList from './NewsList.svelte';
   import NewsListSkeleton from './NewsListSkeleton.svelte';
-  import { NewsApiError } from '$lib/errors/errors';
 
   const newsApi = new NewsApi();
   const subscriptions: Array<Subscription> = [];
-  const reloadNews = new BehaviorSubject(0);
+  const reloadNewsSubject = new BehaviorSubject(0);
 
   let checkUpdatesTimeout: ReturnType<typeof setTimeout> | undefined;
   let showNewsList = $derived(hasNews($news as News));
@@ -65,7 +65,7 @@
   function fetchNewsPipeline(): Observable<unknown> {
     return searchRequestParameters.pipe(
       debounceTime(250),
-      combineLatestWith(reloadNews),
+      combineLatestWith(reloadNewsSubject),
       map(([searchRequestParameters]) => searchRequestParameters),
       tap(() => news.setIsLoading(true)),
       switchMap((searchRequestParameters) => {
@@ -116,6 +116,11 @@
   }
 
   async function fetchNewNews(): Promise<void> {
+    if (get(news).ordering === 'relevance') {
+      reloadNews();
+      return;
+    }
+
     await news.taskWithLoading(async () => {
       const currSearchRequestParameters = lastSearchRequestParameters;
       const currNews = get(news);
@@ -177,7 +182,7 @@
   }
 
   function setCheckUpdatesTimeout(initial: boolean): void {
-    if (!$settings.checkNewsUpdates) {
+    if (!$settings.checkNewsUpdates || get(news).ordering === 'relevance') {
       return;
     }
 
@@ -207,7 +212,7 @@
   }
 
   function handleTryAgainClick(): void {
-    reloadNews.next(reloadNews.value + 1);
+    reloadNews();
   }
 
   function handleResetFilterClick(): void {
@@ -223,6 +228,10 @@
       event.preventDefault();
       cancelRequests();
     }
+  }
+
+  function reloadNews(): void {
+    reloadNewsSubject.next(reloadNewsSubject.value + 1);
   }
 </script>
 

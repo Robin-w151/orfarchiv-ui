@@ -193,3 +193,35 @@ export const contentMockWithImages = {
   </div>`,
   contentChapters: [{ segments: [contentMockText] }],
 };
+
+export const newsMockSemantic = {
+  stories: [
+    {
+      id: 'news:3284215',
+      title: 'Die Abrechnung des John Malkovich',
+      category: 'Kultur',
+      url: 'https://orf.at/stories/3284215/',
+      timestamp: '2022-09-05T18:06:00.000Z',
+      source: 'news',
+    },
+    {
+      id: 'news:3284304',
+      title: 'Frankfurt geht bei CL-Debüt baden',
+      category: 'Sport',
+      url: 'https://orf.at/stories/3284304/',
+      timestamp: '2022-09-07T18:47:35.000Z',
+      source: 'news',
+    },
+    {
+      id: 'news:3284303',
+      title: 'WIFO-Ökonom Böheim zu Strompreisbremse',
+      category: 'Medien',
+      url: 'https://orf.at/stories/3284303/',
+      timestamp: '2022-09-06T18:20:50.000Z',
+      source: 'news',
+    },
+  ],
+  ordering: 'relevance',
+  prevKey: null,
+  nextKey: null,
+};

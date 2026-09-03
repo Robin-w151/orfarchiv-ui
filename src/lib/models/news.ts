@@ -9,8 +9,12 @@ export const NewsBucket = Schema.Struct({
 });
 export type NewsBucket = typeof NewsBucket.Type;
 
+export const NewsOrdering = Schema.Literals(['chronological', 'relevance']);
+export type NewsOrdering = typeof NewsOrdering.Type;
+
 export const News = Schema.Struct({
   stories: Schema.Array(Story),
+  ordering: Schema.optional(NewsOrdering),
   isLoading: Schema.optional(Schema.Boolean),
   storyBuckets: Schema.optional(Schema.Array(NewsBucket)),
   search: Schema.optional(Schema.String),
