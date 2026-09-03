@@ -19,6 +19,9 @@ export const SEMANTIC_SEARCH_MIN_SCORE = 0.79;
 export const SEMANTIC_SEARCH_RECENCY_WEIGHT = 0;
 export const SEMANTIC_SEARCH_RECENCY_DECAY_MS = Duration.toMillis(Duration.days(30));
 export const SEMANTIC_SEARCH_MIN_NOUN_LENGTH = 4;
+
+export const SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT = 60;
+export const SEMANTIC_SEARCH_DEFAULT_RATE_WINDOW = Duration.minutes(1);
 export const SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH = 7;
 export const SEMANTIC_SEARCH_TIMEOUT = Duration.seconds(10);
 export const SEMANTIC_SEARCH_CACHE_MAX = 500;

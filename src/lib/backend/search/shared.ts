@@ -6,6 +6,10 @@ import type { Collection } from 'mongodb';
 
 export const isStoryEntity = Schema.is(StoryEntity);
 
+export function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function useNewsCollection<TResult>(
   message: string,
   use: (newsCollection: Collection<Document>) => Promise<TResult>,

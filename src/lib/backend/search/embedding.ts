@@ -6,6 +6,8 @@ import {
 } from '$app/env/private';
 import {
   SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH,
+  SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT,
+  SEMANTIC_SEARCH_DEFAULT_RATE_WINDOW,
   SEMANTIC_SEARCH_MIN_NOUN_LENGTH,
   SEMANTIC_SEARCH_CACHE_MAX,
   SEMANTIC_SEARCH_CACHE_TTL,
@@ -14,7 +16,7 @@ import {
 } from '$lib/configs/server';
 import { EmbeddingError } from '$lib/errors/errors';
 import { EmbeddingResponse } from '$lib/models/embedding';
-import { Context, Duration, Effect, Layer } from 'effect';
+import { Context, Duration, Effect, Layer, Option } from 'effect';
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
 import { RateLimiter } from 'effect/unstable/persistence';
 import { LRUCache } from 'lru-cache';
@@ -42,6 +44,9 @@ function defineService({
   httpClient: HttpClient.HttpClient;
   withLimiter: Effect.Success<typeof RateLimiter.makeWithRateLimiter>;
 }) {
+  const rateLimit = parseRateLimit(ORFARCHIV_EMBEDDING_RATE_LIMIT);
+  const rateWindow = parseRateWindow(ORFARCHIV_EMBEDDING_RATE_WINDOW);
+
   const cache = new LRUCache<string, Binary>({ max: SEMANTIC_SEARCH_CACHE_MAX, ttl: SEMANTIC_SEARCH_CACHE_TTL });
 
   function embedQuery(text: string, clientId: string): Effect.Effect<Binary, EmbeddingError> {
@@ -57,8 +62,8 @@ function defineService({
           key: `embeddings:${clientId}`,
           algorithm: 'token-bucket',
           onExceeded: 'delay',
-          window: (ORFARCHIV_EMBEDDING_RATE_WINDOW ?? '1 minute') as Duration.Input,
-          limit: Number.parseInt(ORFARCHIV_EMBEDDING_RATE_LIMIT ?? '60'),
+          window: rateWindow,
+          limit: rateLimit,
         }),
         Effect.catchTag(
           'RateLimiterError',
@@ -209,6 +214,16 @@ export function quantize(values: ReadonlyArray<number>): Binary {
 
 export function isEmbeddingConfigured(): boolean {
   return !!ORFARCHIV_EMBEDDING_URL;
+}
+
+function parseRateLimit(value: string | undefined): number {
+  const parsed = Number.parseInt(value ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT;
+}
+
+function parseRateWindow(value: string | undefined): Duration.Duration {
+  const parsed = value === undefined ? Option.none() : Duration.fromInput(value as Duration.Input);
+  return Option.getOrElse(parsed, () => SEMANTIC_SEARCH_DEFAULT_RATE_WINDOW);
 }
 
 function toQueryInput(query: string): string {

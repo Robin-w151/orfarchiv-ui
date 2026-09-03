@@ -15,7 +15,7 @@ import type { SearchRequestParameters, SemanticSearchRequestParameters } from '$
 import type { StoryEntity } from '$lib/models/story';
 import { Context, Effect, Layer } from 'effect';
 import { EmbeddingService, type EmbeddingServiceShape } from './embedding';
-import { isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
+import { escapeRegExp, isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
 
 interface Vocabulary {
   categories: Array<string>;
@@ -152,7 +152,7 @@ function defineService({
       }
 
       if (tag) {
-        const tagRegex = new RegExp(tag, 'i');
+        const tagRegex = new RegExp(escapeRegExp(tag), 'i');
         const { categories, sources: allSources } = yield* getVocabulary;
         const matchedCategories = categories.filter((category) => tagRegex.test(category));
         const matchedSources = allSources.filter((source) => tagRegex.test(source));

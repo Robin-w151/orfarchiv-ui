@@ -6,7 +6,7 @@ import type { KeywordSearchRequest, KeywordSearchRequestParameters, SearchMatchM
 import type { StoryEntity } from '$lib/models/story';
 import { Context, Effect, Layer } from 'effect';
 import type { Collection, Sort } from 'mongodb';
-import { isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
+import { escapeRegExp, isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
 
 type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
 
@@ -58,7 +58,7 @@ function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: Keyword
     ?.split(/\s+/)
     .filter((text) => !!text)
     .map((text) => text.toLowerCase())
-    .map((text) => new RegExp(`${text}`, 'i'));
+    .map((text) => new RegExp(escapeRegExp(text), 'i'));
 
   const tagQuery = buildTagQuery(tag);
   const textQuery = buildTextQuery(textFilters, matchMode);
@@ -78,7 +78,7 @@ function buildTagQuery(tag: string | undefined) {
     return {};
   }
 
-  const tagRegex = new RegExp(tag, 'i');
+  const tagRegex = new RegExp(escapeRegExp(tag), 'i');
   return {
     $or: ['category', 'source'].map((key) => ({ [key]: { $in: [tagRegex] } })),
   };
