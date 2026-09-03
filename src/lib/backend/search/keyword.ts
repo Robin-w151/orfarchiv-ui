@@ -26,31 +26,31 @@ export class KeywordSearchService extends Context.Service<KeywordSearchService>(
 }
 
 function defineService() {
-  function searchNews(searchRequest: KeywordSearchRequest): Effect.Effect<News, SearchError> {
-    return Effect.gen(function* () {
-      const { searchRequestParameters, pageKey } = searchRequest;
-
-      const query = buildQuery(searchRequestParameters);
-      const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
-      const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
-
-      const stories = yield* useNewsCollection('Failed to search news.', (newsCollection) =>
-        executeQuery(newsCollection, paginatedQuery, sort, limit),
-      );
-      const orderedStories = correctOrder(stories, pageKey);
-      const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
-
-      return {
-        stories: orderedStories
-          .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
-          .map((story) => mapToStory(story)),
-        prevKey,
-        nextKey,
-      };
-    });
-  }
-
   return { searchNews } as const;
+}
+
+function searchNews(searchRequest: KeywordSearchRequest): Effect.Effect<News, SearchError> {
+  return Effect.gen(function* () {
+    const { searchRequestParameters, pageKey } = searchRequest;
+
+    const query = buildQuery(searchRequestParameters);
+    const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
+    const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
+
+    const stories = yield* useNewsCollection('Failed to search news.', (newsCollection) =>
+      executeQuery(newsCollection, paginatedQuery, sort, limit),
+    );
+    const orderedStories = correctOrder(stories, pageKey);
+    const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
+
+    return {
+      stories: orderedStories
+        .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
+        .map((story) => mapToStory(story)),
+      prevKey,
+      nextKey,
+    };
+  });
 }
 
 function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: KeywordSearchRequestParameters) {
