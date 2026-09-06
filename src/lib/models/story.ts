@@ -3,7 +3,7 @@ import { Schema } from 'effect';
 
 export const Story = Schema.Struct({
   id: Schema.String,
-  title: Schema.String,
+  title: Schema.optional(Schema.String),
   category: Schema.optional(Schema.String),
   url: Schema.String.check(isUrl),
   timestamp: Schema.String.check(isIsoDateTime),

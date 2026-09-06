@@ -63,7 +63,7 @@
     {/if}
     <div class={infoClass}>
       <h3>
-        <span>{story.title}</span>
+        <span>{story.title || 'Unbekannt (Es liegt kein Titel vor)'}</span>
       </h3>
       <span class={metadataClass}>
         <span>{subTitle}</span>

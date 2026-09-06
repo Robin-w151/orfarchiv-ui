@@ -81,7 +81,7 @@ function filterStories(textFilter: string, stories: Array<Story>): Array<Story> 
 function filterStory(textFilters: Array<RegExp>, story: Story): boolean {
   return textFilters.every((textFilter) => {
     const { title, category, source } = story;
-    return textFilter.test(title) || !!(category && textFilter.test(category)) || textFilter.test(source);
+    return (!!title && textFilter.test(title)) || (!!category && textFilter.test(category)) || textFilter.test(source);
   });
 }
 
