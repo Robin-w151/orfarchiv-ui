@@ -97,7 +97,7 @@
       }
 
       .image-container {
-        @apply relative;
+        @apply relative max-w-fit;
 
         .image-credit-tag {
           @apply px-1 block absolute bottom-0 right-0 bg-gray-100/70 dark:bg-gray-800/70 backdrop-blur-sm text-sm rounded-tl-lg rounded-br-lg;
@@ -122,7 +122,7 @@
     }
 
     .image-frame {
-      @apply relative block my-2 w-fit max-w-full rounded-lg pointer-events-none;
+      @apply relative block my-2 w-fit max-w-fit rounded-lg pointer-events-none;
 
       img {
         @apply my-0 pointer-events-auto;
