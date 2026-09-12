@@ -108,10 +108,7 @@
     "node": "24.x"
   },
   "browserslist": [
-    "> 0.2%",
-    "iOS >= 16.6 and not iOS < 16.6",
-    "safari >= 16.6 and not safari < 16.6",
-    "not ie 11"
+    "baseline 2024"
   ],
   "packageManager": "npm@11.11.0"
 }
