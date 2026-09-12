@@ -47,6 +47,18 @@ export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
 // AI
 export const AI_MODEL_DEFAULT = 'gemini-3.5-flash-lite' satisfies AiModel;
 export const AI_MODEL_CONFIG_MAP = Object.freeze({
+  'gemini-3.8-flash': {
+    name: 'Gemini 3.8 Flash',
+    modelCode: 'gemini-3.8-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash',
+    reasoningEffort: 'low',
+  },
+  'gemini-3.7-flash': {
+    name: 'Gemini 3.7 Flash',
+    modelCode: 'gemini-3.7-flash',
+    ref: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash',
+    reasoningEffort: 'low',
+  },
   'gemini-3.6-flash': {
     name: 'Gemini 3.6 Flash',
     modelCode: 'gemini-3.6-flash',
