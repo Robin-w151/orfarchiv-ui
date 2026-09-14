@@ -1,12 +1,11 @@
+import { NEWS_TITLE_VECTOR_INDEX, TITLE_EMBEDDING_FIELD } from '$common/search';
 import {
-  NEWS_TITLE_VECTOR_INDEX,
   SEMANTIC_SEARCH_CANDIDATE_LIMIT,
   SEMANTIC_SEARCH_CATEGORY_CACHE_TTL,
   SEMANTIC_SEARCH_MIN_SCORE,
   SEMANTIC_SEARCH_NUM_CANDIDATES,
   SEMANTIC_SEARCH_RECENCY_DECAY_MS,
   SEMANTIC_SEARCH_RECENCY_WEIGHT,
-  NEWS_TITLE_EMBEDDING_FIELD,
 } from '$lib/configs/server';
 import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
 import type { EmbeddingError, SearchError } from '$lib/errors/errors';
@@ -80,7 +79,7 @@ function defineService({
               {
                 $vectorSearch: {
                   index: NEWS_TITLE_VECTOR_INDEX,
-                  path: NEWS_TITLE_EMBEDDING_FIELD,
+                  path: TITLE_EMBEDDING_FIELD,
                   queryVector,
                   numCandidates: SEMANTIC_SEARCH_NUM_CANDIDATES,
                   limit: SEMANTIC_SEARCH_CANDIDATE_LIMIT,

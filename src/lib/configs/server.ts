@@ -10,9 +10,6 @@ export const logger = createLogger({
 });
 
 // Semantic search
-export const NEWS_TITLE_VECTOR_INDEX = 'news_title_vector';
-export const NEWS_TITLE_EMBEDDING_FIELD = 'titleEmbedding';
-export const NEWS_TITLE_EMBEDDING_DIMENSIONS = 256;
 export const SEMANTIC_SEARCH_NUM_CANDIDATES = 3000;
 export const SEMANTIC_SEARCH_CANDIDATE_LIMIT = 300;
 export const SEMANTIC_SEARCH_MIN_SCORE = 0.79;

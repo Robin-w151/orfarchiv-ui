@@ -35,6 +35,7 @@ export default defineConfig({
       adapter,
       alias: {
         $assets: resolve('./src/assets'),
+        $common: resolve('./src/lib/shared/common/src'),
         $lib: resolve('./src/lib'),
       },
       csp,
