@@ -1,4 +1,5 @@
 import { NEWS_TITLE_VECTOR_INDEX, TITLE_EMBEDDING_FIELD } from '$common/search';
+import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
 import {
   SEMANTIC_SEARCH_CANDIDATE_LIMIT,
   SEMANTIC_SEARCH_CATEGORY_CACHE_TTL,
@@ -14,7 +15,7 @@ import type { SearchRequestParameters, SemanticSearchRequestParameters } from '$
 import type { StoryEntity } from '$lib/models/story';
 import { Context, Effect, Layer } from 'effect';
 import { EmbeddingService, type EmbeddingServiceShape } from './embedding';
-import { escapeRegExp, isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
+import { escapeRegExp, isStoryEntity, mapToStory, parseDate } from './shared';
 
 interface Vocabulary {
   categories: Array<string>;
@@ -24,23 +25,23 @@ interface Vocabulary {
 export type SemanticSearchServiceShape = Context.Service.Shape<typeof SemanticSearchService>;
 export class SemanticSearchService extends Context.Service<SemanticSearchService>()('search/SemanticSearchService', {
   make: Effect.gen(function* () {
+    const database = yield* DatabaseService;
     const embeddingService = yield* EmbeddingService;
     const [cachedVocabulary, invalidateVocabulary] = yield* Effect.cachedInvalidateWithTTL(
-      fetchVocabulary,
+      fetchVocabulary(database),
       SEMANTIC_SEARCH_CATEGORY_CACHE_TTL,
     );
     const getVocabulary = cachedVocabulary.pipe(Effect.tapError(() => invalidateVocabulary));
 
-    return defineService({ embeddingService, getVocabulary });
+    return defineService({ database, embeddingService, getVocabulary });
   }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
   static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(EmbeddingService.layer));
 }
 
-const fetchVocabulary: Effect.Effect<Vocabulary, SearchError> = useNewsCollection(
-  'Failed to read the category vocabulary.',
-  async (newsCollection) => {
+function fetchVocabulary(database: DatabaseServiceShape): Effect.Effect<Vocabulary, SearchError> {
+  return database.useNewsCollection('Failed to read the category vocabulary.', async (newsCollection) => {
     const [categories, sources] = await Promise.all([
       newsCollection.distinct('category'),
       newsCollection.distinct('source'),
@@ -49,13 +50,15 @@ const fetchVocabulary: Effect.Effect<Vocabulary, SearchError> = useNewsCollectio
       categories: categories.filter((entry): entry is string => !!entry),
       sources: sources.filter((entry): entry is string => !!entry),
     } satisfies Vocabulary;
-  },
-);
+  });
+}
 
 function defineService({
+  database,
   embeddingService,
   getVocabulary,
 }: {
+  database: DatabaseServiceShape;
   embeddingService: EmbeddingServiceShape;
   getVocabulary: Effect.Effect<Vocabulary, SearchError>;
 }) {
@@ -71,7 +74,7 @@ function defineService({
         return { stories: [], ordering: 'relevance', prevKey: null, nextKey: null } satisfies News;
       }
 
-      const stories = yield* useNewsCollection(
+      const stories = yield* database.useNewsCollection(
         'Failed to search news semantically.',
         (newsCollection) =>
           newsCollection

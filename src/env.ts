@@ -4,8 +4,12 @@ import { Schema } from 'effect';
 
 export const variables = defineEnvVars({
   ORFARCHIV_DB_URL: {
-    description: 'URL of the ORF Archiv database',
-    schema: Schema.toStandardSchemaV1(Schema.String.check(isUrl)),
+    description: 'URL of the ORF Archiv database, used when ORFARCHIV_DB_URLS is unset',
+    schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String.check(isUrl))),
+  },
+  ORFARCHIV_DB_URLS: {
+    description: 'Database URLs in priority order, separated by newline or ";"',
+    schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String)),
   },
   ORFARCHIV_EMBEDDING_URL: {
     description: 'OpenAI-compatible base URL of the embedding server ("/embeddings" is appended)',

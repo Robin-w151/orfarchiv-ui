@@ -1,3 +1,4 @@
+import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
 import { logger } from '$lib/configs/server';
 import type { SearchError } from '$lib/errors/errors';
 import type { News, NewsUpdates } from '$lib/models/news';
@@ -11,26 +12,30 @@ import { Context, Effect, Layer, ManagedRuntime } from 'effect';
 import { isEmbeddingConfigured } from './embedding';
 import { KeywordSearchService, type KeywordSearchServiceShape } from './keyword';
 import { SemanticSearchService, type SemanticSearchServiceShape } from './semantic';
-import { isStoryEntity, mapToStory, useNewsCollection } from './shared';
+import { isStoryEntity, mapToStory } from './shared';
 
 export class NewsSearchService extends Context.Service<NewsSearchService>()('search/NewsSearchService', {
   make: Effect.gen(function* () {
+    const database = yield* DatabaseService;
     const keywordSearchService = yield* KeywordSearchService;
     const semanticSearchService = yield* SemanticSearchService;
-    return defineService({ keywordSearchService, semanticSearchService });
+    return defineService({ database, keywordSearchService, semanticSearchService });
   }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
   static readonly layer = this.layerWithoutDependencies.pipe(
-    Layer.provide(KeywordSearchService.layer),
+    Layer.provide(KeywordSearchService.layerWithoutDependencies),
     Layer.provide(SemanticSearchService.layer),
+    Layer.provide(DatabaseService.layer),
   );
 }
 
 function defineService({
+  database,
   keywordSearchService,
   semanticSearchService,
 }: {
+  database: DatabaseServiceShape;
   keywordSearchService: KeywordSearchServiceShape;
   semanticSearchService: SemanticSearchServiceShape;
 }) {
@@ -79,24 +84,25 @@ function defineService({
     });
   }
 
-  return { searchNews, checkNewsUpdatesAvailable, searchStory: findStoryByUrl } as const;
-}
+  function searchStory(url: string, options?: SearchStoryOptions): Effect.Effect<Story | undefined, SearchError> {
+    return Effect.gen(function* () {
+      logger.info(`Search story with url='${url}'`);
 
-function findStoryByUrl(url: string, options?: SearchStoryOptions): Effect.Effect<Story | undefined, SearchError> {
-  return Effect.gen(function* () {
-    logger.info(`Search story with url='${url}'`);
+      const { includeOesterreichSource = false } = options ?? {};
+      const query: { url: string; source?: unknown } = { url, source: { $ne: 'oesterreich' } };
+      if (includeOesterreichSource) {
+        delete query.source;
+      }
 
-    const { includeOesterreichSource = false } = options ?? {};
-    const query: { url: string; source?: unknown } = { url, source: { $ne: 'oesterreich' } };
-    if (includeOesterreichSource) {
-      delete query.source;
-    }
+      const story = yield* database.useNewsCollection(`Failed to search story with url='${url}'.`, (newsCollection) =>
+        newsCollection.findOne(query),
+      );
 
-    const story = yield* useNewsCollection(`Failed to search story with url='${url}'.`, (newsCollection) =>
-      newsCollection.findOne(query),
-    );
-    return isStoryEntity(story) ? mapToStory(story) : undefined;
-  });
+      return isStoryEntity(story) ? mapToStory(story) : undefined;
+    });
+  }
+
+  return { searchNews, checkNewsUpdatesAvailable, searchStory } as const;
 }
 
 function isSemanticSearch(
