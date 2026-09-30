@@ -1,6 +1,6 @@
 import { ContentNotFoundError, FetchError, type Tag, type Tags } from '$lib/errors/errors';
 import { Context, Effect, Layer } from 'effect';
-import { FetchHttpClient, HttpClient, HttpClientError, HttpClientResponse } from 'effect/unstable/http';
+import { FetchHttpClient, HttpClient, HttpClientError, HttpClientResponse } from 'effect/http';
 
 const responseBodies = {
   json: (response: HttpClientResponse.HttpClientResponse) => response.json,

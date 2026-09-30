@@ -18,8 +18,8 @@ import {
 import { EmbeddingError } from '$lib/errors/errors';
 import { EmbeddingResponse } from '$lib/models/embedding';
 import { Context, Duration, Effect, Layer, Option } from 'effect';
-import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
-import { RateLimiter } from 'effect/unstable/persistence';
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/http';
+import { RateLimiter } from 'effect/persistence';
 import { LRUCache } from 'lru-cache';
 import type { Binary } from 'mongodb';
 

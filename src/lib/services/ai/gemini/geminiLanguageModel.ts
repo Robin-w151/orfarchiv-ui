@@ -1,20 +1,8 @@
 import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
 import type { AiModel } from '$lib/models/ai';
 import { Effect, Layer, Option, Schema, Stream } from 'effect';
-import {
-  AiError,
-  LanguageModel,
-  OpenAiStructuredOutput,
-  type Prompt,
-  type Response as AiResponse,
-} from 'effect/unstable/ai';
-import {
-  HttpBody,
-  HttpClient,
-  type HttpClientError,
-  HttpClientRequest,
-  HttpClientResponse,
-} from 'effect/unstable/http';
+import { AiError, type Response as AiResponse, LanguageModel, OpenAiStructuredOutput, type Prompt } from 'effect/ai';
+import { HttpBody, HttpClient, type HttpClientError, HttpClientRequest, HttpClientResponse } from 'effect/http';
 
 const MODULE = 'GeminiLanguageModel';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
