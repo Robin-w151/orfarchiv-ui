@@ -1,4 +1,5 @@
 import { Duration } from 'effect';
+import type { MongoClientOptions } from 'mongodb';
 import { createLogger, format, transports } from 'winston';
 
 // Logger
@@ -9,10 +10,21 @@ export const logger = createLogger({
   transports: [new transports.Console()],
 });
 
+// Database
+export const DB_NAME = 'orfarchiv';
+export const DB_NEWS_COLLECTION = 'news';
+export const DB_QUERY_TIMEOUT = Duration.seconds(5);
+export const DB_TARGET_COOLDOWN = Duration.seconds(30);
+export const DB_CLIENT_OPTIONS: MongoClientOptions = {
+  appName: 'orfarchiv-ui',
+  serverSelectionTimeoutMS: 3000,
+  connectTimeoutMS: 3000,
+  timeoutMS: 4000,
+  retryReads: true,
+  maxPoolSize: 2,
+};
+
 // Semantic search
-export const NEWS_TITLE_VECTOR_INDEX = 'news_title_vector';
-export const NEWS_TITLE_EMBEDDING_FIELD = 'titleEmbedding';
-export const NEWS_TITLE_EMBEDDING_DIMENSIONS = 256;
 export const SEMANTIC_SEARCH_NUM_CANDIDATES = 3000;
 export const SEMANTIC_SEARCH_CANDIDATE_LIMIT = 300;
 export const SEMANTIC_SEARCH_MIN_SCORE = 0.79;

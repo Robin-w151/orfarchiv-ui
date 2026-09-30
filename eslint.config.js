@@ -17,6 +17,7 @@ export default [
       'test-results/',
       '.storybook/',
       'storybook-static/',
+      'src/lib/shared/common/',
     ],
   },
   js.configs.recommended,

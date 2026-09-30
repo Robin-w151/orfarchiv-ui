@@ -4,6 +4,8 @@ import {
   ORFARCHIV_EMBEDDING_TOKEN,
   ORFARCHIV_EMBEDDING_URL,
 } from '$app/env/private';
+import { quantize } from '$common/embedding';
+import { TITLE_EMBEDDING_DIMENSIONS } from '$common/search';
 import {
   SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH,
   SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT,
@@ -12,7 +14,6 @@ import {
   SEMANTIC_SEARCH_CACHE_MAX,
   SEMANTIC_SEARCH_CACHE_TTL,
   SEMANTIC_SEARCH_TIMEOUT,
-  NEWS_TITLE_EMBEDDING_DIMENSIONS,
 } from '$lib/configs/server';
 import { EmbeddingError } from '$lib/errors/errors';
 import { EmbeddingResponse } from '$lib/models/embedding';
@@ -20,7 +21,7 @@ import { Context, Duration, Effect, Layer, Option } from 'effect';
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
 import { RateLimiter } from 'effect/unstable/persistence';
 import { LRUCache } from 'lru-cache';
-import { Binary } from 'mongodb';
+import type { Binary } from 'mongodb';
 
 export type EmbeddingServiceShape = Context.Service.Shape<typeof EmbeddingService>;
 export class EmbeddingService extends Context.Service<EmbeddingService>()('search/EmbeddingService', {
@@ -122,14 +123,14 @@ function defineService({
       );
 
       const values = parsed.data[0]?.embedding;
-      if (!values || values.length < NEWS_TITLE_EMBEDDING_DIMENSIONS) {
+      if (!values || values.length < TITLE_EMBEDDING_DIMENSIONS) {
         return yield* new EmbeddingError({
-          message: `Expected at least ${NEWS_TITLE_EMBEDDING_DIMENSIONS} dimensions, got ${values?.length ?? 0}.`,
+          message: `Expected at least ${TITLE_EMBEDDING_DIMENSIONS} dimensions, got ${values?.length ?? 0}.`,
           type: 'malformed',
         });
       }
 
-      return quantize(values.slice(0, NEWS_TITLE_EMBEDDING_DIMENSIONS));
+      return quantize(values.slice(0, TITLE_EMBEDDING_DIMENSIONS));
     });
   }
 
@@ -191,25 +192,6 @@ export function normalizeQuery(query: string): string {
 
 function capitalize(text: string): string {
   return text.replace(/\p{L}/u, (letter) => letter.toUpperCase());
-}
-
-/**
- * Matryoshka truncation, then per-vector max-abs scaling to int8. Cosine is
- * scale-invariant so the factor cancels and need not be stored. Must stay
- * identical to the scraper's quantize().
- */
-export function quantize(values: ReadonlyArray<number>): Binary {
-  let maxAbs = 0;
-  for (const value of values) {
-    const abs = Math.abs(value);
-    if (abs > maxAbs) {
-      maxAbs = abs;
-    }
-  }
-
-  const scale = maxAbs === 0 ? 0 : 127 / maxAbs;
-  const quantized = Int8Array.from(values, (value) => Math.max(-127, Math.min(127, Math.round(value * scale))));
-  return Binary.fromInt8Array(quantized);
 }
 
 export function isEmbeddingConfigured(): boolean {

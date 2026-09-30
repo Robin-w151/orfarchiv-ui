@@ -4,6 +4,7 @@ import {
   STORY_CONTENT_NEW_STORY_THRESHOLD,
 } from '$lib/configs/server';
 import { API_VERSION } from '$lib/configs/shared';
+import { SearchError } from '$lib/errors/errors';
 import { SearchRequest } from '$lib/models/searchRequest';
 import { TRPCError } from '@trpc/server';
 import type { RequestEvent } from '@sveltejs/kit';
@@ -22,14 +23,14 @@ const info = publicProcedure.query(() => ({
 
 const news = {
   search: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
-    const news = await searchNews(input, getClientId(ctx.event));
+    const news = await searchNews(input, getClientId(ctx.event)).catch(toTrpcError);
     ctx.event.setHeaders({
       'Cache-Control': 'max-age=0, s-maxage=300',
     });
     return news;
   }),
   checkUpdates: publicProcedure.input(Schema.toStandardSchemaV1(SearchRequest)).query(async ({ input, ctx }) => {
-    const newsUpdates = await checkNewsUpdatesAvailable(input);
+    const newsUpdates = await checkNewsUpdatesAvailable(input).catch(toTrpcError);
     ctx.event.setHeaders({
       'Cache-Control': 'max-age=0, s-maxage=300',
     });
@@ -89,6 +90,13 @@ function getMaxAge(timestamp?: string): number {
   } else {
     return STORY_CONTENT_DEFAULT_MAXAGE;
   }
+}
+
+function toTrpcError(error: unknown): never {
+  if (error instanceof SearchError) {
+    throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: error.message, cause: error });
+  }
+  throw error;
 }
 
 function getClientId(event: RequestEvent): string {

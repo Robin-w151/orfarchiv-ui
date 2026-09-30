@@ -1,23 +1,10 @@
-import orfArchivDb from '$lib/backend/db/init';
-import { SearchError } from '$lib/errors/errors';
 import { StoryEntity, type Story } from '$lib/models/story';
-import { Effect, Schema } from 'effect';
-import type { Collection } from 'mongodb';
+import { Schema } from 'effect';
 
 export const isStoryEntity = Schema.is(StoryEntity);
 
 export function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-export function useNewsCollection<TResult>(
-  message: string,
-  use: (newsCollection: Collection<Document>) => Promise<TResult>,
-): Effect.Effect<TResult, SearchError> {
-  return Effect.tryPromise({
-    try: () => use(orfArchivDb.newsCollection()),
-    catch: (cause) => new SearchError({ message, cause }),
-  });
 }
 
 export function mapToStory(entry: StoryEntity): Story {

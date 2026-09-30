@@ -15,6 +15,7 @@ export default defineConfig({
       preprocess: vitePreprocess(),
       alias: {
         $assets: resolve('./src/assets'),
+        $common: resolve('./src/lib/shared/common/src'),
         $lib: resolve('./src/lib'),
       },
       compilerOptions: {

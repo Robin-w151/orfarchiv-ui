@@ -1,3 +1,4 @@
+import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
 import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
 import type { SearchError } from '$lib/errors/errors';
 import type { News } from '$lib/models/news';
@@ -6,7 +7,7 @@ import type { KeywordSearchRequest, KeywordSearchRequestParameters, SearchMatchM
 import type { StoryEntity } from '$lib/models/story';
 import { Context, Effect, Layer } from 'effect';
 import type { Collection, Sort } from 'mongodb';
-import { escapeRegExp, isStoryEntity, mapToStory, parseDate, useNewsCollection } from './shared';
+import { escapeRegExp, isStoryEntity, mapToStory, parseDate } from './shared';
 
 type PageKeyFn = (stories: Array<StoryEntity>) => PageKey | null;
 
@@ -19,38 +20,41 @@ interface PaginatedQuery {
 
 export type KeywordSearchServiceShape = Context.Service.Shape<typeof KeywordSearchService>;
 export class KeywordSearchService extends Context.Service<KeywordSearchService>()('search/KeywordSearchService', {
-  make: Effect.succeed(defineService()),
+  make: Effect.gen(function* () {
+    const database = yield* DatabaseService;
+    return defineService({ database });
+  }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
   static readonly layer = this.layerWithoutDependencies;
 }
 
-function defineService() {
+function defineService({ database }: { database: DatabaseServiceShape }) {
+  function searchNews(searchRequest: KeywordSearchRequest): Effect.Effect<News, SearchError> {
+    return Effect.gen(function* () {
+      const { searchRequestParameters, pageKey } = searchRequest;
+
+      const query = buildQuery(searchRequestParameters);
+      const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
+      const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
+
+      const stories = yield* database.useNewsCollection('Failed to search news.', (newsCollection) =>
+        executeQuery(newsCollection, paginatedQuery, sort, limit),
+      );
+      const orderedStories = correctOrder(stories, pageKey);
+      const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
+
+      return {
+        stories: orderedStories
+          .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
+          .map((story) => mapToStory(story)),
+        prevKey,
+        nextKey,
+      };
+    });
+  }
+
   return { searchNews } as const;
-}
-
-function searchNews(searchRequest: KeywordSearchRequest): Effect.Effect<News, SearchError> {
-  return Effect.gen(function* () {
-    const { searchRequestParameters, pageKey } = searchRequest;
-
-    const query = buildQuery(searchRequestParameters);
-    const { paginatedQuery, sort, prevKeyFn, nextKeyFn } = generatePaginationQuery(query, pageKey);
-    const limit = pageKey?.type === 'prev' ? 0 : NEWS_QUERY_PAGE_LIMIT + 1;
-
-    const stories = yield* useNewsCollection('Failed to search news.', (newsCollection) =>
-      executeQuery(newsCollection, paginatedQuery, sort, limit),
-    );
-    const orderedStories = correctOrder(stories, pageKey);
-    const { prevKey, nextKey } = getPageKeys(orderedStories, prevKeyFn, nextKeyFn, pageKey);
-
-    return {
-      stories: orderedStories
-        .filter((story, index): story is StoryEntity => index < NEWS_QUERY_PAGE_LIMIT && isStoryEntity(story))
-        .map((story) => mapToStory(story)),
-      prevKey,
-      nextKey,
-    };
-  });
 }
 
 function buildQuery({ tag, textFilter, dateFilter, sources, matchMode }: KeywordSearchRequestParameters) {
