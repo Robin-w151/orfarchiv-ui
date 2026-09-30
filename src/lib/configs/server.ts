@@ -19,6 +19,7 @@ export const DB_CLIENT_OPTIONS: MongoClientOptions = {
   appName: 'orfarchiv-ui',
   serverSelectionTimeoutMS: 3000,
   connectTimeoutMS: 3000,
+  timeoutMS: 4000,
   retryReads: true,
   maxPoolSize: 2,
 };
