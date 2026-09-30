@@ -4,8 +4,8 @@ import type { AiModel } from '$lib/models/ai';
 import * as GeminiLanguageModel from '$lib/services/ai/gemini/geminiLanguageModel';
 import { logger } from '$lib/utils/logger';
 import { Effect, Schedule, Schema } from 'effect';
-import { AiError, LanguageModel } from 'effect/unstable/ai';
-import { FetchHttpClient } from 'effect/unstable/http';
+import { AiError, LanguageModel } from 'effect/ai';
+import { FetchHttpClient } from 'effect/http';
 
 export class AiService {
   constructor(

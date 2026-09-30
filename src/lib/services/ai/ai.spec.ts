@@ -4,7 +4,7 @@ import type { AiModel } from '$lib/models/ai';
 import { it } from '@effect/vitest';
 import { Duration, Effect, Fiber, Result, Schema } from 'effect';
 import { TestClock } from 'effect/testing';
-import { FetchHttpClient } from 'effect/unstable/http';
+import { FetchHttpClient } from 'effect/http';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { AiService } from './ai';
 
