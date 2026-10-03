@@ -44,6 +44,8 @@
     ${defaultScreenSize}
   `;
   const mainClass = 'flex flex-col gap-2 lg:gap-3';
+  const statusBarCoverClass =
+    'fixed top-0 inset-x-0 z-30 h-(--oa-safe-area-top) bg-gray-200 dark:bg-gray-700 pointer-events-none';
 
   let isApiCompatible = $state(true);
   let webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
@@ -91,6 +93,8 @@
 <EnableGlobalKeybindings />
 <EnableNetworkNotifications />
 <EnableUpdateListener />
+
+<div class={statusBarCoverClass} aria-hidden="true"></div>
 
 <div class={wrapperClass}>
   <Notifications />
