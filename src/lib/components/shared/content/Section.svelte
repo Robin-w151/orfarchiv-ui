@@ -20,9 +20,9 @@
     ${clazz}
   `);
   const headerClass = `
-    flex gap-2 justify-center items-center sticky top-0 z-20
+    flex gap-2 justify-center items-center sticky top-(--oa-safe-area-top) z-20
     ${defaultPadding}
-    w-full h-12 sm:h-[54px] text-lg
+    w-full h-(--oa-section-header-height) text-lg
     text-blue-700 dark:text-blue-500 bg-white/80 dark:bg-gray-900/80
     border-solid border-b-2 border-gray-200 dark:border-gray-700
     backdrop-blur-xs
