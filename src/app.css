@@ -19,6 +19,12 @@
   @media screen and (width >= 640px) {
     --oa-section-header-height: 54px;
   }
+
+  @supports (-webkit-touch-callout: none) {
+    @media (display-mode: standalone) {
+      --oa-safe-area-top: max(8px, env(safe-area-inset-top));
+    }
+  }
 }
 
 @custom-variant hover (&:hover);
