@@ -39,10 +39,13 @@
 
   const wrapperClass = `
     flex flex-col gap-2 lg:gap-3
-    p-2 pb-20 lg:p-4 lg:pb-20
+    p-2 pt-[calc(0.5rem+var(--oa-safe-area-top))] pb-20
+    lg:p-4 lg:pt-[calc(1rem+var(--oa-safe-area-top))] lg:pb-20
     ${defaultScreenSize}
   `;
   const mainClass = 'flex flex-col gap-2 lg:gap-3';
+  const statusBarCoverClass =
+    'fixed top-0 inset-x-0 z-30 h-(--oa-safe-area-top) bg-gray-200 dark:bg-gray-700 pointer-events-none';
 
   let isApiCompatible = $state(true);
   let webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
@@ -90,6 +93,8 @@
 <EnableGlobalKeybindings />
 <EnableNetworkNotifications />
 <EnableUpdateListener />
+
+<div class={statusBarCoverClass} aria-hidden="true"></div>
 
 <div class={wrapperClass}>
   <Notifications />

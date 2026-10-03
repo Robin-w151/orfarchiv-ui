@@ -20,7 +20,7 @@
   const subscriptions: Array<Subscription> = [];
 
   const headerClass = `
-    flex flex-row items-center gap-3 top-[47px] sm:top-[53px] sticky z-10
+    flex flex-row items-center gap-3 top-[calc(var(--oa-section-header-height)-1px+var(--oa-safe-area-top))] sticky z-10
     mb-[-2px] ${defaultPadding}
     text-gray-800 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500 bg-white dark:bg-gray-900
     border-solid border-b-2 border-gray-200 dark:border-gray-700

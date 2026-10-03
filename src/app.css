@@ -13,6 +13,18 @@
   --oa-outline-color-dark: var(--color-blue-500);
   --oa-transition-duration: 150ms;
   --oa-view-transition-duration: var(--oa-transition-duration);
+  --oa-safe-area-top: env(safe-area-inset-top);
+  --oa-section-header-height: 48px;
+
+  @media screen and (width >= 640px) {
+    --oa-section-header-height: 54px;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    @media (display-mode: standalone) {
+      --oa-safe-area-top: max(8px, env(safe-area-inset-top));
+    }
+  }
 }
 
 @custom-variant hover (&:hover);
