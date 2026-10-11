@@ -90,9 +90,7 @@ export function fetchStoryContent(
     }
 
     const document = yield* domService.createDom(currentData, currentUrl);
-    yield* cleanupService.removePrintWarnings(document);
-    yield* cleanupService.removeVideo(document);
-    yield* cleanupService.removeMoreToReadSection(document);
+    yield* cleanupService.removeArticleNoise(document);
     yield* chartService.removeCharts(document, currentUrl);
 
     const optimizedDocument = yield* readabilityService.optimizeContent(document, currentUrl);
