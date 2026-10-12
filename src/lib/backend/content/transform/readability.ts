@@ -1,4 +1,4 @@
-import { StoryContentErrorReason, StoryContentService } from '$common/storyContent';
+import { StoryContentErrorReason, StoryContentService } from '$common/storyContent/storyContent';
 import { OptimizedContentIsEmptyError, ParseError } from '$lib/errors/errors';
 import { logger } from '$lib/utils/logger';
 import { Context, Effect, Layer } from 'effect';

@@ -1,4 +1,4 @@
-import { StoryContentService } from '$common/storyContent';
+import { StoryContentService } from '$common/storyContent/storyContent';
 import { ParseError } from '$lib/errors/errors';
 import { Context, Effect, Layer } from 'effect';
 

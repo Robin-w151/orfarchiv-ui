@@ -4,8 +4,8 @@ import {
   ORFARCHIV_EMBEDDING_TOKEN,
   ORFARCHIV_EMBEDDING_URL,
 } from '$app/env/private';
-import { quantize } from '$common/embedding';
-import { TITLE_EMBEDDING_DIMENSIONS } from '$common/search';
+import { quantize } from '$common/embedding/embedding';
+import { TITLE_EMBEDDING_DIMENSIONS } from '$common/search/search.constants';
 import {
   SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH,
   SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT,

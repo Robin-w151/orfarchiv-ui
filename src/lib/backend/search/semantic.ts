@@ -1,4 +1,4 @@
-import { NEWS_TITLE_VECTOR_INDEX, TITLE_EMBEDDING_FIELD } from '$common/search';
+import { NEWS_TITLE_VECTOR_INDEX, TITLE_EMBEDDING_FIELD } from '$common/search/search.constants';
 import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
 import {
   SEMANTIC_SEARCH_CANDIDATE_LIMIT,

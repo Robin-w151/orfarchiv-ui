@@ -17,4 +17,4 @@ yarn.lock
 /patches
 
 # Shared test fixtures (real orf.at pages)
-src/lib/shared/common/src/fixtures/
+src/lib/shared/common/src/storyContent/fixtures/

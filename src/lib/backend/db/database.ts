@@ -1,5 +1,5 @@
 import { ORFARCHIV_DB_URL, ORFARCHIV_DB_URLS } from '$app/env/private';
-import { parseTargets, redact, type Target } from '$common/targets';
+import { parseTargets, redact, type Target } from '$common/targets/targets';
 import {
   DB_CLIENT_OPTIONS,
   DB_NAME,
