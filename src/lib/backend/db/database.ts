@@ -1,5 +1,5 @@
-import { ORFARCHIV_DB_URL, ORFARCHIV_DB_URLS } from '$app/env/private';
-import { parseTargets, redact, type Target } from '$common/targets/targets';
+import { ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS, ORFARCHIV_DB_URL, ORFARCHIV_DB_URLS } from '$app/env/private';
+import { parseTargets, redact, withContentExclusions, type Target } from '$common/targets/targets';
 import {
   DB_CLIENT_OPTIONS,
   DB_NAME,
@@ -47,11 +47,19 @@ export class DatabaseService extends Context.Service<DatabaseService>()('db/Data
 
 function resolveTargets(): Effect.Effect<ReadonlyArray<Target>, DatabaseConfigError> {
   const targets = parseTargets(ORFARCHIV_DB_URLS ?? '');
-  const resolved = targets.length > 0 ? targets : parseTargets(ORFARCHIV_DB_URL ?? '');
-  if (resolved.length === 0) {
+  const configured = targets.length > 0 ? targets : parseTargets(ORFARCHIV_DB_URL ?? '');
+  if (configured.length === 0) {
     return Effect.fail(
       new DatabaseConfigError({ message: 'Neither ORFARCHIV_DB_URLS nor ORFARCHIV_DB_URL is configured.' }),
     );
+  }
+
+  const { targets: resolved, unknownLabels } = withContentExclusions(
+    configured,
+    ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS ?? '',
+  );
+  for (const label of unknownLabels) {
+    logger.warn(`ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS: '${label}' matches no configured target.`);
   }
   return Effect.succeed(resolved);
 }
@@ -59,7 +67,7 @@ function resolveTargets(): Effect.Effect<ReadonlyArray<Target>, DatabaseConfigEr
 function defineService({ state }: { state: TargetStates }) {
   function useNewsCollection<TResult>(
     errorMessage: string,
-    use: (newsCollection: Collection<Document>) => Promise<TResult>,
+    use: (newsCollection: Collection<Document>, target: Target) => Promise<TResult>,
   ): Effect.Effect<TResult, SearchError> {
     return Effect.gen(function* () {
       const now = yield* Clock.currentTimeMillis;
@@ -78,12 +86,12 @@ function defineService({ state }: { state: TargetStates }) {
 
   function attempt<TResult>(
     target: Target,
-    use: (newsCollection: Collection<Document>) => Promise<TResult>,
+    use: (newsCollection: Collection<Document>, target: Target) => Promise<TResult>,
   ): Effect.Effect<TResult, unknown> {
     return Effect.gen(function* () {
       const client = yield* clientFor(target);
       return yield* Effect.tryPromise({
-        try: () => use(client.db(DB_NAME).collection(DB_NEWS_COLLECTION)),
+        try: () => use(client.db(DB_NAME).collection(DB_NEWS_COLLECTION), target),
         catch: (cause) => cause,
       }).pipe(
         Effect.timeout(DB_QUERY_TIMEOUT),

@@ -4,6 +4,7 @@ import { it } from '@effect/vitest';
 import { Effect, Exit, Fiber, Scope } from 'effect';
 import { TestClock } from 'effect/testing';
 import { beforeEach, describe, expect, vi } from 'vitest';
+import type { Target } from '$common/targets/targets';
 import { DatabaseService, type DatabaseServiceShape } from './database';
 
 interface FakeServer {
@@ -17,7 +18,11 @@ interface FakeCollection {
 }
 
 const { env, servers, createdClients } = vi.hoisted(() => ({
-  env: { urls: undefined as string | undefined, url: undefined as string | undefined },
+  env: {
+    urls: undefined as string | undefined,
+    url: undefined as string | undefined,
+    excluded: undefined as string | undefined,
+  },
   servers: new Map<string, FakeServer>(),
   createdClients: [] as Array<string>,
 }));
@@ -28,6 +33,9 @@ vi.mock('$app/env/private', () => ({
   },
   get ORFARCHIV_DB_URL() {
     return env.url;
+  },
+  get ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS() {
+    return env.excluded;
   },
 }));
 
@@ -100,6 +108,7 @@ describe('DatabaseService', () => {
   beforeEach(() => {
     env.urls = undefined;
     env.url = undefined;
+    env.excluded = undefined;
     servers.clear();
     createdClients.length = 0;
     vi.mocked(logger.warn).mockClear();
@@ -126,6 +135,19 @@ describe('DatabaseService', () => {
         const database = yield* DatabaseService.make;
 
         expect((yield* database.health).map((health) => health.label)).toEqual(['primary:27017', 'secondary:27017']);
+      }),
+    );
+
+    it.effect('warns about an excluded label that matches no target', () =>
+      Effect.gen(function* () {
+        env.urls = `${primary}\n${secondary}`;
+        env.excluded = 'typo.mongodb.net';
+
+        yield* DatabaseService.make;
+
+        expect(logger.warn).toHaveBeenCalledWith(
+          "ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS: 'typo.mongodb.net' matches no configured target.",
+        );
       }),
     );
 
@@ -173,6 +195,28 @@ describe('DatabaseService', () => {
 
         expect(yield* query(database)).toBe(secondary);
         expect((yield* database.health).map((health) => health.up)).toEqual([false, true]);
+      }),
+    );
+
+    it.effect('passes the content capability of the target the callback runs against', () =>
+      Effect.gen(function* () {
+        env.urls = `${primary}\n${secondary}`;
+        env.excluded = 'secondary:27017';
+        addServer(primary, 'fail');
+        addServer(secondary);
+        const calls: Array<Pick<Target, 'label' | 'content'>> = [];
+
+        const database = yield* DatabaseService.make;
+        const result = yield* database.useNewsCollection('Failed to query.', (collection, target) => {
+          calls.push({ label: target.label, content: target.content });
+          return (collection as unknown as FakeCollection).findOne();
+        });
+
+        expect(result).toBe(secondary);
+        expect(calls).toEqual([
+          { label: 'primary:27017', content: true },
+          { label: 'secondary:27017', content: false },
+        ]);
       }),
     );
 

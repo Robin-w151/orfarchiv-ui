@@ -11,6 +11,10 @@ export const variables = defineEnvVars({
     description: 'Database URLs in priority order, separated by newline or ";"',
     schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String)),
   },
+  ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS: {
+    description: 'Labels of database targets without content embeddings (title-only search), separated by ";"',
+    schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String)),
+  },
   ORFARCHIV_EMBEDDING_URL: {
     description: 'OpenAI-compatible base URL of the embedding server ("/embeddings" is appended)',
     schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String.check(isUrl))),
