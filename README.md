@@ -28,6 +28,8 @@ so no separate backend application is required.
    **ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS** lists the labels (`host[:port]`) of targets without content
    embeddings, separated by `;`. Search falls back to title-only on them. It is required in production once fused
    search is enabled and must contain the Atlas M0 label (`<cluster>.mongodb.net`).
+   **ORFARCHIV_SEMANTIC_CONTENT_ENABLED** set to `true` fuses title and article content vectors in semantic search on
+   targets with content embeddings. Defaults to title-only search.
 2. `npm install`
 3. `npm run dev`
 4. Visit http://localhost:3001

@@ -27,7 +27,10 @@ export const DB_CLIENT_OPTIONS: MongoClientOptions = {
 // Semantic search
 export const SEMANTIC_SEARCH_NUM_CANDIDATES = 3000;
 export const SEMANTIC_SEARCH_CANDIDATE_LIMIT = 300;
-export const SEMANTIC_SEARCH_MIN_SCORE = 0.79;
+export const SEMANTIC_SEARCH_TITLE_MIN_SCORE = 0.79;
+export const SEMANTIC_SEARCH_CONTENT_MIN_SCORE = 0.76;
+export const SEMANTIC_SEARCH_TITLE_WEIGHT = 1;
+export const SEMANTIC_SEARCH_CONTENT_WEIGHT = 1;
 export const SEMANTIC_SEARCH_RECENCY_WEIGHT = 0;
 export const SEMANTIC_SEARCH_RECENCY_DECAY_MS = Duration.toMillis(Duration.days(30));
 export const SEMANTIC_SEARCH_MIN_NOUN_LENGTH = 4;

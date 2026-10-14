@@ -5,7 +5,7 @@ import {
   ORFARCHIV_EMBEDDING_URL,
 } from '$app/env/private';
 import { quantize } from '$common/embedding/embedding';
-import { TITLE_EMBEDDING_DIMENSIONS } from '$common/search/search.constants';
+import { CONTENT_EMBEDDING_DIMENSIONS, TITLE_EMBEDDING_DIMENSIONS } from '$common/search/search.constants';
 import {
   SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH,
   SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT,
@@ -22,6 +22,13 @@ import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientRes
 import { RateLimiter } from 'effect/persistence';
 import { LRUCache } from 'lru-cache';
 import type { Binary } from 'mongodb';
+
+export interface QueryVectors {
+  readonly title: Binary;
+  readonly content: Binary;
+}
+
+const QUERY_EMBEDDING_DIMENSIONS = Math.max(TITLE_EMBEDDING_DIMENSIONS, CONTENT_EMBEDDING_DIMENSIONS);
 
 export type EmbeddingServiceShape = Context.Service.Shape<typeof EmbeddingService>;
 export class EmbeddingService extends Context.Service<EmbeddingService>()('search/EmbeddingService', {
@@ -48,9 +55,9 @@ function defineService({
   const rateLimit = parseRateLimit(ORFARCHIV_EMBEDDING_RATE_LIMIT);
   const rateWindow = parseRateWindow(ORFARCHIV_EMBEDDING_RATE_WINDOW);
 
-  const cache = new LRUCache<string, Binary>({ max: SEMANTIC_SEARCH_CACHE_MAX, ttl: SEMANTIC_SEARCH_CACHE_TTL });
+  const cache = new LRUCache<string, QueryVectors>({ max: SEMANTIC_SEARCH_CACHE_MAX, ttl: SEMANTIC_SEARCH_CACHE_TTL });
 
-  function embedQuery(text: string, clientId: string): Effect.Effect<Binary, EmbeddingError> {
+  function embedQuery(text: string, clientId: string): Effect.Effect<QueryVectors, EmbeddingError> {
     return Effect.gen(function* () {
       const key = normalizeQuery(text);
       const cached = cache.get(key);
@@ -82,7 +89,7 @@ function defineService({
     });
   }
 
-  function requestEmbedding(input: string): Effect.Effect<Binary, EmbeddingError> {
+  function requestEmbedding(input: string): Effect.Effect<QueryVectors, EmbeddingError> {
     return Effect.gen(function* () {
       if (!ORFARCHIV_EMBEDDING_URL) {
         return yield* new EmbeddingError({
@@ -123,14 +130,17 @@ function defineService({
       );
 
       const values = parsed.data[0]?.embedding;
-      if (!values || values.length < TITLE_EMBEDDING_DIMENSIONS) {
+      if (!values || values.length < QUERY_EMBEDDING_DIMENSIONS) {
         return yield* new EmbeddingError({
-          message: `Expected at least ${TITLE_EMBEDDING_DIMENSIONS} dimensions, got ${values?.length ?? 0}.`,
+          message: `Expected at least ${QUERY_EMBEDDING_DIMENSIONS} dimensions, got ${values?.length ?? 0}.`,
           type: 'malformed',
         });
       }
 
-      return quantize(values.slice(0, TITLE_EMBEDDING_DIMENSIONS));
+      return {
+        title: quantize(values.slice(0, TITLE_EMBEDDING_DIMENSIONS)),
+        content: quantize(values.slice(0, CONTENT_EMBEDDING_DIMENSIONS)),
+      };
     });
   }
 

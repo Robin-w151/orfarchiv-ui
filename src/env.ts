@@ -15,6 +15,10 @@ export const variables = defineEnvVars({
     description: 'Labels of database targets without content embeddings (title-only search), separated by ";"',
     schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String)),
   },
+  ORFARCHIV_SEMANTIC_CONTENT_ENABLED: {
+    description: 'Enables fused title and content semantic search on targets with content embeddings',
+    schema: Schema.toStandardSchemaV1(Schema.optional(Schema.Literals(['true', 'false']))),
+  },
   ORFARCHIV_EMBEDDING_URL: {
     description: 'OpenAI-compatible base URL of the embedding server ("/embeddings" is appended)',
     schema: Schema.toStandardSchemaV1(Schema.optional(Schema.String.check(isUrl))),

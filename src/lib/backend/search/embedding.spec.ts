@@ -1,5 +1,18 @@
-import { describe, expect, it } from 'vitest';
-import { normalizeQuery } from './embedding';
+import { quantize } from '$common/embedding/embedding';
+import { EmbeddingError } from '$lib/errors/errors';
+import { it } from '@effect/vitest';
+import { Effect, Layer } from 'effect';
+import { HttpClient, HttpClientResponse } from 'effect/http';
+import { RateLimiter } from 'effect/persistence';
+import { describe, expect, vi } from 'vitest';
+import { EmbeddingService, normalizeQuery } from './embedding';
+
+vi.mock('$app/env/private', () => ({
+  ORFARCHIV_EMBEDDING_URL: 'http://embeddings.test/v1',
+  ORFARCHIV_EMBEDDING_TOKEN: undefined,
+  ORFARCHIV_EMBEDDING_RATE_LIMIT: undefined,
+  ORFARCHIV_EMBEDDING_RATE_WINDOW: undefined,
+}));
 
 describe('normalizeQuery', () => {
   it('capitalizes a single all-lowercase word', () => {
@@ -78,5 +91,56 @@ describe('normalizeQuery', () => {
 
   it('leaves a query with no letters untouched', () => {
     expect(normalizeQuery('2024')).toBe('2024');
+  });
+});
+
+describe('EmbeddingService', () => {
+  function fakeEmbedding(dimensions: number) {
+    return Array.from({ length: dimensions }, (_, index) => (index % 2 === 0 ? 1 : -1) * (index + 1));
+  }
+
+  function stubEmbeddingServer(dimensions: number) {
+    const requests: Array<string | undefined> = [];
+    const httpClient = HttpClient.make((request) =>
+      Effect.sync(() => {
+        requests.push(request.body._tag === 'Uint8Array' ? request.body.text : undefined);
+        const response = JSON.stringify({ data: [{ embedding: fakeEmbedding(dimensions) }] });
+        return HttpClientResponse.fromWeb(request, new Response(response));
+      }),
+    );
+    const layer = EmbeddingService.layerWithoutDependencies.pipe(
+      Layer.provide(Layer.succeed(HttpClient.HttpClient, httpClient)),
+      Layer.provide(RateLimiter.layer.pipe(Layer.provide(RateLimiter.layerStoreMemory))),
+    );
+    return { requests, layer };
+  }
+
+  it.effect('returns title and content vectors from one request and caches the pair', () => {
+    const { requests, layer } = stubEmbeddingServer(768);
+
+    return Effect.gen(function* () {
+      const embeddingService = yield* EmbeddingService;
+      const first = yield* embeddingService.embedQuery('teuerung', 'client-1');
+      const second = yield* embeddingService.embedQuery('Teuerung', 'client-1');
+
+      const values = fakeEmbedding(768);
+      expect(requests).toEqual([JSON.stringify({ input: ['task: search result | query: Teuerung'] })]);
+      expect(first.title).toEqual(quantize(values.slice(0, 256)));
+      expect(first.content).toEqual(quantize(values.slice(0, 512)));
+      expect(second).toBe(first);
+    }).pipe(Effect.provide(layer));
+  });
+
+  it.effect('rejects a vector shorter than the content dimensions as malformed', () => {
+    const { layer } = stubEmbeddingServer(256);
+
+    return Effect.gen(function* () {
+      const embeddingService = yield* EmbeddingService;
+      const error = yield* Effect.flip(embeddingService.embedQuery('Teuerung', 'client-1'));
+
+      expect(error).toBeInstanceOf(EmbeddingError);
+      expect(error.type).toBe('malformed');
+      expect(error.message).toBe('Expected at least 512 dimensions, got 256.');
+    }).pipe(Effect.provide(layer));
   });
 });
