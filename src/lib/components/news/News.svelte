@@ -266,9 +266,8 @@
   {/if}
 </Content>
 
-{#if $news.isLoading}
+{#if $news.showLoadingOverlay}
   <SpinningDotsIndicator
-    delay={2000}
     onclick={handleLoadingIndicatorBackdropClick}
     onkeydown={handleLoadingIndicatorBackdropKeydown}
   />

@@ -115,6 +115,10 @@ export class NewsPage {
     return this.imageViewer.getByTitle('Bild schließen');
   }
 
+  get loadingOverlay(): Locator {
+    return this.page.locator('div.backdrop[role="alert"]');
+  }
+
   get popover(): Locator {
     return this.page.locator('div[data-testid="popover"]');
   }
@@ -210,6 +214,24 @@ export class NewsPage {
         route.continue();
       }
     });
+  }
+
+  async holdSearchNewsApi(data: unknown): Promise<() => void> {
+    let releaseSearch = (): void => {};
+    const searchReleased = new Promise<void>((resolve) => {
+      releaseSearch = resolve;
+    });
+
+    await this.page.route('**/api/trpc/news.search**', async (route) => {
+      await searchReleased;
+
+      const url = new URL(route.request().url());
+      const input = JSON.parse(url.searchParams.get('input') ?? '{}');
+      const body = this.toTrpcResponseData(input.pageKey?.type === 'prev' ? newsMockEmptyUpdate : data);
+      await route.fulfill({ status: 200, body }).catch(() => undefined);
+    });
+
+    return releaseSearch;
   }
 
   async mockFetchContentApi(data: unknown, failOnFirstTry = false): Promise<void> {

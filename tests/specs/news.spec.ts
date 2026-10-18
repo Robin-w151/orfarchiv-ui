@@ -157,6 +157,32 @@ test.describe('NewsPage', () => {
     });
   });
 
+  test.describe('Loading overlay', () => {
+    test('shows after a search runs longer than 3s', async ({ newsPage, page }) => {
+      const releaseSearch = await newsPage.holdSearchNewsApi(newsMock);
+      await newsPage.textFilterInput.fill('Wien');
+
+      await page.waitForTimeout(2_000);
+      await expect(newsPage.loadingOverlay).toBeHidden();
+      await expect(newsPage.loadingOverlay).toBeVisible();
+
+      releaseSearch();
+      await expect(newsPage.loadingOverlay).toBeHidden();
+    });
+
+    test('restarts the delay on new search input', async ({ newsPage, page }) => {
+      await newsPage.holdSearchNewsApi(newsMock);
+      await newsPage.textFilterInput.fill('W');
+
+      await page.waitForTimeout(2_000);
+      await newsPage.textFilterInput.fill('Wien');
+
+      await page.waitForTimeout(2_000);
+      await expect(newsPage.loadingOverlay).toBeHidden();
+      await expect(newsPage.loadingOverlay).toBeVisible();
+    });
+  });
+
   test.describe('Sections', () => {
     test('Mittwoch, 07.09.2022', async ({ newsPage }) => {
       const sectionAktuell = newsPage.getNewsListSection(0);

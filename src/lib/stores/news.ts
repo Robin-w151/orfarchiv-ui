@@ -8,8 +8,11 @@ import settings from './settings';
 import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
 import { logger } from '$lib/utils/logger';
 import type { Request } from '$lib/models/request';
+import { NEWS_LOADING_OVERLAY_DELAY_IN_MS } from '$lib/configs/client';
 
-export interface NewsStore extends Readable<News>, Partial<News> {
+let loadingTimeout: ReturnType<typeof setTimeout> | undefined;
+
+export interface NewsStore extends Readable<News> {
   setNews: (news: News, newNews?: News) => void;
   addNews: (news: News, append?: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -58,7 +61,18 @@ function addNews(news: News, append = true): void {
 }
 
 function setIsLoading(isLoading: boolean): void {
-  update((oldNews) => ({ ...oldNews, isLoading }));
+  update((oldNews) => ({ ...oldNews, isLoading, showLoadingOverlay: isLoading && oldNews.showLoadingOverlay }));
+
+  if (loadingTimeout) {
+    clearTimeout(loadingTimeout);
+  }
+
+  if (isLoading) {
+    loadingTimeout = setTimeout(
+      () => update((oldNews) => ({ ...oldNews, showLoadingOverlay: true })),
+      NEWS_LOADING_OVERLAY_DELAY_IN_MS,
+    );
+  }
 }
 
 async function taskWithLoading(handler: () => void | Promise<void>): Promise<void> {

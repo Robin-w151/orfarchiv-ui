@@ -16,6 +16,7 @@ export const News = Schema.Struct({
   stories: Schema.Array(Story),
   ordering: Schema.optional(NewsOrdering),
   isLoading: Schema.optional(Schema.Boolean),
+  showLoadingOverlay: Schema.optional(Schema.Boolean),
   storyBuckets: Schema.optional(Schema.Array(NewsBucket)),
   search: Schema.optional(Schema.String),
   prevKey: Schema.optional(Schema.NullOr(PageKey)),
