@@ -23,7 +23,13 @@ so no separate backend application is required.
 ### Run DEV server
 
 1. _Optionally_: create _.env.local_ (copy from _.env_ file) and configure **ORFARCHIV_DB_URL** environment variable if
-   your _MongoDB_ is not running on **mongodb://localhost:27017**
+   your _MongoDB_ is not running on **mongodb://localhost:27017**. **ORFARCHIV_DB_URLS** lists several targets in
+   priority order, separated by newline or `;`.
+   **ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS** lists the labels (`host[:port]`) of targets without content
+   embeddings, separated by `;`. Search falls back to title-only on them. It is required in production once fused
+   search is enabled and must contain the Atlas M0 label (`<cluster>.mongodb.net`).
+   **ORFARCHIV_SEMANTIC_CONTENT_ENABLED** set to `true` fuses title and article content vectors in semantic search on
+   targets with content embeddings. Defaults to title-only search.
 2. `npm install`
 3. `npm run dev`
 4. Visit http://localhost:3001

@@ -1,43 +1,18 @@
+import { StoryContentService } from '$common/storyContent/storyContent';
 import { Context, Effect, Layer } from 'effect';
 
 export class CleanupService extends Context.Service<CleanupService>()('content/transform/CleanupService', {
-  make: Effect.succeed({
-    removePrintWarnings,
-    removeVideo,
-    removeMoreToReadSection,
-    removeSiteNavigation,
+  make: Effect.gen(function* () {
+    const storyContentService = yield* StoryContentService;
+
+    return {
+      removeArticleNoise: (document: Document) => storyContentService.removeArticleNoise(document),
+      removeSiteNavigation,
+    };
   }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
-  static readonly layer = this.layerWithoutDependencies;
-}
-
-function removePrintWarnings(document: Document) {
-  return Effect.sync(() => {
-    for (const element of document.querySelectorAll('.print-warning')) {
-      element.remove();
-    }
-  });
-}
-
-function removeVideo(document: Document) {
-  return Effect.sync(() => {
-    for (const stripeCredits of document.querySelectorAll('p.caption.stripe-credits')) {
-      stripeCredits.remove();
-    }
-
-    for (const stripe of document.querySelectorAll('section.stripe')) {
-      stripe.remove();
-    }
-  });
-}
-
-function removeMoreToReadSection(document: Document) {
-  return Effect.sync(() => {
-    for (const element of document.querySelectorAll('#more-to-read')) {
-      element.remove();
-    }
-  });
+  static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(StoryContentService.layer));
 }
 
 function removeSiteNavigation(optimizedDocument: Document) {

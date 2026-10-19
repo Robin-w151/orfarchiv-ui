@@ -48,7 +48,10 @@ function stubDatabase(stories: Array<StoryEntity> | Error) {
 
   const database: DatabaseServiceShape = {
     useNewsCollection: (message, use) =>
-      Effect.tryPromise({ try: () => use(collection), catch: (cause) => new SearchError({ message, cause }) }),
+      Effect.tryPromise({
+        try: () => use(collection, { url: 'mongodb://db-1', label: 'db-1', content: true }),
+        catch: (cause) => new SearchError({ message, cause }),
+      }),
     health: Effect.succeed([]),
   };
 

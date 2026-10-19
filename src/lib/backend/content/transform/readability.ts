@@ -1,32 +1,36 @@
-import { OptimizedContentIsEmptyError } from '$lib/errors/errors';
+import { StoryContentErrorReason, StoryContentService } from '$common/storyContent/storyContent';
+import { OptimizedContentIsEmptyError, ParseError } from '$lib/errors/errors';
 import { logger } from '$lib/utils/logger';
-import { Readability } from '@mozilla/readability';
 import { Context, Effect, Layer } from 'effect';
-import { DomService } from '../dom';
-
-const ALLOWED_CLASSES = ['fact', 'image-container', 'image-credit-tag', 'keyword', 'slideshow'];
 
 export class ReadabilityService extends Context.Service<ReadabilityService>()('content/transform/ReadabilityService', {
-  make: Effect.succeed({ optimizeContent }),
+  make: Effect.gen(function* () {
+    const storyContentService = yield* StoryContentService;
+
+    return defineService({ storyContentService });
+  }),
 }) {
   static readonly layerWithoutDependencies = Layer.effect(this, this.make);
-  static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(DomService.layer));
+  static readonly layer = this.layerWithoutDependencies.pipe(Layer.provide(StoryContentService.layer));
 }
 
-function optimizeContent(document: Document, url: string) {
-  return Effect.gen(function* () {
-    const domService = yield* DomService;
+function defineService({
+  storyContentService,
+}: {
+  storyContentService: Context.Service.Shape<typeof StoryContentService>;
+}) {
+  function optimizeContent(document: Document, url: string) {
+    return storyContentService.extractArticle(document, url).pipe(
+      Effect.mapError((error) => {
+        if (error.reason === StoryContentErrorReason.Empty) {
+          logger.warn(`Error transforming content with url='${url}'`);
+          return new OptimizedContentIsEmptyError({ url, tags: [['url', url]], message: error.message });
+        }
 
-    const optimizedContent = new Readability(document, { classesToPreserve: ALLOWED_CLASSES }).parse();
-    if (!optimizedContent?.content) {
-      logger.warn(`Error transforming content with url='${url}'`);
-      return yield* new OptimizedContentIsEmptyError({
-        url,
-        tags: [['url', url]],
-        message: `Optimized content from url='${url}' is empty`,
-      });
-    }
+        return new ParseError({ url, tags: [['url', url]], cause: error.cause });
+      }),
+    );
+  }
 
-    return yield* domService.createDom(optimizedContent.content, url);
-  });
+  return { optimizeContent };
 }
