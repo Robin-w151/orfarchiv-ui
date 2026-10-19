@@ -27,7 +27,7 @@
     "@mozilla/readability": "0.5.0",
     "@panzoom/panzoom": "4.6.2",
     "@playwright/test": "1.64.1",
-    "@semantic-release/git": "10.0.1",
+    "@semantic-release/git": "11.0.1",
     "@skeletonlabs/floating-ui-svelte": "0.3.9",
     "@steeze-ui/heroicons": "2.4.2",
     "@steeze-ui/svelte-icon": "1.6.2",
@@ -101,6 +101,7 @@
   },
   "overrides": {
     "conventional-changelog-conventionalcommits": ">=8.0.0",
+    "conventional-changelog-writer": ">=9.0.0",
     "glob": ">=10.5.0"
   },
   "type": "module",
