@@ -7,7 +7,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
-import { resolve } from 'node:path';
 import Sonda from 'sonda/sveltekit';
 import { defineConfig } from 'vite';
 import cspConfig from './csp-config.js';
@@ -33,11 +32,6 @@ export default defineConfig({
     sveltekit({
       preprocess: vitePreprocess(),
       adapter,
-      alias: {
-        $assets: resolve('./src/assets'),
-        $common: resolve('./src/lib/shared/common/src'),
-        $lib: resolve('./src/lib'),
-      },
       csp,
       experimental: {
         explicitEnvironmentVariables: true,

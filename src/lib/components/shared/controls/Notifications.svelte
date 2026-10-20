@@ -1,6 +1,6 @@
 <script lang="ts">
-  import notifications from '$lib/stores/notifications';
-  import { defaultGap } from '$lib/utils/styles';
+  import notifications from '#lib/stores/notifications.ts';
+  import { defaultGap } from '#lib/utils/styles.ts';
   import Notification from './Notification.svelte';
 
   const notificationsClass = `

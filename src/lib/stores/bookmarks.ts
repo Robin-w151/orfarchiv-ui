@@ -1,6 +1,6 @@
 import { browser } from '$app/env';
-import type { Bookmarks } from '$lib/models/bookmarks';
-import type { Story } from '$lib/models/story';
+import type { Bookmarks } from '#lib/models/bookmarks.ts';
+import type { Story } from '#lib/models/story.ts';
 import { liveQuery } from 'dexie';
 import { writable, type Readable } from 'svelte/store';
 import BookmarksDb from './persistence/bookmarksDb';

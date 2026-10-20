@@ -1,10 +1,10 @@
 <script lang="ts">
-  import NewsListSkeleton from '$lib/components/news/NewsListSkeleton.svelte';
-  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
-  import Content from '$lib/components/shared/content/Content.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import bookmarks from '$lib/stores/bookmarks';
-  import { selectStory } from '$lib/stores/newsEvents';
+  import NewsListSkeleton from '#lib/components/news/NewsListSkeleton.svelte';
+  import AlertBox from '#lib/components/shared/content/AlertBox.svelte';
+  import Content from '#lib/components/shared/content/Content.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import bookmarks from '#lib/stores/bookmarks.ts';
+  import { selectStory } from '#lib/stores/newsEvents.ts';
   import { get } from 'svelte/store';
   import BookmarkActions from '../filter/BookmarkActions.svelte';
   import NewsList from '../NewsList.svelte';

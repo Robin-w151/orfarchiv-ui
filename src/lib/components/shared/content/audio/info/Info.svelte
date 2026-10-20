@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getSourceLabel } from '$lib/models/settings';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { formatTimestamp } from '$lib/utils/datetime';
+  import { getSourceLabel } from '#lib/models/settings.ts';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { formatTimestamp } from '#lib/utils/datetime.ts';
 
   const audioStore = getAudioStore();
   const sourceLabel = $derived(getSourceLabel(audioStore.story?.source));

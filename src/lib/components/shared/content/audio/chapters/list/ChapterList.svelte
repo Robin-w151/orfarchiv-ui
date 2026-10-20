@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { getChapterTitle } from '$lib/utils/chapter';
-  import { rollUp } from '$lib/utils/transitions';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { AccessibleTransitionStore } from '#lib/stores/runes/accessibleTransition.svelte.ts';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { getChapterTitle } from '#lib/utils/chapter.ts';
+  import { rollUp } from '#lib/utils/transitions.ts';
 
   const audioStore = getAudioStore();
 

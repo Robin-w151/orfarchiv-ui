@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
+  import { getSkeletonStore } from '#lib/stores/runes/skeleton.svelte.ts';
 
   const skeletonStore = getSkeletonStore();
 

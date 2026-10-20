@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { NOTIFICATION_COPY_LINK_TIMEOUT } from '$lib/configs/client';
-  import type { Story } from '$lib/models/story';
-  import notifications from '$lib/stores/notifications';
-  import { logger } from '$lib/utils/logger';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { NOTIFICATION_COPY_LINK_TIMEOUT } from '#lib/configs/client.ts';
+  import type { Story } from '#lib/models/story.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import { logger } from '#lib/utils/logger.ts';
   import { ClipboardDocument, Share } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

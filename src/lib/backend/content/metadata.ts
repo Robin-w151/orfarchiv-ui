@@ -1,5 +1,5 @@
-import { searchStory } from '$lib/backend/search/news';
-import { MetaDataNotFoundError } from '$lib/errors/errors';
+import { searchStory } from '#lib/backend/search/news.ts';
+import { MetaDataNotFoundError } from '#lib/errors/errors.ts';
 import { Context, Effect, Layer, Predicate } from 'effect';
 
 const SOURCE_URL_REGEXP = /^https:\/\/(?<source>\w+)\.orf\.at/i;

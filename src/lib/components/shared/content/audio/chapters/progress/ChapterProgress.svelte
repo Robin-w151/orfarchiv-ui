@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import { getChapterTitle } from '$lib/utils/chapter';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { getReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import { getChapterTitle } from '#lib/utils/chapter.ts';
 
   const audioStore = getAudioStore();
   const reducedMotionStore = getReducedMotionStore();

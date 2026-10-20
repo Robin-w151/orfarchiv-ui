@@ -1,8 +1,8 @@
-import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
-import { AiServiceError, type AiServiceErrorType } from '$lib/errors/errors';
-import type { AiModel } from '$lib/models/ai';
-import * as GeminiLanguageModel from '$lib/services/ai/gemini/geminiLanguageModel';
-import { logger } from '$lib/utils/logger';
+import { AI_MODEL_CONFIG_MAP } from '#lib/configs/client.ts';
+import { AiServiceError, type AiServiceErrorType } from '#lib/errors/errors.ts';
+import type { AiModel } from '#lib/models/ai.ts';
+import * as GeminiLanguageModel from '#lib/services/ai/gemini/geminiLanguageModel.ts';
+import { logger } from '#lib/utils/logger.ts';
 import { Effect, Schedule, Schema } from 'effect';
 import { AiError, LanguageModel } from 'effect/ai';
 import { FetchHttpClient } from 'effect/http';

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { NOTIFICATION_BOOKMARK_TIMEOUT } from '$lib/configs/client';
-  import type { Story } from '$lib/models/story';
-  import bookmarks from '$lib/stores/bookmarks';
-  import notifications from '$lib/stores/notifications';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { NOTIFICATION_BOOKMARK_TIMEOUT } from '#lib/configs/client.ts';
+  import type { Story } from '#lib/models/story.ts';
+  import bookmarks from '#lib/stores/bookmarks.ts';
+  import notifications from '#lib/stores/notifications.ts';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Bookmark, BookmarkSlash } from '@steeze-ui/heroicons';
 

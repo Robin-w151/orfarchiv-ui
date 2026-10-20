@@ -1,4 +1,4 @@
-import { ContentNotFoundError, OptimizedContentIsEmptyError } from '$lib/errors/errors';
+import { ContentNotFoundError, OptimizedContentIsEmptyError } from '#lib/errors/errors.ts';
 import { Result } from 'effect';
 import prettier from 'prettier';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -63,7 +63,7 @@ const {
   };
 });
 
-vi.mock('$lib/backend/search/news', () => {
+vi.mock('#lib/backend/search/news.ts', () => {
   return {
     searchStory: mockedSearchStory,
   };

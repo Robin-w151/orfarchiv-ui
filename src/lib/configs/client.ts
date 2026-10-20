@@ -1,4 +1,4 @@
-import type { AiModel, AiModelConfigMap } from '$lib/models/ai';
+import type { AiModel, AiModelConfigMap } from '#lib/models/ai.ts';
 
 // Context keys
 export const CTX_STORE = Symbol('store');

@@ -1,5 +1,5 @@
-import { CHAPTER_MAX_SEGMENT_BYTES } from '$lib/configs/shared';
-import type { StoryContentChapter } from '$lib/models/story';
+import { CHAPTER_MAX_SEGMENT_BYTES } from '#lib/configs/shared.ts';
+import type { StoryContentChapter } from '#lib/models/story.ts';
 import { Context, Effect, Layer } from 'effect';
 
 interface ChapterDraft {

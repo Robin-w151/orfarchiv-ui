@@ -1,6 +1,6 @@
 <script lang="ts">
-  import settings from '$lib/stores/settings';
-  import { transitionDefaults } from '$lib/utils/transitions';
+  import settings from '#lib/stores/settings.ts';
+  import { transitionDefaults } from '#lib/utils/transitions.ts';
   import clsx from 'clsx';
   import { onDestroy, onMount } from 'svelte';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';

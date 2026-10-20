@@ -1,9 +1,9 @@
 <script lang="ts">
   import { PUBLIC_APP_MODE } from '$app/env/public';
-  import Appearance from '$lib/components/settings/appearance/Appearance.svelte';
-  import Content from '$lib/components/shared/content/Content.svelte';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { defaultGap } from '$lib/utils/styles';
+  import Appearance from '#lib/components/settings/appearance/Appearance.svelte';
+  import Content from '#lib/components/shared/content/Content.svelte';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { defaultGap } from '#lib/utils/styles.ts';
   import AI from './ai/AI.svelte';
   import Audio from './audio/Audio.svelte';
   import Developer from './developer/Developer.svelte';

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import NewsList from '$lib/components/news/NewsList.svelte';
-  import NewsListSkeleton from '$lib/components/news/NewsListSkeleton.svelte';
-  import type { NewsBucket } from '$lib/models/news';
-  import settings from '$lib/stores/settings';
+  import NewsList from '#lib/components/news/NewsList.svelte';
+  import NewsListSkeleton from '#lib/components/news/NewsListSkeleton.svelte';
+  import type { NewsBucket } from '#lib/models/news.ts';
+  import settings from '#lib/stores/settings.ts';
 
   interface Props {
     isLoading: boolean;

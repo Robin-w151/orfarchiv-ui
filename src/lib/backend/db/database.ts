@@ -1,5 +1,5 @@
 import { ORFARCHIV_CONTENT_EMBEDDING_EXCLUDED_TARGETS, ORFARCHIV_DB_URL, ORFARCHIV_DB_URLS } from '$app/env/private';
-import { parseTargets, redact, withContentExclusions, type Target } from '$common/targets/targets';
+import { parseTargets, redact, withContentExclusions, type Target } from '#common/targets/targets.ts';
 import {
   DB_CLIENT_OPTIONS,
   DB_NAME,
@@ -7,8 +7,8 @@ import {
   DB_QUERY_TIMEOUT,
   DB_TARGET_COOLDOWN,
   logger,
-} from '$lib/configs/server';
-import { DatabaseConfigError, SearchError } from '$lib/errors/errors';
+} from '#lib/configs/server.ts';
+import { DatabaseConfigError, SearchError } from '#lib/errors/errors.ts';
 import { Clock, Context, Duration, Effect, Layer, Ref } from 'effect';
 import { type Collection, MongoClient } from 'mongodb';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Link from '$lib/components/shared/controls/Link.svelte';
+  import Link from '#lib/components/shared/controls/Link.svelte';
   import { QuestionMarkCircle } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

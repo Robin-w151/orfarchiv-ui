@@ -1,10 +1,14 @@
-import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
-import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
-import type { SearchError } from '$lib/errors/errors';
-import type { News } from '$lib/models/news';
-import type { PageKey } from '$lib/models/pageKey';
-import type { KeywordSearchRequest, KeywordSearchRequestParameters, SearchMatchMode } from '$lib/models/searchRequest';
-import type { StoryEntity } from '$lib/models/story';
+import { DatabaseService, type DatabaseServiceShape } from '#lib/backend/db/database.ts';
+import { NEWS_QUERY_PAGE_LIMIT } from '#lib/configs/shared.ts';
+import type { SearchError } from '#lib/errors/errors.ts';
+import type { News } from '#lib/models/news.ts';
+import type { PageKey } from '#lib/models/pageKey.ts';
+import type {
+  KeywordSearchRequest,
+  KeywordSearchRequestParameters,
+  SearchMatchMode,
+} from '#lib/models/searchRequest.ts';
+import type { StoryEntity } from '#lib/models/story.ts';
 import { Context, Effect, Layer } from 'effect';
 import type { Collection, Sort } from 'mongodb';
 import { escapeRegExp, isStoryEntity, mapToStory, parseDate } from './shared';

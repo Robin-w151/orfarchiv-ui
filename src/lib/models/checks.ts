@@ -1,4 +1,4 @@
-import { isOrfUrl as isOrfUrlFn } from '$lib/utils/urls';
+import { isOrfUrl as isOrfUrlFn } from '#lib/utils/urls.ts';
 import { Schema } from 'effect';
 import { DateTime } from 'luxon';
 

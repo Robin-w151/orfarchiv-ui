@@ -1,6 +1,6 @@
-import { StoryContentErrorReason, StoryContentService } from '$common/storyContent/storyContent';
-import { OptimizedContentIsEmptyError, ParseError } from '$lib/errors/errors';
-import { logger } from '$lib/utils/logger';
+import { StoryContentErrorReason, StoryContentService } from '#common/storyContent/storyContent.ts';
+import { OptimizedContentIsEmptyError, ParseError } from '#lib/errors/errors.ts';
+import { logger } from '#lib/utils/logger.ts';
 import { Context, Effect, Layer } from 'effect';
 
 export class ReadabilityService extends Context.Service<ReadabilityService>()('content/transform/ReadabilityService', {

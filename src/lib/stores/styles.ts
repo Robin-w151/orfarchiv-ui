@@ -1,5 +1,5 @@
 import { browser } from '$app/env';
-import { STYLES_STORE_NAME } from '$lib/configs/client';
+import { STYLES_STORE_NAME } from '#lib/configs/client.ts';
 import { persisted } from 'svelte-persisted-store';
 import type { Readable } from 'svelte/store';
 

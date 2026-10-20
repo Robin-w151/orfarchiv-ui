@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { getChapterTitle } from '$lib/utils/chapter';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { getChapterTitle } from '#lib/utils/chapter.ts';
   import { ChevronDown, ChevronUp } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import ChapterList from './list/ChapterList.svelte';

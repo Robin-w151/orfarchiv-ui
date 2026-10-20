@@ -12,23 +12,23 @@
 </script>
 
 <script lang="ts">
-  import { NewsApi } from '$lib/api/news';
-  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
-  import Link from '$lib/components/shared/controls/Link.svelte';
-  import { STORY_CONTENT_IS_VIEWED_TIMEOUT } from '$lib/configs/client';
-  import type { Request } from '$lib/models/request';
-  import { getSourceLabel } from '$lib/models/settings';
-  import type { Story, StoryContent, StoryImage } from '$lib/models/story';
-  import bookmarks from '$lib/stores/bookmarks';
-  import contentStore from '$lib/stores/content';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import settings from '$lib/stores/settings';
-  import { getContentText } from '$lib/utils/chapter';
-  import { logger } from '$lib/utils/logger';
-  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { NewsApi } from '#lib/api/news.ts';
+  import AlertBox from '#lib/components/shared/content/AlertBox.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import ButtonLink from '#lib/components/shared/controls/ButtonLink.svelte';
+  import Link from '#lib/components/shared/controls/Link.svelte';
+  import { STORY_CONTENT_IS_VIEWED_TIMEOUT } from '#lib/configs/client.ts';
+  import type { Request } from '#lib/models/request.ts';
+  import { getSourceLabel } from '#lib/models/settings.ts';
+  import type { Story, StoryContent, StoryImage } from '#lib/models/story.ts';
+  import bookmarks from '#lib/stores/bookmarks.ts';
+  import contentStore from '#lib/stores/content.ts';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { getReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import settings from '#lib/stores/settings.ts';
+  import { getContentText } from '#lib/utils/chapter.ts';
+  import { logger } from '#lib/utils/logger.ts';
+  import { runViewTransition } from '#lib/utils/viewTransition.ts';
   import { ChevronUp, ExclamationCircle, PauseCircle, PlayCircle, Sparkles } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';

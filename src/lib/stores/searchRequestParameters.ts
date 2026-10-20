@@ -1,4 +1,4 @@
-import type { SearchRequestParameters } from '$lib/models/searchRequest';
+import type { SearchRequestParameters } from '#lib/models/searchRequest.ts';
 import { DateTime } from 'luxon';
 import { BehaviorSubject, combineLatestWith, distinctUntilChanged, map } from 'rxjs';
 import searchFilter, { type SearchFilterStoreProps } from './searchFilter';

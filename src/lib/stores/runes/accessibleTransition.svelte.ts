@@ -1,6 +1,6 @@
 import { fade, type TransitionConfig } from 'svelte/transition';
 import { getReducedMotionStore } from './reducedMotion.svelte';
-import { transitionDefaults } from '$lib/utils/transitions';
+import { transitionDefaults } from '#lib/utils/transitions.ts';
 
 export type Transition = (node: Element, props: any) => TransitionConfig;
 export type TransitionProps = TransitionConfig;

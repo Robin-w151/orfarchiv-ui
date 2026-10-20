@@ -1,6 +1,6 @@
-import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
-import { AiServiceError } from '$lib/errors/errors';
-import type { AiModel } from '$lib/models/ai';
+import { AI_MODEL_CONFIG_MAP } from '#lib/configs/client.ts';
+import { AiServiceError } from '#lib/errors/errors.ts';
+import type { AiModel } from '#lib/models/ai.ts';
 import { it } from '@effect/vitest';
 import { Duration, Effect, Fiber, Result, Schema } from 'effect';
 import { TestClock } from 'effect/testing';
@@ -8,7 +8,7 @@ import { FetchHttpClient } from 'effect/http';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { AiService } from './ai';
 
-vi.mock('$lib/utils/logger', () => {
+vi.mock('#lib/utils/logger.ts', () => {
   return {
     logger: { info: vi.fn(), infoGroup: vi.fn(), warn: vi.fn(), error: vi.fn() },
   };

@@ -1,6 +1,6 @@
 import { browser } from '$app/env';
-import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from '$lib/configs/client';
-import type { OANotificationHandlers, OANotificationOptions } from '$lib/models/notifications';
+import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from '#lib/configs/client.ts';
+import type { OANotificationHandlers, OANotificationOptions } from '#lib/models/notifications.ts';
 import { logger } from './logger';
 
 type NotificationOptionsWithActions = NotificationOptions & { actions?: Array<{ action: string; title: string }> };

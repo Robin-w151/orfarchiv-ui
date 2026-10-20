@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import Radio from '$lib/components/shared/controls/Radio.svelte';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import styles, { type ColorScheme } from '$lib/stores/styles';
-  import { isViewTransitionInProgress, runViewTransition } from '$lib/utils/viewTransition';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import Radio from '#lib/components/shared/controls/Radio.svelte';
+  import { getReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import styles, { type ColorScheme } from '#lib/stores/styles.ts';
+  import { isViewTransitionInProgress, runViewTransition } from '#lib/utils/viewTransition.ts';
 
   const reducedMotionStore = getReducedMotionStore();
   const appearanceOptions = [

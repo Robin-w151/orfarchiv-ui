@@ -1,7 +1,7 @@
-import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
-import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
-import { SearchError } from '$lib/errors/errors';
-import type { StoryEntity } from '$lib/models/story';
+import { DatabaseService, type DatabaseServiceShape } from '#lib/backend/db/database.ts';
+import { NEWS_QUERY_PAGE_LIMIT } from '#lib/configs/shared.ts';
+import { SearchError } from '#lib/errors/errors.ts';
+import type { StoryEntity } from '#lib/models/story.ts';
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 import type { Collection } from 'mongodb';

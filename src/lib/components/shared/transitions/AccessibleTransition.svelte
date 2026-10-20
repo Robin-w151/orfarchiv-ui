@@ -1,6 +1,6 @@
 <script lang="ts" generics="TElement extends HTMLElement = HTMLDivElement">
-  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
-  import { transitionDefaults } from '$lib/utils/transitions';
+  import { AccessibleTransitionStore } from '#lib/stores/runes/accessibleTransition.svelte.ts';
+  import { transitionDefaults } from '#lib/utils/transitions.ts';
   import { type Snippet } from 'svelte';
   import { type SvelteHTMLElements } from 'svelte/elements';
   import { fade, type TransitionConfig } from 'svelte/transition';

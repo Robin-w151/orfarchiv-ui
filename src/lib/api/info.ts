@@ -1,8 +1,8 @@
-import { createTRPC } from '$lib/api/trpc';
-import type { AppRouter } from '$lib/backend/trpc/router';
+import { createTRPC } from '#lib/api/trpc.ts';
+import type { AppRouter } from '#lib/backend/trpc/router.ts';
 import type { TRPCClient } from '@trpc/client';
-import { Info } from '$lib/models/info';
-import { logger } from '$lib/utils/logger';
+import { Info } from '#lib/models/info.ts';
+import { logger } from '#lib/utils/logger.ts';
 import { Result, Schema } from 'effect';
 
 export class InfoApi {

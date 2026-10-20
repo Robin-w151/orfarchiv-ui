@@ -1,4 +1,4 @@
-import type { SearchFilter, SearchMatchMode } from '$lib/models/searchRequest';
+import type { SearchFilter, SearchMatchMode } from '#lib/models/searchRequest.ts';
 import { DateTime, type DurationLike } from 'luxon';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { type Readable, type Subscriber } from 'svelte/store';

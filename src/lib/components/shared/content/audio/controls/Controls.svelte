@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
   import { ArrowUturnLeft, Backward, Forward, Pause, Play } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

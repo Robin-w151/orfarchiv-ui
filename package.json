@@ -19,6 +19,10 @@
     "storybook:build": "storybook build",
     "prepare": "husky && npx svelte-kit sync"
   },
+  "imports": {
+    "#lib/*": "./src/lib/*",
+    "#common/*": "./src/lib/shared/common/src/*"
+  },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",

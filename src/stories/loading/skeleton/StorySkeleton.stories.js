@@ -1,4 +1,4 @@
-import StorySkeletonComponent from '$lib/components/news/story/StorySkeleton.svelte';
+import StorySkeletonComponent from '#lib/components/news/story/StorySkeleton.svelte';
 
 export default {
   title: 'Loading/Skeleton/StorySkeleton',

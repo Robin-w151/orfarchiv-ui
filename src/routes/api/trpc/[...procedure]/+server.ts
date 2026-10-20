@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { appRouter } from '$lib/backend/trpc/router';
-import { createContext } from '$lib/backend/trpc/context';
+import { appRouter } from '#lib/backend/trpc/router.ts';
+import { createContext } from '#lib/backend/trpc/context.ts';
 
 export const GET: RequestHandler = (event) => {
   return fetchRequestHandler({

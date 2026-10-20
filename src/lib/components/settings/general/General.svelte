@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
-  import settings from '$lib/stores/settings';
-  import { requestSystemNotificationPermission } from '$lib/utils/notifications';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import Checkbox from '#lib/components/shared/controls/Checkbox.svelte';
+  import settings from '#lib/stores/settings.ts';
+  import { requestSystemNotificationPermission } from '#lib/utils/notifications.ts';
 
   function handleFetchReadMoreContentChange(event: Event & { currentTarget: HTMLInputElement }): void {
     settings.setFetchReadMoreContent(event.currentTarget.checked);

@@ -1,4 +1,4 @@
-import { StoryEntity, type Story } from '$lib/models/story';
+import { StoryEntity, type Story } from '#lib/models/story.ts';
 import { Schema } from 'effect';
 
 export const isStoryEntity = Schema.is(StoryEntity);

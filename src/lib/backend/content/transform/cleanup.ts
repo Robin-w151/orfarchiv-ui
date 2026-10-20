@@ -1,4 +1,4 @@
-import { StoryContentService } from '$common/storyContent/storyContent';
+import { StoryContentService } from '#common/storyContent/storyContent.ts';
 import { Context, Effect, Layer } from 'effect';
 
 export class CleanupService extends Context.Service<CleanupService>()('content/transform/CleanupService', {

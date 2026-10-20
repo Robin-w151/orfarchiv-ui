@@ -1,7 +1,6 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
-import { json } from '@sveltejs/kit';
 import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute } from 'workbox-precaching';
@@ -89,7 +88,7 @@ function generateRouteConfig(): Array<RouteConfig> {
 function fallbackResponsePlugin<T>(data: T): WorkboxPlugin {
   return {
     handlerDidError: async () =>
-      json({
+      Response.json({
         result: {
           data,
         },

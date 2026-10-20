@@ -1,6 +1,6 @@
-import type { Story } from '$lib/models/story';
+import type { Story } from '#lib/models/story.ts';
 import Dexie, { type Table } from 'dexie';
-import { BOOKMARKS_STORE_NAME } from '$lib/configs/client';
+import { BOOKMARKS_STORE_NAME } from '#lib/configs/client.ts';
 
 export default class BookmarksDb extends Dexie {
   stories!: Table<Story, string>;

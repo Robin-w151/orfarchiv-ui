@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { focusTrap } from '$lib/utils/focusTrap';
-  import { scaleFade, type TransformOrigin } from '$lib/utils/transitions';
+  import { focusTrap } from '#lib/utils/focusTrap.ts';
+  import { scaleFade, type TransformOrigin } from '#lib/utils/transitions.ts';
   import type { Snippet } from 'svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
 

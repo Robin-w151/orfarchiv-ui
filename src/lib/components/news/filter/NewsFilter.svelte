@@ -1,13 +1,13 @@
 <script lang="ts">
   import { browser } from '$app/env';
-  import Input from '$lib/components/shared/controls/Input.svelte';
-  import type { SearchMatchMode } from '$lib/models/searchRequest';
-  import { startSearch } from '$lib/stores/newsEvents';
-  import searchFilter from '$lib/stores/searchFilter';
-  import { isMac } from '$lib/utils/platform';
-  import { defaultBackground, defaultPadding } from '$lib/utils/styles';
-  import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { isTouchDevice } from '$lib/utils/support';
+  import Input from '#lib/components/shared/controls/Input.svelte';
+  import type { SearchMatchMode } from '#lib/models/searchRequest.ts';
+  import { startSearch } from '#lib/stores/newsEvents.ts';
+  import searchFilter from '#lib/stores/searchFilter.ts';
+  import { isMac } from '#lib/utils/platform.ts';
+  import { defaultBackground, defaultPadding } from '#lib/utils/styles.ts';
+  import { unsubscribeAll, type Subscription } from '#lib/utils/subscriptions.ts';
+  import { isTouchDevice } from '#lib/utils/support.ts';
   import { onDestroy, onMount } from 'svelte';
   import NewsFilterMenuPopover from './NewsFilterMenuPopover.svelte';
   import NewsFilterTagPopover from './NewsFilterTagPopover.svelte';

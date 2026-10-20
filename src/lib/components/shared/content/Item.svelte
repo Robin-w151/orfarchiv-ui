@@ -1,7 +1,7 @@
 <script lang="ts">
   import clsx from 'clsx';
-  import computeScrollIntoView from '$lib/utils/computeScrollIntoView';
-  import { defaultPadding } from '$lib/utils/styles';
+  import computeScrollIntoView from '#lib/utils/computeScrollIntoView.ts';
+  import { defaultPadding } from '#lib/utils/styles.ts';
   import type { Snippet } from 'svelte';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 

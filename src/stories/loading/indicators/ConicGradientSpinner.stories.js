@@ -1,4 +1,4 @@
-import ConicGradientSpinner from '$lib/components/shared/loading/ConicGradientSpinner.svelte';
+import ConicGradientSpinner from '#lib/components/shared/loading/ConicGradientSpinner.svelte';
 import '../../../app.css';
 
 export default {

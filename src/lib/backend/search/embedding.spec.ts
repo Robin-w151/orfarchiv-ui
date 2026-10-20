@@ -1,5 +1,5 @@
-import { quantize } from '$common/embedding/embedding';
-import { EmbeddingError } from '$lib/errors/errors';
+import { quantize } from '#common/embedding/embedding.ts';
+import { EmbeddingError } from '#lib/errors/errors.ts';
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 import { HttpClient, HttpClientResponse } from 'effect/http';

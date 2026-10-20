@@ -1,14 +1,14 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
-  import Modal from '$lib/components/shared/content/Modal.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
-  import Link from '$lib/components/shared/controls/Link.svelte';
-  import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
-  import { StoryContent } from '$lib/models/story';
-  import settings from '$lib/stores/settings';
+  import AlertBox from '#lib/components/shared/content/AlertBox.svelte';
+  import Modal from '#lib/components/shared/content/Modal.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import ButtonLink from '#lib/components/shared/controls/ButtonLink.svelte';
+  import Link from '#lib/components/shared/controls/Link.svelte';
+  import { AI_MODEL_CONFIG_MAP } from '#lib/configs/client.ts';
+  import { StoryContent } from '#lib/models/story.ts';
+  import settings from '#lib/stores/settings.ts';
   import { ArrowPath, ExclamationCircle } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { onDestroy, onMount } from 'svelte';

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { OANotification } from '$lib/models/notifications';
-  import notifications from '$lib/stores/notifications';
-  import { defaultGap, defaultPadding } from '$lib/utils/styles';
+  import type { OANotification } from '#lib/models/notifications.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import { defaultGap, defaultPadding } from '#lib/utils/styles.ts';
   import { onMount } from 'svelte';
   import AccessibleTransition from '../transitions/AccessibleTransition.svelte';
   import Button from './Button.svelte';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Check, XMark } from '@steeze-ui/heroicons';
-  import { scaleFade } from '$lib/utils/transitions';
+  import { scaleFade } from '#lib/utils/transitions.ts';
 
   interface Props {
     notification: OANotification;

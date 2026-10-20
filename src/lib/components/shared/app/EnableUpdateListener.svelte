@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { NOTIFICATION_NEW_VERSION_AVAILABLE } from '$lib/configs/client';
-  import notifications from '$lib/stores/notifications';
-  import { listenForUpdates } from '$lib/utils/updateListener';
+  import { NOTIFICATION_NEW_VERSION_AVAILABLE } from '#lib/configs/client.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import { listenForUpdates } from '#lib/utils/updateListener.ts';
   import { onMount } from 'svelte';
-  import SpinningDotsIndicator from '$lib/components/shared/loading/SpinningDotsIndicator.svelte';
+  import SpinningDotsIndicator from '#lib/components/shared/loading/SpinningDotsIndicator.svelte';
 
   let isRestarting = $state(false);
 

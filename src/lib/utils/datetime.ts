@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { DATETIME_FORMAT } from '$lib/configs/client';
+import { DATETIME_FORMAT } from '#lib/configs/client.ts';
 
 export function formatTimestamp(timestamp: string): string {
   const datetime = DateTime.fromISO(timestamp);
