@@ -8,6 +8,9 @@ import { defineConfig } from 'vite';
 dotenv.config({ silent: true });
 
 export default defineConfig({
+  define: {
+    __SVELTEKIT_PAYLOAD__: 'undefined',
+  },
   plugins: [
     tailwindcss(),
     sveltekit({

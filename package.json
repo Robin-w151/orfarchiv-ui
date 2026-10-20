@@ -7,8 +7,8 @@
     "build": "vite build",
     "generate:csp-script-hashes": "node scripts/generate-csp-script-hashes.js",
     "preview": "vite build && vite --host 0.0.0.0 preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.sw.json --noEmit",
+    "check:watch": "svelte-kit sync && concurrently -n svelte,sw \"svelte-check --tsconfig ./tsconfig.json --watch\" \"tsc -p tsconfig.sw.json --noEmit --watch --preserveWatchOutput\"",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write --plugin-search-dir=. .",
     "test:unit": "vitest run",
@@ -39,9 +39,9 @@
     "@storybook/addon-links": "10.6.2",
     "@storybook/builder-vite": "10.6.2",
     "@storybook/sveltekit": "10.6.2",
-    "@sveltejs/adapter-node": "5.5.7",
-    "@sveltejs/adapter-vercel": "6.3.4",
-    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/adapter-node": "6.0.0",
+    "@sveltejs/adapter-vercel": "7.0.1",
+    "@sveltejs/kit": "3.1.0",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@tailwindcss/forms": "0.5.11",
     "@tailwindcss/vite": "4.3.3",
@@ -60,6 +60,7 @@
     "acorn": "8.19.0",
     "browserlist": "1.0.2",
     "clsx": "2.1.1",
+    "concurrently": "10.0.6",
     "dexie": "4.4.6",
     "dompurify": "3.4.17",
     "dotenv-flow": "4.1.0",
@@ -103,7 +104,17 @@
     "workbox-routing": "7.4.1",
     "workbox-strategies": "7.4.1"
   },
+  "//": "overrides: remove the @vercel/analytics and @vercel/speed-insights entries once they declare @sveltejs/kit 3 as a peer; @vite-pwa/sveltekit is removed in epic 0003 story 04",
   "overrides": {
+    "@vercel/analytics": {
+      "@sveltejs/kit": "$@sveltejs/kit"
+    },
+    "@vercel/speed-insights": {
+      "@sveltejs/kit": "$@sveltejs/kit"
+    },
+    "@vite-pwa/sveltekit": {
+      "@sveltejs/kit": "$@sveltejs/kit"
+    },
     "conventional-changelog-conventionalcommits": ">=10.0.0",
     "conventional-changelog-writer": ">=9.0.0",
     "glob": ">=10.5.0"

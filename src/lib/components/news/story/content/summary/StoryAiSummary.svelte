@@ -49,7 +49,7 @@
   async function handleAiSummarySettings(event: Event): Promise<void> {
     event.preventDefault();
     onClose?.();
-    await goto(resolve('/settings'));
+    await goto(resolve('settings'));
   }
 </script>
 
@@ -67,7 +67,7 @@
     >
       {#snippet actionsContent()}
         <Button class="w-max" btnType="secondary" onclick={handleAiSummaryRegenerate}>Erneut versuchen</Button>
-        <ButtonLink class="w-max" href={resolve('/settings')} onclick={handleAiSummarySettings}
+        <ButtonLink class="w-max" href={resolve('settings')} onclick={handleAiSummarySettings}
           >Zu den Einstellungen</ButtonLink
         >
       {/snippet}

@@ -1,7 +1,6 @@
 import adapterNode from '@sveltejs/adapter-node';
 import adapterVercel from '@sveltejs/adapter-vercel';
-import type { KitConfig } from '@sveltejs/kit';
-import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltekit, type Config } from '@sveltejs/kit/vite';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
@@ -18,7 +17,7 @@ const useAdapterNode = process.env.USE_ADAPTER_NODE === 'true';
 const isCspDisabled = process.env.DISABLE_CSP === 'true';
 
 const adapter = useAdapterNode ? adapterNode() : adapterVercel();
-const csp = (isCspDisabled ? undefined : cspConfig) as KitConfig['csp'];
+const csp = (isCspDisabled ? undefined : cspConfig) as Config['csp'];
 
 export default defineConfig({
   define: {
@@ -33,9 +32,6 @@ export default defineConfig({
       preprocess: vitePreprocess(),
       adapter,
       csp,
-      experimental: {
-        explicitEnvironmentVariables: true,
-      },
       compilerOptions: {
         experimental: {
           async: true,

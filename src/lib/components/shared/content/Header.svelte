@@ -65,13 +65,13 @@
 
 <header class={headerClass}>
   <h1>
-    <a class={headerTitleClass} href={resolve('/')} title="Startseite" data-sveltekit-preload-code="hover">
+    <a class={headerTitleClass} href={resolve('')} title="Startseite" data-sveltekit-preload-code="hover">
       <TextGradient>ORF Archiv</TextGradient>
     </a>
   </h1>
   <nav class={headerActionsClass}>
     {#if isNewsPage}
-      <ButtonLink href={resolve('/')} title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
+      <ButtonLink href={resolve('')} title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
         <Icon src={ArrowPath} theme="outlined" class="size-6" />
       </ButtonLink>
       <Button
@@ -83,11 +83,11 @@
         <Icon src={CloudArrowDown} theme="outlined" class="size-6" />
       </Button>
     {:else}
-      <ButtonLink href={resolve('/')} title="News" iconOnly prefetch>
+      <ButtonLink href={resolve('')} title="News" iconOnly prefetch>
         <Icon src={Newspaper} theme="outlined" class="size-6" />
       </ButtonLink>
     {/if}
-    <ButtonLink href={resolve('/bookmarks')} title="Lesezeichen" iconOnly prefetch>
+    <ButtonLink href={resolve('bookmarks')} title="Lesezeichen" iconOnly prefetch>
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
     <Button
@@ -100,7 +100,7 @@
       <Icon src={Sun} theme="outlined" class="size-6 theme-sun" />
       <Icon src={Moon} theme="outlined" class="size-6 theme-moon" />
     </Button>
-    <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
+    <ButtonLink href={resolve('settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>

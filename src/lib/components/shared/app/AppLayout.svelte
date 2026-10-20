@@ -57,6 +57,10 @@
   });
 
   onNavigate((navigation) => {
+    if (navigation.shallow && navigation.type === 'goto') {
+      return;
+    }
+
     return new Promise((resolve) => {
       runViewTransition(
         async () => {

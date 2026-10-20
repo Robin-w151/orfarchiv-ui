@@ -243,7 +243,7 @@
       message="Gehen Sie zu den Einstellungen und aktivieren Sie mindestens eine Quelle um Nachrichten zu sehen."
     >
       {#snippet actionsContent()}
-        <ButtonLink class="w-max" href={resolve('/settings')}>Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href={resolve('settings')}>Zu den Einstellungen</ButtonLink>
       {/snippet}
     </AlertBox>
   {:else if showNewsList}
