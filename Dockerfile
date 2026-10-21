@@ -6,7 +6,7 @@ COPY package.json package-lock.json .npmrc /app/
 
 RUN npm ci --ignore-scripts
 
-COPY csp-config.js csp-script-hashes.js postcss.config.cjs svelte.config.js tailwind.config.ts tsconfig.json vite.config.ts /app/
+COPY csp-config.js csp-script-hashes.js tailwind.config.ts tsconfig.json vite.config.ts /app/
 COPY scripts/ /app/scripts/
 COPY src/ /app/src/
 COPY static/ /app/static/
@@ -15,24 +15,26 @@ ENV PUBLIC_APP_MODE=prod
 ENV PUBLIC_ENABLE_ANALYTICS=false
 ENV USE_ADAPTER_NODE=true
 
-ARG ORFARCHIV_DB_URL="mongodb://localhost"
-ENV ORFARCHIV_DB_URL="$ORFARCHIV_DB_URL"
-
 RUN npx svelte-kit sync \
   && npm run build
 
 
 FROM node:24-alpine AS deploy
 
-USER node
+ENV NODE_ENV=production
 
 WORKDIR /app/
 
-COPY --from=build /app/build/ /app/
-COPY --from=build /app/package.json /app/
-COPY --from=build /app/node_modules/ /app/node_modules
+COPY package.json package-lock.json .npmrc /app/
 
-COPY entrypoint.sh /app/
+RUN npm ci --omit=dev --ignore-scripts \
+  && npm cache clean --force
+
+COPY --from=build /app/build/ /app/
+
+COPY --chmod=755 entrypoint.sh /app/
+
+USER node
 
 EXPOSE 8080
 ENV PORT=8080
