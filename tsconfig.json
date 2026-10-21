@@ -6,5 +6,5 @@
     "types": ["$app/types", "vite/client", "vite-plugin-pwa/info"]
   },
   "include": ["src", "vite.config.ts", "vite.storybook.config.ts", "vitest.config.ts", "playwright.config.ts", "tests"],
-  "exclude": ["src/service-worker", "src/service-worker.ts"]
+  "exclude": ["src/service-worker"]
 }

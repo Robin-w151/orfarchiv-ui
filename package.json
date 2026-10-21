@@ -7,8 +7,8 @@
     "build": "vite build",
     "generate:csp-script-hashes": "node scripts/generate-csp-script-hashes.js",
     "preview": "vite build && vite --host 0.0.0.0 preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.sw.json --noEmit",
-    "check:watch": "svelte-kit sync && concurrently -n svelte,sw \"svelte-check --tsconfig ./tsconfig.json --watch\" \"tsc -p tsconfig.sw.json --noEmit --watch --preserveWatchOutput\"",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p src/service-worker --noEmit",
+    "check:watch": "svelte-kit sync && concurrently -n svelte,sw \"svelte-check --tsconfig ./tsconfig.json --watch\" \"tsc -p src/service-worker --noEmit --watch --preserveWatchOutput\"",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write --plugin-search-dir=. .",
     "test:unit": "vitest run",
@@ -28,6 +28,7 @@
     "@commitlint/config-conventional": "21.2.3",
     "@effect/vitest": "4.0.5",
     "@eslint/js": "10.0.1",
+    "@katama-labs/vite-pwa-sveltekit": "2.0.0",
     "@mozilla/readability": "0.5.0",
     "@panzoom/panzoom": "4.6.2",
     "@playwright/test": "1.64.1",
@@ -54,7 +55,6 @@
     "@types/node": "24.19.2",
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
-    "@vite-pwa/sveltekit": "1.1.0",
     "@vitest/coverage-v8": "5.0.5",
     "@vueless/storybook-dark-mode": "10.0.8",
     "acorn": "8.19.0",
@@ -95,7 +95,7 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "vite": "8.3.4",
-    "vite-plugin-pwa": "1.3.0",
+    "vite-plugin-pwa": "2.0.0",
     "vitest": "5.0.5",
     "winston": "3.19.0",
     "workbox-core": "7.4.1",
@@ -104,15 +104,12 @@
     "workbox-routing": "7.4.1",
     "workbox-strategies": "7.4.1"
   },
-  "//": "overrides: remove the @vercel/analytics and @vercel/speed-insights entries once they declare @sveltejs/kit 3 as a peer; @vite-pwa/sveltekit is removed in epic 0003 story 04",
+  "//": "overrides: remove the @vercel/analytics and @vercel/speed-insights entries once they declare @sveltejs/kit 3 as a peer",
   "overrides": {
     "@vercel/analytics": {
       "@sveltejs/kit": "$@sveltejs/kit"
     },
     "@vercel/speed-insights": {
-      "@sveltejs/kit": "$@sveltejs/kit"
-    },
-    "@vite-pwa/sveltekit": {
       "@sveltejs/kit": "$@sveltejs/kit"
     },
     "conventional-changelog-conventionalcommits": ">=10.0.0",

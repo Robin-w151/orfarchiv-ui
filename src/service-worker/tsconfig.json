@@ -3,5 +3,5 @@
   "compilerOptions": {
     "strict": true
   },
-  "files": ["src/service-worker.ts"]
+  "include": ["."]
 }

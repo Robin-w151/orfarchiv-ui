@@ -1,9 +1,9 @@
+import { SvelteKitPWA } from '@katama-labs/vite-pwa-sveltekit';
 import adapterNode from '@sveltejs/adapter-node';
 import adapterVercel from '@sveltejs/adapter-vercel';
 import { sveltekit, type Config } from '@sveltejs/kit/vite';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
-import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
 import Sonda from 'sonda/sveltekit';
