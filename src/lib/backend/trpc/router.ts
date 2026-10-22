@@ -2,10 +2,10 @@ import {
   STORY_CONTENT_DEFAULT_MAXAGE,
   STORY_CONTENT_NEW_STORY_MAXAGE,
   STORY_CONTENT_NEW_STORY_THRESHOLD,
-} from '$lib/configs/server';
-import { API_VERSION } from '$lib/configs/shared';
-import { SearchError } from '$lib/errors/errors';
-import { SearchRequest } from '$lib/models/searchRequest';
+} from '#lib/configs/server.ts';
+import { API_VERSION } from '#lib/configs/shared.ts';
+import { SearchError } from '#lib/errors/errors.ts';
+import { SearchRequest } from '#lib/models/searchRequest.ts';
 import { TRPCError } from '@trpc/server';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Result, Schema } from 'effect';
@@ -14,7 +14,7 @@ import { fetchStoryContent } from '../content/news';
 import { checkNewsUpdatesAvailable, searchNews } from '../search/news';
 import { isEmbeddingConfigured } from '../search/embedding';
 import { publicProcedure, router } from './init';
-import { StoryContentRequest } from '$lib/models/storyContentRequest';
+import { StoryContentRequest } from '#lib/models/storyContentRequest.ts';
 
 const info = publicProcedure.query(() => ({
   apiVersion: API_VERSION,

@@ -1,18 +1,18 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { page } from '$app/state';
-  import { NewsApi } from '$lib/api/news';
-  import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
-  import ButtonLink from '$lib/components/shared/controls/ButtonLink.svelte';
-  import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '$lib/configs/client';
-  import news from '$lib/stores/news';
-  import { refreshNews } from '$lib/stores/newsEvents';
-  import notifications from '$lib/stores/notifications';
-  import { getEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import styles from '$lib/stores/styles';
-  import { defaultPadding } from '$lib/utils/styles';
-  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { NewsApi } from '#lib/api/news.ts';
+  import TextGradient from '#lib/components/shared/content/TextGradient.svelte';
+  import ButtonLink from '#lib/components/shared/controls/ButtonLink.svelte';
+  import { NOTIFICATION_OFFLINE_CACHE_DOWNLOADED } from '#lib/configs/client.ts';
+  import news from '#lib/stores/news.ts';
+  import { refreshNews } from '#lib/stores/newsEvents.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import { getEffectiveColorSchemeStore } from '#lib/stores/runes/effectiveColorScheme.svelte.ts';
+  import { getReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import styles from '#lib/stores/styles.ts';
+  import { defaultPadding } from '#lib/utils/styles.ts';
+  import { runViewTransition } from '#lib/utils/viewTransition.ts';
   import { ArrowPath, BookmarkSquare, CloudArrowDown, Cog8Tooth, Moon, Newspaper, Sun } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import Button from '../controls/Button.svelte';
@@ -65,13 +65,13 @@
 
 <header class={headerClass}>
   <h1>
-    <a class={headerTitleClass} href={resolve('/')} title="Startseite" data-sveltekit-preload-code="hover">
+    <a class={headerTitleClass} href={resolve('')} title="Startseite" data-sveltekit-preload-code="hover">
       <TextGradient>ORF Archiv</TextGradient>
     </a>
   </h1>
   <nav class={headerActionsClass}>
     {#if isNewsPage}
-      <ButtonLink href={resolve('/')} title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
+      <ButtonLink href={resolve('')} title="Aktualisieren" iconOnly onclick={handleRefreshButtonClick} preventDefault>
         <Icon src={ArrowPath} theme="outlined" class="size-6" />
       </ButtonLink>
       <Button
@@ -83,11 +83,11 @@
         <Icon src={CloudArrowDown} theme="outlined" class="size-6" />
       </Button>
     {:else}
-      <ButtonLink href={resolve('/')} title="News" iconOnly prefetch>
+      <ButtonLink href={resolve('')} title="News" iconOnly prefetch>
         <Icon src={Newspaper} theme="outlined" class="size-6" />
       </ButtonLink>
     {/if}
-    <ButtonLink href={resolve('/bookmarks')} title="Lesezeichen" iconOnly prefetch>
+    <ButtonLink href={resolve('bookmarks')} title="Lesezeichen" iconOnly prefetch>
       <Icon src={BookmarkSquare} theme="outlined" class="size-6" />
     </ButtonLink>
     <Button
@@ -100,7 +100,7 @@
       <Icon src={Sun} theme="outlined" class="size-6 theme-sun" />
       <Icon src={Moon} theme="outlined" class="size-6 theme-moon" />
     </Button>
-    <ButtonLink href={resolve('/settings')} title="Einstellungen" iconOnly prefetch>
+    <ButtonLink href={resolve('settings')} title="Einstellungen" iconOnly prefetch>
       <Icon src={Cog8Tooth} theme="outlined" class="size-6" />
     </ButtonLink>
   </nav>

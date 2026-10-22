@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import { getSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import { getSkeletonStore } from '#lib/stores/runes/skeleton.svelte.ts';
 
   const skeletonStore = getSkeletonStore();
 

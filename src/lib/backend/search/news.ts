@@ -1,13 +1,13 @@
-import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
-import { logger } from '$lib/configs/server';
-import type { SearchError } from '$lib/errors/errors';
-import type { News, NewsUpdates } from '$lib/models/news';
+import { DatabaseService, type DatabaseServiceShape } from '#lib/backend/db/database.ts';
+import { logger } from '#lib/configs/server.ts';
+import type { SearchError } from '#lib/errors/errors.ts';
+import type { News, NewsUpdates } from '#lib/models/news.ts';
 import type {
   SearchRequest,
   SearchRequestParameters,
   SemanticSearchRequestParameters,
-} from '$lib/models/searchRequest';
-import type { SearchStoryOptions, Story } from '$lib/models/story';
+} from '#lib/models/searchRequest.ts';
+import type { SearchStoryOptions, Story } from '#lib/models/story.ts';
 import { Context, Effect, Layer, ManagedRuntime } from 'effect';
 import { isEmbeddingConfigured } from './embedding';
 import { KeywordSearchService, type KeywordSearchServiceShape } from './keyword';

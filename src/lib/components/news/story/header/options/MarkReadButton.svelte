@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { Story } from '$lib/models/story';
-  import bookmarks from '$lib/stores/bookmarks';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { Story } from '#lib/models/story.ts';
+  import bookmarks from '#lib/stores/bookmarks.ts';
   import { Eye, EyeSlash } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

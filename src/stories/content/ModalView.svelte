@@ -1,7 +1,7 @@
 <script lang="ts">
-  import AlertBox from '$lib/components/shared/content/AlertBox.svelte';
-  import Modal from '$lib/components/shared/content/Modal.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
+  import AlertBox from '#lib/components/shared/content/AlertBox.svelte';
+  import Modal from '#lib/components/shared/content/Modal.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
 
   interface Props {
     isVisible?: boolean;

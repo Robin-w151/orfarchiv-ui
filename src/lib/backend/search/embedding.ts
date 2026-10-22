@@ -4,8 +4,8 @@ import {
   ORFARCHIV_EMBEDDING_TOKEN,
   ORFARCHIV_EMBEDDING_URL,
 } from '$app/env/private';
-import { quantize } from '$common/embedding/embedding';
-import { CONTENT_EMBEDDING_DIMENSIONS, TITLE_EMBEDDING_DIMENSIONS } from '$common/search/search.constants';
+import { quantize } from '#common/embedding/embedding.ts';
+import { CONTENT_EMBEDDING_DIMENSIONS, TITLE_EMBEDDING_DIMENSIONS } from '#common/search/search.constants.ts';
 import {
   SEMANTIC_SEARCH_ACRONYM_MAX_LENGTH,
   SEMANTIC_SEARCH_DEFAULT_RATE_LIMIT,
@@ -14,9 +14,9 @@ import {
   SEMANTIC_SEARCH_CACHE_MAX,
   SEMANTIC_SEARCH_CACHE_TTL,
   SEMANTIC_SEARCH_TIMEOUT,
-} from '$lib/configs/server';
-import { EmbeddingError } from '$lib/errors/errors';
-import { EmbeddingResponse } from '$lib/models/embedding';
+} from '#lib/configs/server.ts';
+import { EmbeddingError } from '#lib/errors/errors.ts';
+import { EmbeddingResponse } from '#lib/models/embedding.ts';
 import { Context, Duration, Effect, Layer, Option } from 'effect';
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/http';
 import { RateLimiter } from 'effect/persistence';

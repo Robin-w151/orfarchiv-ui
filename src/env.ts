@@ -1,4 +1,4 @@
-import { isUrl } from '$lib/models/checks';
+import { isUrl } from '#lib/models/checks.ts';
 import { defineEnvVars } from '@sveltejs/kit/env';
 import { Schema } from 'effect';
 

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Story from '$lib/components/news/story/Story.svelte';
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import type { NewsBucket } from '$lib/models/news';
+  import Story from '#lib/components/news/story/Story.svelte';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import type { NewsBucket } from '#lib/models/news.ts';
 
   interface Props {
     storyBuckets?: ReadonlyArray<NewsBucket>;

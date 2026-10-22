@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onNavigate } from '$app/navigation';
-  import { InfoApi } from '$lib/api/info';
-  import { API_VERSION } from '$lib/configs/shared';
-  import { setInfoStore } from '$lib/stores/runes/info.svelte';
-  import { setAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { setEffectiveColorSchemeStore } from '$lib/stores/runes/effectiveColorScheme.svelte';
-  import { setReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import { setSkeletonStore } from '$lib/stores/runes/skeleton.svelte';
-  import { logger } from '$lib/utils/logger';
-  import { defaultScreenSize } from '$lib/utils/styles';
-  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { InfoApi } from '#lib/api/info.ts';
+  import { API_VERSION } from '#lib/configs/shared.ts';
+  import { setInfoStore } from '#lib/stores/runes/info.svelte.ts';
+  import { setAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { setEffectiveColorSchemeStore } from '#lib/stores/runes/effectiveColorScheme.svelte.ts';
+  import { setReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import { setSkeletonStore } from '#lib/stores/runes/skeleton.svelte.ts';
+  import { logger } from '#lib/utils/logger.ts';
+  import { defaultScreenSize } from '#lib/utils/styles.ts';
+  import { runViewTransition } from '#lib/utils/viewTransition.ts';
   import { onMount, type Snippet } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
   import '../../../../app.css';
@@ -57,6 +57,10 @@
   });
 
   onNavigate((navigation) => {
+    if (navigation.shallow && navigation.type === 'goto') {
+      return;
+    }
+
     return new Promise((resolve) => {
       runViewTransition(
         async () => {

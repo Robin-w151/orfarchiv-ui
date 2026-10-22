@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defaultBackground, defaultText } from '$lib/utils/styles';
+  import { defaultBackground, defaultText } from '#lib/utils/styles.ts';
   import { InformationCircle } from '@steeze-ui/heroicons';
   import { Icon, type IconSource } from '@steeze-ui/svelte-icon';
   import type { Snippet } from 'svelte';

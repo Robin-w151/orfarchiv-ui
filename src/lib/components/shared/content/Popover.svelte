@@ -15,10 +15,10 @@
   import type { Snippet } from 'svelte';
   import Portal from 'svelte-portal';
   import { type BtnType, buttonClassFn, type Size } from '../controls/button.styles';
-  import { createCloseWatcher } from '$lib/utils/closeWatcher';
+  import { createCloseWatcher } from '#lib/utils/closeWatcher.ts';
   import { onDestroy } from 'svelte';
-  import { isCloseWatcherAvailable } from '$lib/utils/support';
-  import type { TransformOrigin } from '$lib/utils/transitions';
+  import { isCloseWatcherAvailable } from '#lib/utils/support.ts';
+  import type { TransformOrigin } from '#lib/utils/transitions.ts';
 
   type Placement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 

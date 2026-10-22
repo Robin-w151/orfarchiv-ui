@@ -1,4 +1,4 @@
-import type { StoryContentChapter } from '$lib/models/story';
+import type { StoryContentChapter } from '#lib/models/story.ts';
 
 export function getContentText(chapters: ReadonlyArray<StoryContentChapter>): string {
   return chapters.flatMap((chapter) => chapter.segments).join(' ');

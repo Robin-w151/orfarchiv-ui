@@ -3,9 +3,9 @@ import {
   CONTENT_EMBEDDING_FIELD,
   NEWS_TITLE_VECTOR_INDEX,
   TITLE_EMBEDDING_FIELD,
-} from '$common/search/search.constants';
-import type { Target } from '$common/targets/targets';
-import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
+} from '#common/search/search.constants.ts';
+import type { Target } from '#common/targets/targets.ts';
+import { DatabaseService, type DatabaseServiceShape } from '#lib/backend/db/database.ts';
 import {
   SEMANTIC_SEARCH_CANDIDATE_LIMIT,
   SEMANTIC_SEARCH_CATEGORY_CACHE_TTL,
@@ -17,12 +17,12 @@ import {
   SEMANTIC_SEARCH_RECENCY_WEIGHT,
   SEMANTIC_SEARCH_TITLE_WEIGHT,
   logger,
-} from '$lib/configs/server';
-import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
-import type { EmbeddingError, SearchError } from '$lib/errors/errors';
-import type { News } from '$lib/models/news';
-import type { SearchRequestParameters, SemanticSearchRequestParameters } from '$lib/models/searchRequest';
-import type { StoryEntity } from '$lib/models/story';
+} from '#lib/configs/server.ts';
+import { NEWS_QUERY_PAGE_LIMIT } from '#lib/configs/shared.ts';
+import type { EmbeddingError, SearchError } from '#lib/errors/errors.ts';
+import type { News } from '#lib/models/news.ts';
+import type { SearchRequestParameters, SemanticSearchRequestParameters } from '#lib/models/searchRequest.ts';
+import type { StoryEntity } from '#lib/models/story.ts';
 import { Context, Effect, Layer } from 'effect';
 import type { Binary, Collection } from 'mongodb';
 import { EmbeddingService, type EmbeddingServiceShape, type QueryVectors } from './embedding';

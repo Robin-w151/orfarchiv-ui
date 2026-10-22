@@ -1,6 +1,6 @@
-import { logger } from '$lib/configs/server';
-import { FetchTimeoutError, formatTags, type FetchStoryContentError } from '$lib/errors/errors';
-import type { StoryContent, StorySource } from '$lib/models/story';
+import { logger } from '#lib/configs/server.ts';
+import { FetchTimeoutError, formatTags, type FetchStoryContentError } from '#lib/errors/errors.ts';
+import type { StoryContent, StorySource } from '#lib/models/story.ts';
 import { Effect, Layer, ManagedRuntime, Result } from 'effect';
 import { DomService } from './dom';
 import { MetaDataService } from './metadata';

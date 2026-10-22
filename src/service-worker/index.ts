@@ -1,14 +1,10 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext" />
-/// <reference lib="webworker" />
-import { json } from '@sveltejs/kit';
 import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute, type Route } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
-import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from './lib/configs/client';
-import { API_VERSION } from './lib/configs/shared';
+import { NOTIFICATION_ACCEPT, NOTIFICATION_CLOSE } from '#lib/configs/client.ts';
+import { API_VERSION } from '#lib/configs/shared.ts';
 
 interface RouteConfig {
   capture: string | RegExp | RouteMatchCallback | Route;
@@ -89,7 +85,7 @@ function generateRouteConfig(): Array<RouteConfig> {
 function fallbackResponsePlugin<T>(data: T): WorkboxPlugin {
   return {
     handlerDidError: async () =>
-      json({
+      Response.json({
         result: {
           data,
         },

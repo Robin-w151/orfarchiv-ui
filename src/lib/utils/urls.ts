@@ -1,4 +1,4 @@
-import { URL_ORF_REGEXP, URL_ORF_STORY_REGEXP } from '$lib/configs/shared';
+import { URL_ORF_REGEXP, URL_ORF_STORY_REGEXP } from '#lib/configs/shared.ts';
 
 export function isOrfUrl(url: string | null | undefined): boolean {
   if (!url) {

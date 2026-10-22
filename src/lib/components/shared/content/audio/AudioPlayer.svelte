@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import { getReducedMotionStore } from '$lib/stores/runes/reducedMotion.svelte';
-  import { runViewTransition } from '$lib/utils/viewTransition';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import { getReducedMotionStore } from '#lib/stores/runes/reducedMotion.svelte.ts';
+  import { runViewTransition } from '#lib/utils/viewTransition.ts';
   import AccessibleTransition from '../../transitions/AccessibleTransition.svelte';
   import Chapters from './chapters/Chapters.svelte';
   import Controls from './controls/Controls.svelte';

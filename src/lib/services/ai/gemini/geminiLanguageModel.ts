@@ -1,5 +1,5 @@
-import { AI_MODEL_CONFIG_MAP } from '$lib/configs/client';
-import type { AiModel } from '$lib/models/ai';
+import { AI_MODEL_CONFIG_MAP } from '#lib/configs/client.ts';
+import type { AiModel } from '#lib/models/ai.ts';
 import { Effect, Layer, Option, Schema, Stream } from 'effect';
 import { AiError, type Response as AiResponse, LanguageModel, OpenAiStructuredOutput, type Prompt } from 'effect/ai';
 import { HttpBody, HttpClient, type HttpClientError, HttpClientRequest, HttpClientResponse } from 'effect/http';

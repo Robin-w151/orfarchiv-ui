@@ -1,5 +1,5 @@
-import { StoryContentService } from '$common/storyContent/storyContent';
-import { ParseError } from '$lib/errors/errors';
+import { StoryContentService } from '#common/storyContent/storyContent.ts';
+import { ParseError } from '#lib/errors/errors.ts';
 import { Context, Effect, Layer } from 'effect';
 
 export class DomService extends Context.Service<DomService>()('content/DomService', {

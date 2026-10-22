@@ -1,6 +1,6 @@
 <script lang="ts">
-  import StoryImageViewer from '$lib/components/news/story/content/image/StoryImageViewer.svelte';
-  import type { StoryImage } from '$lib/models/story';
+  import StoryImageViewer from '#lib/components/news/story/content/image/StoryImageViewer.svelte';
+  import type { StoryImage } from '#lib/models/story.ts';
 
   let images: Array<StoryImage> = [
     {

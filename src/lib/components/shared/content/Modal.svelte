@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { focusTrap } from '$lib/utils/focusTrap';
-  import { scaleFade } from '$lib/utils/transitions';
+  import { focusTrap } from '#lib/utils/focusTrap.ts';
+  import { scaleFade } from '#lib/utils/transitions.ts';
   import { XMark } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { tick, type Snippet } from 'svelte';

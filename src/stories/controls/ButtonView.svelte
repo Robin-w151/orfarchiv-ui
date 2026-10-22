@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/shared/controls/Button.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
   import { Newspaper } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';

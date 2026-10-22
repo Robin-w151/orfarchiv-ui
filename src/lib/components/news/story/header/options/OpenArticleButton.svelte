@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Link from '$lib/components/shared/controls/Link.svelte';
-  import type { Story } from '$lib/models/story';
+  import Link from '#lib/components/shared/controls/Link.svelte';
+  import type { Story } from '#lib/models/story.ts';
   import { Newspaper } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

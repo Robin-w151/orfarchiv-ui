@@ -1,9 +1,9 @@
 <script lang="ts">
-  import StoryPopover from '$lib/components/news/story/header/options/StoryPopover.svelte';
-  import { getSourceLabel } from '$lib/models/settings';
-  import type { Story } from '$lib/models/story';
-  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
-  import { formatTimestamp } from '$lib/utils/datetime.js';
+  import StoryPopover from '#lib/components/news/story/header/options/StoryPopover.svelte';
+  import { getSourceLabel } from '#lib/models/settings.ts';
+  import type { Story } from '#lib/models/story.ts';
+  import { AccessibleTransitionStore } from '#lib/stores/runes/accessibleTransition.svelte.ts';
+  import { formatTimestamp } from '#lib/utils/datetime.ts';
   import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
   import { blur } from 'svelte/transition';
 

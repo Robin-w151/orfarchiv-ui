@@ -16,7 +16,7 @@ import {
   newsMockWithFilter,
 } from '../mocks/news.mocks';
 import { DateTime } from 'luxon';
-import { getSourceLabel } from '$lib/models/settings';
+import { getSourceLabel } from '#lib/models/settings.ts';
 
 test.describe('NewsPage', () => {
   test.describe('Site', () => {

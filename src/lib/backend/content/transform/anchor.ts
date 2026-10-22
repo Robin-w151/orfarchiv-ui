@@ -1,5 +1,5 @@
-import { STORY_CONTENT_READ_MORE_REGEXPS } from '$lib/configs/server';
-import { isOrfStoryUrl } from '$lib/utils/urls';
+import { STORY_CONTENT_READ_MORE_REGEXPS } from '#lib/configs/server.ts';
+import { isOrfStoryUrl } from '#lib/utils/urls.ts';
 import { Context, Effect, Layer } from 'effect';
 
 export class AnchorService extends Context.Service<AnchorService>()('content/transform/AnchorService', {

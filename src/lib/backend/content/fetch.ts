@@ -1,4 +1,4 @@
-import { ContentNotFoundError, FetchError, type Tag, type Tags } from '$lib/errors/errors';
+import { ContentNotFoundError, FetchError, type Tag, type Tags } from '#lib/errors/errors.ts';
 import { Context, Effect, Layer } from 'effect';
 import { FetchHttpClient, HttpClient, HttpClientError, HttpClientResponse } from 'effect/http';
 

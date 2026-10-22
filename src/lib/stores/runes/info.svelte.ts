@@ -1,4 +1,4 @@
-import type { Info } from '$lib/models/info';
+import type { Info } from '#lib/models/info.ts';
 import { getContext, setContext } from 'svelte';
 
 interface InfoStoreInterface {

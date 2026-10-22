@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { startSearch } from '$lib/stores/newsEvents';
+  import { startSearch } from '#lib/stores/newsEvents.ts';
 
   function handleKeydown(event: KeyboardEvent): void {
     if (isSearchShortcut(event)) {

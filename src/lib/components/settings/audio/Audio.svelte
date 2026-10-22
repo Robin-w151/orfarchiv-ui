@@ -1,13 +1,13 @@
 <script lang="ts">
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import SimpleItem from '$lib/components/shared/content/SimpleItem.svelte';
-  import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
-  import Label from '$lib/components/shared/controls/Label.svelte';
-  import Select from '$lib/components/shared/controls/Select.svelte';
-  import { getAudioStore } from '$lib/stores/runes/audio.svelte';
-  import settings from '$lib/stores/settings';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import SimpleItem from '#lib/components/shared/content/SimpleItem.svelte';
+  import Checkbox from '#lib/components/shared/controls/Checkbox.svelte';
+  import Label from '#lib/components/shared/controls/Label.svelte';
+  import Select from '#lib/components/shared/controls/Select.svelte';
+  import { getAudioStore } from '#lib/stores/runes/audio.svelte.ts';
+  import settings from '#lib/stores/settings.ts';
 
   const audioStore = getAudioStore();
 

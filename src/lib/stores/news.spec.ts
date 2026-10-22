@@ -1,5 +1,5 @@
-import type { News } from '$lib/models/news';
-import type { Story } from '$lib/models/story';
+import type { News } from '#lib/models/news.ts';
+import type { Story } from '#lib/models/story.ts';
 import { get } from 'svelte/store';
 import { describe, expect, it } from 'vitest';
 import news from './news';

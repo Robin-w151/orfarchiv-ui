@@ -1,6 +1,6 @@
-import type { OANotification, OANotificationOptions } from '$lib/models/notifications';
-import { createSystemNotification } from '$lib/utils/notifications';
-import { uuid } from '$lib/utils/uuid';
+import type { OANotification, OANotificationOptions } from '#lib/models/notifications.ts';
+import { createSystemNotification } from '#lib/utils/notifications.ts';
+import { uuid } from '#lib/utils/uuid.ts';
 import { get, writable, type Readable } from 'svelte/store';
 
 export interface NotificationsStore extends Readable<Array<OANotification>> {

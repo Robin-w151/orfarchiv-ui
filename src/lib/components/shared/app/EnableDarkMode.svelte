@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/env';
-  import styles, { type ColorScheme } from '$lib/stores/styles';
+  import styles, { type ColorScheme } from '#lib/stores/styles.ts';
   import { onDestroy, onMount } from 'svelte';
 
   $effect(() => {

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Popover from '$lib/components/shared/content/Popover.svelte';
-  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
-  import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
+  import Popover from '#lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '#lib/components/shared/content/PopoverContent.svelte';
+  import TextGradient from '#lib/components/shared/content/TextGradient.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
   import { Tag } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

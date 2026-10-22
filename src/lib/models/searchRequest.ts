@@ -1,5 +1,5 @@
-import { isIsoDateTime } from '$lib/models/checks';
-import { PageKey } from '$lib/models/pageKey';
+import { isIsoDateTime } from '#lib/models/checks.ts';
+import { PageKey } from '#lib/models/pageKey.ts';
 import { Schema } from 'effect';
 
 export const DateFilter = Schema.Struct({

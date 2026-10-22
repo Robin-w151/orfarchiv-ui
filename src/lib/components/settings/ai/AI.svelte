@@ -1,16 +1,16 @@
 <script lang="ts">
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import SimpleItem from '$lib/components/shared/content/SimpleItem.svelte';
-  import Checkbox from '$lib/components/shared/controls/Checkbox.svelte';
-  import Input from '$lib/components/shared/controls/Input.svelte';
-  import Label from '$lib/components/shared/controls/Label.svelte';
-  import Link from '$lib/components/shared/controls/Link.svelte';
-  import Select from '$lib/components/shared/controls/Select.svelte';
-  import { AI_MODEL_CONFIG_MAP, AI_MODEL_DEFAULT } from '$lib/configs/client';
-  import { AiModel, AiModels } from '$lib/models/ai';
-  import settings from '$lib/stores/settings';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import SimpleItem from '#lib/components/shared/content/SimpleItem.svelte';
+  import Checkbox from '#lib/components/shared/controls/Checkbox.svelte';
+  import Input from '#lib/components/shared/controls/Input.svelte';
+  import Label from '#lib/components/shared/controls/Label.svelte';
+  import Link from '#lib/components/shared/controls/Link.svelte';
+  import Select from '#lib/components/shared/controls/Select.svelte';
+  import { AI_MODEL_CONFIG_MAP, AI_MODEL_DEFAULT } from '#lib/configs/client.ts';
+  import { AiModel, AiModels } from '#lib/models/ai.ts';
+  import settings from '#lib/stores/settings.ts';
   import { BookOpen, Key } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Schema } from 'effect';

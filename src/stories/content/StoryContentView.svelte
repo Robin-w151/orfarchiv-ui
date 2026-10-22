@@ -1,9 +1,9 @@
 <script lang="ts">
-  import NewsList from '$lib/components/news/NewsList.svelte';
-  import type { NewsBucket } from '$lib/models/news';
-  import type { Story, StoryContent as StoryContentModel } from '$lib/models/story';
-  import contentStore from '$lib/stores/content';
-  import settings from '$lib/stores/settings';
+  import NewsList from '#lib/components/news/NewsList.svelte';
+  import type { NewsBucket } from '#lib/models/news.ts';
+  import type { Story, StoryContent as StoryContentModel } from '#lib/models/story.ts';
+  import contentStore from '#lib/stores/content.ts';
+  import settings from '#lib/stores/settings.ts';
   import { onMount, tick } from 'svelte';
 
   interface Props {

@@ -1,6 +1,6 @@
-import { formatTags, ParseError } from '$lib/errors/errors';
-import { ChartData } from '$lib/models/charts';
-import { logger } from '$lib/utils/logger';
+import { formatTags, ParseError } from '#lib/errors/errors.ts';
+import { ChartData } from '#lib/models/charts.ts';
+import { logger } from '#lib/utils/logger.ts';
 import { Context, Effect, Layer, Schema } from 'effect';
 import { FetchService, type FetchServiceShape } from '../fetch';
 

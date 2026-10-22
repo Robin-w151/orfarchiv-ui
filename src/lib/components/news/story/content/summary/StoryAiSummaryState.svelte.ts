@@ -1,12 +1,12 @@
 import { browser } from '$app/env';
-import { STORY_SUMMARY_EXTENDED_WORD_LIMIT } from '$lib/configs/client';
-import type { AiServiceError } from '$lib/errors/errors';
-import { StorySummaryExtended, StorySummarySimple, type StoryContent, type StorySummary } from '$lib/models/story';
-import { AiService } from '$lib/services/ai/ai';
-import settings from '$lib/stores/settings';
-import { getContentText } from '$lib/utils/chapter';
-import { runEffect } from '$lib/utils/effectHelper';
-import { logger } from '$lib/utils/logger';
+import { STORY_SUMMARY_EXTENDED_WORD_LIMIT } from '#lib/configs/client.ts';
+import type { AiServiceError } from '#lib/errors/errors.ts';
+import { StorySummaryExtended, StorySummarySimple, type StoryContent, type StorySummary } from '#lib/models/story.ts';
+import { AiService } from '#lib/services/ai/ai.ts';
+import settings from '#lib/stores/settings.ts';
+import { getContentText } from '#lib/utils/chapter.ts';
+import { runEffect } from '#lib/utils/effectHelper.ts';
+import { logger } from '#lib/utils/logger.ts';
 import { Effect } from 'effect';
 import { get } from 'svelte/store';
 

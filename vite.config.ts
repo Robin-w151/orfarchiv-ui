@@ -1,13 +1,11 @@
+import { SvelteKitPWA } from '@katama-labs/vite-pwa-sveltekit';
 import adapterNode from '@sveltejs/adapter-node';
 import adapterVercel from '@sveltejs/adapter-vercel';
-import type { KitConfig } from '@sveltejs/kit';
-import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltekit, type Config } from '@sveltejs/kit/vite';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
-import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import dotenv from 'dotenv-flow';
 import { execSync } from 'node:child_process';
-import { resolve } from 'node:path';
 import Sonda from 'sonda/sveltekit';
 import { defineConfig } from 'vite';
 import cspConfig from './csp-config.js';
@@ -19,7 +17,7 @@ const useAdapterNode = process.env.USE_ADAPTER_NODE === 'true';
 const isCspDisabled = process.env.DISABLE_CSP === 'true';
 
 const adapter = useAdapterNode ? adapterNode() : adapterVercel();
-const csp = (isCspDisabled ? undefined : cspConfig) as KitConfig['csp'];
+const csp = (isCspDisabled ? undefined : cspConfig) as Config['csp'];
 
 export default defineConfig({
   define: {
@@ -33,15 +31,7 @@ export default defineConfig({
     sveltekit({
       preprocess: vitePreprocess(),
       adapter,
-      alias: {
-        $assets: resolve('./src/assets'),
-        $common: resolve('./src/lib/shared/common/src'),
-        $lib: resolve('./src/lib'),
-      },
       csp,
-      experimental: {
-        explicitEnvironmentVariables: true,
-      },
       compilerOptions: {
         experimental: {
           async: true,

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import StoryContent from '$lib/components/news/story/content/StoryContent.svelte';
-  import StoryHeader from '$lib/components/news/story/header/StoryHeader.svelte';
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import type { Story } from '$lib/models/story';
-  import { selectStory } from '$lib/stores/newsEvents';
-  import { AccessibleTransitionStore } from '$lib/stores/runes/accessibleTransition.svelte';
-  import { defaultPadding } from '$lib/utils/styles';
-  import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
-  import { rollDown } from '$lib/utils/transitions';
+  import StoryContent from '#lib/components/news/story/content/StoryContent.svelte';
+  import StoryHeader from '#lib/components/news/story/header/StoryHeader.svelte';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import type { Story } from '#lib/models/story.ts';
+  import { selectStory } from '#lib/stores/newsEvents.ts';
+  import { AccessibleTransitionStore } from '#lib/stores/runes/accessibleTransition.svelte.ts';
+  import { defaultPadding } from '#lib/utils/styles.ts';
+  import { unsubscribeAll, type Subscription } from '#lib/utils/subscriptions.ts';
+  import { rollDown } from '#lib/utils/transitions.ts';
   import { onDestroy, onMount, tick } from 'svelte';
 
   interface Props {

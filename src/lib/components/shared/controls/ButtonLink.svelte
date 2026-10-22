@@ -46,7 +46,7 @@
 
   function triggerPrefetchRoute(): void {
     if (prefetch) {
-      preloadData(href);
+      preloadData(href).catch(() => undefined);
     }
   }
 

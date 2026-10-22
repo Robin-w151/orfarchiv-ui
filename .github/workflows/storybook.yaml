@@ -27,6 +27,13 @@ jobs:
         run: aikido-npm ci --ignore-scripts
       - name: Build Storybook
         run: npm run storybook:build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test Storybook
+        run: |
+          python3 -m http.server -d storybook-static 6006 &
+          curl --silent --retry 10 --retry-connrefused --retry-delay 1 --output /dev/null http://localhost:6006/index.json
+          npm run storybook:smoke -- http://localhost:6006
       - name: Upload Storybook artifacts
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

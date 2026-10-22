@@ -1,12 +1,12 @@
 <script lang="ts">
-  import Popover from '$lib/components/shared/content/Popover.svelte';
-  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
-  import TextGradient from '$lib/components/shared/content/TextGradient.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import DatePicker from '$lib/components/shared/controls/DatePicker.svelte';
-  import Select from '$lib/components/shared/controls/Select.svelte';
-  import { SearchMatchMode } from '$lib/models/searchRequest';
-  import { getInfoStore } from '$lib/stores/runes/info.svelte';
+  import Popover from '#lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '#lib/components/shared/content/PopoverContent.svelte';
+  import TextGradient from '#lib/components/shared/content/TextGradient.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import DatePicker from '#lib/components/shared/controls/DatePicker.svelte';
+  import Select from '#lib/components/shared/controls/Select.svelte';
+  import { SearchMatchMode } from '#lib/models/searchRequest.ts';
+  import { getInfoStore } from '#lib/stores/runes/info.svelte.ts';
   import { Calendar, Funnel, MagnifyingGlass } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { Schema } from 'effect';

@@ -1,6 +1,6 @@
-import type { AppRouter } from '$lib/backend/trpc/router';
-import { DEFAULT_REQUEST_RETRIES, STORY_CONTENT_FETCH_RETRIES } from '$lib/configs/client';
-import { is4xxError } from '$lib/utils/http';
+import type { AppRouter } from '#lib/backend/trpc/router.ts';
+import { DEFAULT_REQUEST_RETRIES, STORY_CONTENT_FETCH_RETRIES } from '#lib/configs/client.ts';
+import { is4xxError } from '#lib/utils/http.ts';
 import {
   createTRPCClient,
   httpLink,

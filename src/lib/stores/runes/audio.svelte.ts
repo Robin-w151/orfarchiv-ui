@@ -1,8 +1,8 @@
 import { browser } from '$app/env';
-import type { Story, StoryContent, StoryContentChapter } from '$lib/models/story';
-import { getChapterTitle } from '$lib/utils/chapter';
-import { logger } from '$lib/utils/logger';
-import { isMediaSessionAvailable } from '$lib/utils/support';
+import type { Story, StoryContent, StoryContentChapter } from '#lib/models/story.ts';
+import { getChapterTitle } from '#lib/utils/chapter.ts';
+import { logger } from '#lib/utils/logger.ts';
+import { isMediaSessionAvailable } from '#lib/utils/support.ts';
 import EasySpeech from 'easy-speech';
 import { getContext, setContext } from 'svelte';
 import settings from '../settings';

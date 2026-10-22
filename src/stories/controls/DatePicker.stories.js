@@ -1,4 +1,4 @@
-import DatePickerComponent from '$lib/components/shared/controls/DatePicker.svelte';
+import DatePickerComponent from '#lib/components/shared/controls/DatePicker.svelte';
 import { Settings } from 'luxon';
 
 Settings.defaultLocale = 'de';

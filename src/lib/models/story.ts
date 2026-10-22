@@ -1,4 +1,4 @@
-import { isIsoDateTime, isUrl } from '$lib/models/checks';
+import { isIsoDateTime, isUrl } from '#lib/models/checks.ts';
 import { Schema } from 'effect';
 
 export const Story = Schema.Struct({

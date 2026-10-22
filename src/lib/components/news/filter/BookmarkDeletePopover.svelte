@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Popover from '$lib/components/shared/content/Popover.svelte';
-  import PopoverContent from '$lib/components/shared/content/PopoverContent.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { defaultMenuClass } from '$lib/utils/styles';
+  import Popover from '#lib/components/shared/content/Popover.svelte';
+  import PopoverContent from '#lib/components/shared/content/PopoverContent.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { defaultMenuClass } from '#lib/utils/styles.ts';
   import { Trash } from '@steeze-ui/heroicons';
   import { Icon } from '@steeze-ui/svelte-icon';
 

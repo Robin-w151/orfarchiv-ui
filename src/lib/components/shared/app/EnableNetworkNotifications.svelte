@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { NOTIFICATION_NETWORK_OFFLINE_WARNING } from '$lib/configs/client';
-  import notifications from '$lib/stores/notifications';
-  import { onlineStore } from '$lib/stores/svelte-legos/online';
-  import { logger } from '$lib/utils/logger';
+  import { NOTIFICATION_NETWORK_OFFLINE_WARNING } from '#lib/configs/client.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import { onlineStore } from '#lib/stores/svelte-legos/online.ts';
+  import { logger } from '#lib/utils/logger.ts';
 
   const online = onlineStore();
 

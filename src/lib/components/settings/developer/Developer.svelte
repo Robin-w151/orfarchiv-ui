@@ -1,11 +1,11 @@
 <script lang="ts">
   import { browser } from '$app/env';
-  import Item from '$lib/components/shared/content/Item.svelte';
-  import Section from '$lib/components/shared/content/Section.svelte';
-  import SectionList from '$lib/components/shared/content/SectionList.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
-  import { BOOKMARKS_STORE_NAME } from '$lib/configs/client';
-  import { humanReadableMemorySize } from '$lib/utils/formatting';
+  import Item from '#lib/components/shared/content/Item.svelte';
+  import Section from '#lib/components/shared/content/Section.svelte';
+  import SectionList from '#lib/components/shared/content/SectionList.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
+  import { BOOKMARKS_STORE_NAME } from '#lib/configs/client.ts';
+  import { humanReadableMemorySize } from '#lib/utils/formatting.ts';
   import { onMount } from 'svelte';
 
   let estimatedStorageUsage: number | undefined = $state(0);

@@ -1,14 +1,14 @@
-import type { Bookmarks } from '$lib/models/bookmarks';
-import type { News, NewsBucket, NewsOrdering } from '$lib/models/news';
-import type { Story, StoryContent } from '$lib/models/story';
+import type { Bookmarks } from '#lib/models/bookmarks.ts';
+import type { News, NewsBucket, NewsOrdering } from '#lib/models/news.ts';
+import type { Story, StoryContent } from '#lib/models/story.ts';
 import { DateTime } from 'luxon';
 import { derived, get, writable, type Readable } from 'svelte/store';
 import bookmarks from './bookmarks';
 import settings from './settings';
-import { NEWS_QUERY_PAGE_LIMIT } from '$lib/configs/shared';
-import { logger } from '$lib/utils/logger';
-import type { Request } from '$lib/models/request';
-import { NEWS_LOADING_OVERLAY_DELAY_IN_MS } from '$lib/configs/client';
+import { NEWS_QUERY_PAGE_LIMIT } from '#lib/configs/shared.ts';
+import { logger } from '#lib/utils/logger.ts';
+import type { Request } from '#lib/models/request.ts';
+import { NEWS_LOADING_OVERLAY_DELAY_IN_MS } from '#lib/configs/client.ts';
 
 let loadingTimeout: ReturnType<typeof setTimeout> | undefined;
 

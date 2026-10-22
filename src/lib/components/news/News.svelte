@@ -1,26 +1,26 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import { NewsApi } from '$lib/api/news';
-  import NewsFilter from '$lib/components/news/filter/NewsFilter.svelte';
-  import Content from '$lib/components/shared/content/Content.svelte';
-  import Button from '$lib/components/shared/controls/Button.svelte';
+  import { NewsApi } from '#lib/api/news.ts';
+  import NewsFilter from '#lib/components/news/filter/NewsFilter.svelte';
+  import Content from '#lib/components/shared/content/Content.svelte';
+  import Button from '#lib/components/shared/controls/Button.svelte';
   import {
     NEWS_CHECK_UPDATES_INITIAL_INTERVAL_IN_MS,
     NEWS_CHECK_UPDATES_INTERVAL_IN_MS,
     NOTIFICATION_NEWS_UPDATES_AVAILABLE,
-  } from '$lib/configs/client';
-  import { NewsApiError } from '$lib/errors/errors';
-  import type { News } from '$lib/models/news';
-  import type { SearchRequestParameters } from '$lib/models/searchRequest';
-  import type { Settings } from '$lib/models/settings';
-  import news from '$lib/stores/news';
-  import { loadMoreNews, refreshNews, selectStory } from '$lib/stores/newsEvents';
-  import notifications from '$lib/stores/notifications';
-  import searchFilter from '$lib/stores/searchFilter';
-  import searchRequestParameters from '$lib/stores/searchRequestParameters';
-  import settings from '$lib/stores/settings';
-  import { logger } from '$lib/utils/logger';
-  import { unsubscribeAll, type Subscription } from '$lib/utils/subscriptions';
+  } from '#lib/configs/client.ts';
+  import { NewsApiError } from '#lib/errors/errors.ts';
+  import type { News } from '#lib/models/news.ts';
+  import type { SearchRequestParameters } from '#lib/models/searchRequest.ts';
+  import type { Settings } from '#lib/models/settings.ts';
+  import news from '#lib/stores/news.ts';
+  import { loadMoreNews, refreshNews, selectStory } from '#lib/stores/newsEvents.ts';
+  import notifications from '#lib/stores/notifications.ts';
+  import searchFilter from '#lib/stores/searchFilter.ts';
+  import searchRequestParameters from '#lib/stores/searchRequestParameters.ts';
+  import settings from '#lib/stores/settings.ts';
+  import { logger } from '#lib/utils/logger.ts';
+  import { unsubscribeAll, type Subscription } from '#lib/utils/subscriptions.ts';
   import {
     BehaviorSubject,
     combineLatestWith,
@@ -243,7 +243,7 @@
       message="Gehen Sie zu den Einstellungen und aktivieren Sie mindestens eine Quelle um Nachrichten zu sehen."
     >
       {#snippet actionsContent()}
-        <ButtonLink class="w-max" href={resolve('/settings')}>Zu den Einstellungen</ButtonLink>
+        <ButtonLink class="w-max" href={resolve('settings')}>Zu den Einstellungen</ButtonLink>
       {/snippet}
     </AlertBox>
   {:else if showNewsList}

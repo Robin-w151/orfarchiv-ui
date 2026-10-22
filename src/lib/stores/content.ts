@@ -1,4 +1,4 @@
-import type { StoryContent } from '$lib/models/story';
+import type { StoryContent } from '#lib/models/story.ts';
 import { LRUCache } from 'lru-cache';
 import { writable, type Readable } from 'svelte/store';
 

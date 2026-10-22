@@ -1,9 +1,9 @@
-import type { Target } from '$common/targets/targets';
-import { DatabaseService, type DatabaseServiceShape } from '$lib/backend/db/database';
-import { logger } from '$lib/configs/server';
-import { SearchError } from '$lib/errors/errors';
-import type { SemanticSearchRequestParameters } from '$lib/models/searchRequest';
-import type { StoryEntity } from '$lib/models/story';
+import type { Target } from '#common/targets/targets.ts';
+import { DatabaseService, type DatabaseServiceShape } from '#lib/backend/db/database.ts';
+import { logger } from '#lib/configs/server.ts';
+import { SearchError } from '#lib/errors/errors.ts';
+import type { SemanticSearchRequestParameters } from '#lib/models/searchRequest.ts';
+import type { StoryEntity } from '#lib/models/story.ts';
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 import { Binary, type Collection } from 'mongodb';
@@ -19,8 +19,8 @@ vi.mock('$app/env/private', () => ({
   },
 }));
 
-vi.mock('$lib/configs/server', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('$lib/configs/server')>()),
+vi.mock('#lib/configs/server.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('#lib/configs/server.ts')>()),
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 

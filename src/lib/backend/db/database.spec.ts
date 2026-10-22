@@ -1,10 +1,10 @@
-import { logger } from '$lib/configs/server';
-import { DatabaseConfigError, SearchError } from '$lib/errors/errors';
+import { logger } from '#lib/configs/server.ts';
+import { DatabaseConfigError, SearchError } from '#lib/errors/errors.ts';
 import { it } from '@effect/vitest';
 import { Effect, Exit, Fiber, Scope } from 'effect';
 import { TestClock } from 'effect/testing';
 import { beforeEach, describe, expect, vi } from 'vitest';
-import type { Target } from '$common/targets/targets';
+import type { Target } from '#common/targets/targets.ts';
 import { DatabaseService, type DatabaseServiceShape } from './database';
 
 interface FakeServer {
@@ -39,8 +39,8 @@ vi.mock('$app/env/private', () => ({
   },
 }));
 
-vi.mock('$lib/configs/server', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('$lib/configs/server')>()),
+vi.mock('#lib/configs/server.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('#lib/configs/server.ts')>()),
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 

@@ -1,5 +1,5 @@
-import type { Story } from '$lib/models/story';
-import type { Subscribable } from '$lib/utils/subscriptions';
+import type { Story } from '#lib/models/story.ts';
+import type { Subscribable } from '#lib/utils/subscriptions.ts';
 import { type Observable, Subject, filter, map, type NextObserver } from 'rxjs';
 
 export interface EventsStore extends Subscribable<void> {
