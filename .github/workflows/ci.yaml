@@ -44,6 +44,33 @@ jobs:
             git diff
             exit 1
           fi
+  storybook:
+    name: storybook
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+      - name: Setup Aikido safe-chain
+        run: npm i -g @aikidosec/safe-chain
+      - name: Install dependencies
+        run: aikido-npm ci --ignore-scripts
+      - name: Build Storybook
+        run: npm run storybook:build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test Storybook
+        run: |
+          python3 -m http.server -d storybook-static 6006 &
+          curl --silent --retry 10 --retry-connrefused --retry-delay 1 --output /dev/null http://localhost:6006/index.json
+          npm run storybook:smoke -- http://localhost:6006
   release:
     name: release
     runs-on: ubuntu-latest

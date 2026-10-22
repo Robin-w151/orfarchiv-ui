@@ -1,4 +1,5 @@
 import InputComponent from '#lib/components/shared/controls/Input.svelte';
+import { fn } from 'storybook/test';
 
 const args = {
   id: 'input',
@@ -6,6 +7,7 @@ const args = {
   tag: '',
   placeholder: 'Enter text here',
   shortcutKeys: ['Ctrl', 'K'],
+  onValueChange: fn(),
 };
 
 export default {
