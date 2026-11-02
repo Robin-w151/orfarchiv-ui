@@ -249,12 +249,6 @@ function failWithStatus(response: HttpClientResponse.HttpClientResponse): Effect
 
 function toHttpContext(response: HttpClientResponse.HttpClientResponse): typeof AiError.HttpContext.Type {
   return {
-    request: {
-      method: response.request.method,
-      url: response.request.url,
-      urlParams: [...response.request.urlParams],
-      headers: {},
-    },
     response: {
       status: response.status,
       headers: {},
