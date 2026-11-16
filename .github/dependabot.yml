@@ -4,8 +4,7 @@ updates:
     directory: '/'
     target-branch: develop
     schedule:
-      interval: 'weekly'
-      day: 'monday'
+      interval: 'monthly'
       time: '02:00'
       timezone: 'Europe/Vienna'
     cooldown:
