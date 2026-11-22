@@ -9,6 +9,7 @@ export const BOOKMARKS_STORE_NAME = 'bookmarks';
 // LocalStorage
 export const SETTINGS_STORE_NAME = 'settings';
 export const STYLES_STORE_NAME = 'styles';
+export const SYNC_STORE_NAME = 'sync';
 
 // DateTime
 export const DATETIME_FORMAT = 'dd.MM.yyyy, HH:mm';
@@ -44,6 +45,14 @@ export const PAN_DISTANCE = 50;
 
 // StoryAiSummary
 export const STORY_SUMMARY_EXTENDED_WORD_LIMIT = 600;
+
+// Sync
+export const SYNC_HKDF_INFO = Object.freeze({
+  room: 'orfarchiv-sync/room/v1',
+  key: 'orfarchiv-sync/key/v1',
+} as const);
+export const SYNC_DEVICE_NAME_MAX_LENGTH = 40;
+export const SYNC_DEVICE_NAME_FALLBACK = 'Gerät';
 
 // AI
 export const AI_MODEL_DEFAULT = 'gemini-3.5-flash-lite' satisfies AiModel;

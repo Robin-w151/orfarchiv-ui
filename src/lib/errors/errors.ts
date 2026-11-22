@@ -80,3 +80,18 @@ export class EmbeddingError extends Data.TaggedError('EmbeddingError')<{
   type: EmbeddingErrorType;
   cause?: unknown;
 }> {}
+
+// Sync
+export class InvalidSyncSecretError extends Data.TaggedError('InvalidSyncSecretError')<{
+  message: string;
+}> {}
+export const SyncDecryptErrorReasons = Object.freeze({
+  invalidEncoding: 'invalid-encoding',
+  tooShort: 'too-short',
+  authenticationFailed: 'authentication-failed',
+} as const);
+export type SyncDecryptErrorReason = (typeof SyncDecryptErrorReasons)[keyof typeof SyncDecryptErrorReasons];
+export class SyncDecryptError extends Data.TaggedError('SyncDecryptError')<{
+  reason: SyncDecryptErrorReason;
+  cause?: unknown;
+}> {}
